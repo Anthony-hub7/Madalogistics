@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Confirmation d'Invitation - MadaLogistics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffddb8",
+                        "outline": "#747684",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary-fixed": "#00174b",
+                        "outline-variant": "#c4c6d5",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary": "#563400",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#00714d",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#754900",
+                        "on-tertiary-container": "#ffb95f",
+                        "inverse-primary": "#b4c5ff",
+                        "on-surface-variant": "#434653",
+                        "surface-container": "#e5eeff",
+                        "surface-tint": "#2f58be",
+                        "inverse-surface": "#213145",
+                        "primary": "#00348f",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "primary-container": "#1e4bb1",
+                        "on-primary-container": "#b3c4ff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "primary-fixed": "#dbe1ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary-fixed-variant": "#063ea5",
+                        "secondary-container": "#6cf8bb",
+                        "on-surface": "#0b1c30",
+                        "surface": "#f8f9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "background": "#f8f9ff",
+                        "secondary": "#006c49",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary-fixed": "#002113"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "0.5rem",
+                        "xl": "2.5rem",
+                        "xs": "0.25rem",
+                        "margin-desktop": "2rem",
+                        "lg": "1.5rem",
+                        "md": "1rem",
+                        "gutter": "1.5rem",
+                        "base": "4px",
+                        "margin-mobile": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Hanken Grotesk', sans-serif; }
+        .success-checkmark-bounce {
+            animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Sidebar (Shared Component) -->
+<aside class="fixed left-0 top-0 bottom-0 flex flex-col py-6 docked h-screen w-[280px] bg-surface border-r border-outline-variant z-10">
+<div class="px-6 mb-8">
+<h1 class="text-headline-md font-headline-md font-bold text-primary">MadaLogistics</h1>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Gestion Stratégique</p>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-label-md font-label-md">Tableau de bord</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="text-label-md font-label-md">Expéditions</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="conveyor_belt">conveyor_belt</span>
+<span class="text-label-md font-label-md">Flotte</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="text-label-md font-label-md">Entrepôts</span>
+</div>
+<!-- ACTIVE: Équipe / Clients -->
+<div class="bg-secondary-container text-on-secondary-container rounded-lg mx-2 px-4 py-3 flex items-center gap-3 scale-[0.98] transition-transform">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="text-label-md font-label-md">Équipe</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-label-md font-label-md">Paramètres</span>
+</div>
+</nav>
+<div class="mt-auto px-2 space-y-1">
+<div class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg px-4 py-3 flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="text-label-md font-label-md">Aide</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg px-4 py-3 flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="text-label-md font-label-md">Déconnexion</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area with Blur Overlay -->
+<main class="ml-[280px] min-h-screen relative overflow-hidden">
+<!-- Top Navigation (Shared Component) -->
+<header class="flex flex-col w-full px-8 pt-4 pb-0 bg-surface border-b border-outline-variant">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-headline-md font-headline-md font-bold text-primary">Tableau de bord stratégique</h2>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 hover:bg-surface-container rounded-full text-on-surface-variant">notifications</button>
+<button class="material-symbols-outlined p-2 hover:bg-surface-container rounded-full text-on-surface-variant">calendar_month</button>
+<button class="material-symbols-outlined p-2 hover:bg-surface-container rounded-full text-on-surface-variant">filter_alt</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of an African logistics manager in a modern office, soft high-key lighting, sharp focus on eyes, wearing a tailored navy suit. The background is a blurred high-end logistics control room with glowing blue screens and maps, reflecting the MadaLogistics brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnqWVy6oV0P2XCdM7Mk3oMLOLr3DHvy-6XJV2LgSN2A_gAFoohOZ1JAP-oyVvHc3lnWqXikrl--Prr0ry7flTH58KhVuhNylP6ZiRghWl-ZoKWWaX3ZjdtVwq0Ce0DCTG8Pu8NZSa2D3wDjm1GwLM9h1YUGr9jp1-lxFLotyX8zHKlBWesrDTOElgevcf_SLWXhuUQWwcyNTrwlLxnLJ_qQoy_wDBv6grFQSZLs_xzG035jCvJxdZSCA"/>
+</div>
+</div>
+</div>
+<nav class="flex gap-8">
+<a class="text-on-surface-variant hover:text-on-surface pb-2 text-label-md font-label-md transition-all" href="#">Vue d'ensemble</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-2 text-label-md font-label-md transition-all" href="#">Chiffre d'affaires</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-2 text-label-md font-label-md transition-all" href="#">Performance</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-2 text-label-md font-label-md transition-all" href="#">Décisions &amp; Optimisation</a>
+<a class="text-primary border-b-2 border-primary pb-2 font-bold text-label-md font-label-md" href="#">Équipe</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-2 text-label-md font-label-md transition-all" href="#">Audit</a>
+</nav>
+</header>
+<!-- Blurred Background Content (Simulating the 'Team' view) -->
+<div class="p-8 opacity-40 select-none pointer-events-none">
+<div class="flex justify-between items-center mb-6">
+<div>
+<h3 class="text-headline-lg font-headline-lg text-on-surface">Gestion de l'Équipe</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">Gérez les accès et les rôles de vos collaborateurs.</p>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined">person_add</span>
+                    Inviter un membre
+                </button>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="px-6 py-4 text-label-sm font-label-sm uppercase tracking-wider text-on-surface-variant">Membre</th>
+<th class="px-6 py-4 text-label-sm font-label-sm uppercase tracking-wider text-on-surface-variant">Rôle</th>
+<th class="px-6 py-4 text-label-sm font-label-sm uppercase tracking-wider text-on-surface-variant">Statut</th>
+<th class="px-6 py-4 text-label-sm font-label-sm uppercase tracking-wider text-on-surface-variant">Dernière activité</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container text-xs font-bold">JD</div>
+<div>
+<div class="text-body-sm font-semibold">Jean Dupont</div>
+<div class="text-xs text-on-surface-variant">j.dupont@madalogistics.mg</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-body-sm">Administrateur</td>
+<td class="px-6 py-4"><span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-xs font-medium rounded">Actif</span></td>
+<td class="px-6 py-4 text-body-sm text-on-surface-variant">Il y a 2h</td>
+</tr>
+<tr>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant text-xs font-bold">MR</div>
+<div>
+<div class="text-body-sm font-semibold">Marie Rakoto</div>
+<div class="text-xs text-on-surface-variant">m.rakoto@madalogistics.mg</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-body-sm">Analyste</td>
+<td class="px-6 py-4"><span class="px-2 py-1 bg-[#FFF7ED] text-[#F97316] text-xs font-medium rounded border border-[#FDBA74]">En attente</span></td>
+<td class="px-6 py-4 text-body-sm text-on-surface-variant">---</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- MODAL OVERLAY -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm px-4">
+<!-- Modal Card -->
+<div class="bg-surface-container-lowest w-full max-w-md rounded-xl border border-outline-variant shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden transform transition-all">
+<div class="p-10 flex flex-col items-center text-center">
+<!-- Success Icon -->
+<div class="success-checkmark-bounce w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-[48px] text-[#16A34A]" style="font-variation-settings: 'wght' 600;">check_circle</span>
+</div>
+<!-- Heading -->
+<h3 class="text-headline-md font-headline-md text-on-surface mb-3">Invitation envoyée avec succès</h3>
+<!-- Content -->
+<p class="text-body-md font-body-md text-on-surface-variant leading-relaxed mb-6">
+                        Un e-mail d'activation a été envoyé à l'adresse indiquée. L'utilisateur est désormais listé dans votre tableau avec le statut :
+                    </p>
+<!-- Status Badge Reference -->
+<div class="inline-flex items-center px-4 py-2 bg-[#FFF7ED] text-[#F97316] text-label-md font-semibold rounded-lg border border-[#FDBA74] mb-8">
+<span class="w-2 h-2 rounded-full bg-[#F97316] mr-2"></span>
+                        En attente
+                    </div>
+<!-- Action Button -->
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-3.5 rounded-lg hover:bg-primary-container transition-all active:scale-[0.98] shadow-sm" onclick="window.location.reload()">
+                        Retour à l'équipe
+                    </button>
+<!-- Secondary Action / Dismiss -->
+<button class="mt-4 text-on-surface-variant hover:text-on-surface text-label-md font-medium transition-colors" onclick="window.location.reload()">
+                        Fermer
+                    </button>
+</div>
+<!-- Decorative Progress Bar (Subtle) -->
+<div class="h-1.5 w-full bg-surface-container">
+<div class="h-full bg-[#16A34A] w-full origin-left animate-[grow_1s_ease-out]"></div>
+</div>
+</div>
+</div>
+</main>
+<style>
+        @keyframes grow {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+    </style>
+<script>
+        // Simple micro-interaction for the primary button
+        document.querySelector('button').addEventListener('click', (e) => {
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            // Logic for ripple effect could be added here if needed, 
+            // but keeping it minimalist as requested.
+        });
+    </script>
+</body></html>

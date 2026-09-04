@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Antsa Logistics - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#434653",
+                    "on-error": "#ffffff",
+                    "secondary-container": "#6cf8bb",
+                    "on-primary-container": "#b3c4ff",
+                    "tertiary": "#563400",
+                    "surface-variant": "#d3e4fe",
+                    "background": "#f8f9ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-secondary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface-bright": "#f8f9ff",
+                    "surface-container-high": "#dce9ff",
+                    "surface-tint": "#2f58be",
+                    "inverse-surface": "#213145",
+                    "surface-container-highest": "#d3e4fe",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#00174b",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "outline": "#747684",
+                    "on-surface": "#0b1c30",
+                    "surface-dim": "#cbdbf5",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-container": "#e5eeff",
+                    "secondary": "#006c49",
+                    "secondary-fixed-dim": "#4edea3",
+                    "surface-container-low": "#eff4ff",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#754900",
+                    "on-tertiary-container": "#ffb95f",
+                    "on-secondary-fixed": "#002113",
+                    "surface": "#f8f9ff",
+                    "primary": "#00348f",
+                    "outline-variant": "#c4c6d5",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "primary-container": "#1e4bb1",
+                    "on-background": "#0b1c30",
+                    "secondary-fixed": "#6ffbbe",
+                    "inverse-primary": "#b4c5ff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-secondary-container": "#00714d",
+                    "tertiary-fixed": "#ffddb8",
+                    "primary-fixed": "#dbe1ff",
+                    "surface-container-lowest": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "1rem",
+                    "lg": "1.5rem",
+                    "gutter": "1.5rem",
+                    "sm": "0.5rem",
+                    "margin-desktop": "2rem",
+                    "xs": "0.25rem",
+                    "margin-mobile": "1rem",
+                    "base": "4px",
+                    "xl": "2.5rem"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Hanken Grotesk"],
+                    "label-md": ["Geist"],
+                    "body-md": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "label-sm": ["Geist"],
+                    "body-sm": ["Hanken Grotesk"],
+                    "headline-xl": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 bg-surface flex flex-col py-md px-sm border-r border-outline-variant z-50">
+<div class="flex items-center gap-sm px-md mb-xl">
+<img alt="Antsa Logo" class="w-10 h-10 object-contain rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAL-jaocsTJi6FE8J3akz7RooiztGnKnC3ItzSKENJ6BV2rKAVbK3CJ8us2--vsDun3KyD3XYACznPpGe3ukJkafNBPxPdLOFGHMRJYqeIBekeURAvLTS_ijyTMHxtIPx6aYmvfz2qYZvRsxhAY2dy23ha1iq3IMW_JFmlqhVYbW2AgswWyWHztn3Gjn_Hrokx7QIvLR_OEzr3iUo8Ovs8aVjQwYmb5eTv1wxjXqCu7D7b9iVsDU2zdDyAO0N6Ka5PDkUM"/>
+<div>
+<h1 class="text-headline-md font-headline-md font-black text-primary">Antsa Logistics</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">SME Workspace</p>
+</div>
+</div>
+<nav class="flex-1 space-y-xs overflow-y-auto hide-scrollbar">
+<!-- Active: Dashboard -->
+<a class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container rounded-lg font-bold scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-label-md font-label-md">Planning</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="text-label-md font-label-md">Fleet</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">auto_graph</span>
+<span class="text-label-md font-label-md">Optimization</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="text-label-md font-label-md">Map</span>
+</a>
+</nav>
+<div class="mt-auto space-y-xs pt-md border-t border-outline-variant">
+<div class="bg-primary-fixed p-md rounded-xl mb-md">
+<p class="text-label-sm font-label-sm text-on-primary-fixed mb-xs">Besoin de plus?</p>
+<button class="w-full bg-primary text-on-primary text-label-md font-label-md py-sm rounded-lg hover:opacity-90 transition-opacity">Upgrade Plan</button>
+</div>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">support_agent</span>
+<span class="text-label-md font-label-md">Support</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-label-md font-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-[280px] flex-1 flex flex-col">
+<!-- TopNavBar -->
+<header class="w-full h-16 sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center px-lg">
+<div class="flex items-center gap-lg flex-1">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-xl pr-md py-xs bg-surface-container-low border-none rounded-full text-label-md focus:ring-2 focus:ring-primary" placeholder="Rechercher..." type="text"/>
+</div>
+<nav class="hidden lg:flex items-center gap-lg">
+<a class="text-label-md font-label-md text-primary border-b-2 border-primary pb-1" href="#">Dashboard</a>
+<a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Planning</a>
+<a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Fleet</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="bg-primary text-on-primary px-lg py-sm rounded-full text-label-md font-label-md hover:opacity-90 transition-all">Create Shipment</button>
+<div class="flex gap-sm">
+<button class="p-xs text-on-surface-variant hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">settings</span></button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">help</span></button>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary-fixed overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a logistics manager in a bright office environment, smiling confidently. Soft natural lighting, high resolution, corporate aesthetic with a subtle blue color palette consistent with Antsa Logistics branding." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTKP9Y6pD7QBbzoxWbASgZQLKxFKdvjaC_JLs_6Ss7uY5aVFydJue_jqrLD17tuxCJZd1oUy4PtQ5hBgW3DogsFZiqqDMlEeSAXx3byZIsBySte_SmQ3SJl3ir6t9ORnARBGK54Raxebm9SlHxLWRwM7UI3itT3gjkHutqp8O0v0dkQAItR_1h8bFsMVJ4FG1IZvVM_LI-voevTkmiKp5U1EVbh4AH5UtXtH41Xu1ceoogfFfZAyUELg"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Body -->
+<div class="p-lg space-y-lg max-w-[1600px] mx-auto w-full">
+<!-- Header Title -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Tableau de bord</h2>
+<p class="text-body-md text-on-surface-variant">Vue d'ensemble de vos opérations logistiques aujourd'hui.</p>
+</div>
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-md py-sm bg-surface-container-highest rounded-lg text-label-md font-label-md text-on-surface hover:opacity-80 transition-all">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> Filtrer
+                    </button>
+<button class="flex items-center gap-xs px-md py-sm bg-surface-container-highest rounded-lg text-label-md font-label-md text-on-surface hover:opacity-80 transition-all">
+<span class="material-symbols-outlined text-[18px]">download</span> Exporter
+                    </button>
+</div>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<div class="p-sm bg-primary-fixed-dim rounded-lg text-primary">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<span class="text-secondary font-bold text-label-sm">+12%</span>
+</div>
+<p class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Livraisons aujourd'hui</p>
+<p class="text-headline-md font-headline-md text-on-surface mt-xs">142</p>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<div class="p-sm bg-secondary-container rounded-lg text-on-secondary-container">
+<span class="material-symbols-outlined">verified</span>
+</div>
+<span class="text-on-surface-variant text-label-sm">85%</span>
+</div>
+<p class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Véhicules disponibles</p>
+<p class="text-headline-md font-headline-md text-on-surface mt-xs">28 / 34</p>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<div class="p-sm bg-tertiary-fixed rounded-lg text-tertiary-container">
+<span class="material-symbols-outlined">pending_actions</span>
+</div>
+<span class="text-error font-bold text-label-sm">+4 urgent</span>
+</div>
+<p class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Commandes en attente</p>
+<p class="text-headline-md font-headline-md text-on-surface mt-xs">12</p>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<div class="p-sm bg-surface-container-highest rounded-lg text-primary">
+<span class="material-symbols-outlined">inventory_2</span>
+</div>
+<span class="text-secondary font-bold text-label-sm">Optimal</span>
+</div>
+<p class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Taux moyen de remplissage</p>
+<p class="text-headline-md font-headline-md text-on-surface mt-xs">92%</p>
+</div>
+<!-- Card 5 -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start mb-md">
+<div class="p-sm bg-error-container rounded-lg text-error">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="text-on-surface-variant text-label-sm">Moy: 4.2k€</span>
+</div>
+<p class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Coût estimé (Daily)</p>
+<p class="text-headline-md font-headline-md text-on-surface mt-xs">3.850 €</p>
+</div>
+</div>
+<!-- Charts Row -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-lg">
+<!-- Chart 1: Bar Chart Simulation -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant">
+<div class="flex justify-between items-center mb-xl">
+<h3 class="text-headline-md font-headline-md text-on-surface">Livraisons par jour</h3>
+<select class="bg-transparent border-none text-label-md font-label-md text-on-surface-variant focus:ring-0">
+<option>7 derniers jours</option>
+<option>30 derniers jours</option>
+</select>
+</div>
+<div class="h-64 flex items-end justify-between gap-sm px-md">
+<div class="flex-1 bg-surface-container rounded-t-lg group relative h-[40%] hover:bg-primary transition-colors">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 text-label-sm opacity-0 group-hover:opacity-100 transition-opacity">42</span>
+</div>
+<div class="flex-1 bg-surface-container rounded-t-lg group relative h-[65%] hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-surface-container rounded-t-lg group relative h-[50%] hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-primary rounded-t-lg group relative h-[85%] hover:bg-primary/90 transition-colors">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 text-label-sm font-bold">142</span>
+</div>
+<div class="flex-1 bg-surface-container rounded-t-lg group relative h-[60%] hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-surface-container rounded-t-lg group relative h-[75%] hover:bg-primary transition-colors"></div>
+<div class="flex-1 bg-surface-container rounded-t-lg group relative h-[55%] hover:bg-primary transition-colors"></div>
+</div>
+<div class="flex justify-between mt-md px-md text-label-sm text-on-surface-variant">
+<span>Lun</span><span>Mar</span><span>Mer</span><span class="text-primary font-bold">Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+</div>
+</div>
+<!-- Chart 2: Area Chart Simulation -->
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant">
+<div class="flex justify-between items-center mb-xl">
+<h3 class="text-headline-md font-headline-md text-on-surface">Taux d'utilisation de la flotte</h3>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-label-sm">Réel</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-3 h-3 rounded-full bg-outline-variant"></span>
+<span class="text-label-sm">Objectif</span>
+</div>
+</div>
+</div>
+<div class="h-64 relative overflow-hidden bg-surface-container-low rounded-lg">
+<!-- Simulated SVG Graph Path -->
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 400 100">
+<path d="M0,80 L50,75 L100,60 L150,65 L200,40 L250,30 L300,45 L350,20 L400,25 V100 H0 Z" fill="rgba(30, 75, 177, 0.1)"></path>
+<path d="M0,80 L50,75 L100,60 L150,65 L200,40 L250,30 L300,45 L350,20 L400,25" fill="none" stroke="#00348f" stroke-width="2"></path>
+<line stroke="#c4c6d5" stroke-dasharray="4" x1="0" x2="400" y1="50" y2="50"></line>
+</svg>
+<div class="absolute inset-0 p-md flex flex-col justify-between pointer-events-none">
+<span class="text-label-sm text-on-surface-variant">100%</span>
+<span class="text-label-sm text-on-surface-variant">50%</span>
+<span class="text-label-sm text-on-surface-variant">0%</span>
+</div>
+</div>
+<p class="mt-md text-center text-label-md text-on-surface-variant">Utilisation moyenne ce mois-ci : <span class="font-bold text-primary">82.4%</span></p>
+</div>
+</div>
+<!-- Row 2 Table -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden">
+<div class="px-lg py-md border-b border-outline-variant flex justify-between items-center">
+<h3 class="text-headline-md font-headline-md text-on-surface">Dernières commandes</h3>
+<button class="text-primary text-label-md font-label-md hover:underline">Voir tout</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-lg py-md text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">ID Commande</th>
+<th class="px-lg py-md text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Destination</th>
+<th class="px-lg py-md text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Statut</th>
+<th class="px-lg py-md text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Priorité</th>
+<th class="px-lg py-md text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Véhicule</th>
+<th class="px-lg py-md text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-lg py-md font-label-md text-on-surface">#ANT-9402</td>
+<td class="px-lg py-md text-body-sm text-on-surface">Antananarivo (Analakely)</td>
+<td class="px-lg py-md">
+<span class="px-sm py-1 rounded-full bg-secondary-container text-on-secondary-container text-label-sm font-label-sm">En route</span>
+</td>
+<td class="px-lg py-md">
+<span class="flex items-center gap-xs text-label-md text-error font-bold">
+<span class="material-symbols-outlined text-[16px]">priority_high</span> Élevée
+                                    </span>
+</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">V-012 (Actros)</td>
+<td class="px-lg py-md">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-lg py-md font-label-md text-on-surface">#ANT-9398</td>
+<td class="px-lg py-md text-body-sm text-on-surface">Toamasina (Port)</td>
+<td class="px-lg py-md">
+<span class="px-sm py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-label-sm font-label-sm">Chargement</span>
+</td>
+<td class="px-lg py-md">
+<span class="flex items-center gap-xs text-label-md text-on-surface-variant">
+                                        Moyenne
+                                    </span>
+</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">V-045 (Isuzu)</td>
+<td class="px-lg py-md">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-lg py-md font-label-md text-on-surface">#ANT-9395</td>
+<td class="px-lg py-md text-body-sm text-on-surface">Antsirabe (Centre)</td>
+<td class="px-lg py-md">
+<span class="px-sm py-1 rounded-full bg-secondary-container text-on-secondary-container text-label-sm font-label-sm">En route</span>
+</td>
+<td class="px-lg py-md">
+<span class="flex items-center gap-xs text-label-md text-tertiary-container font-bold">
+                                        Normale
+                                    </span>
+</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">V-022 (Scania)</td>
+<td class="px-lg py-md">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-lg py-md font-label-md text-on-surface">#ANT-9391</td>
+<td class="px-lg py-md text-body-sm text-on-surface">Mahajanga</td>
+<td class="px-lg py-md">
+<span class="px-sm py-1 rounded-full bg-error-container text-error text-label-sm font-label-sm">Retardé</span>
+</td>
+<td class="px-lg py-md">
+<span class="flex items-center gap-xs text-label-md text-error font-bold">
+<span class="material-symbols-outlined text-[16px]">priority_high</span> Critique
+                                    </span>
+</td>
+<td class="px-lg py-md text-body-sm text-on-surface-variant">V-009 (Man)</td>
+<td class="px-lg py-md">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB for Top Level Dashboard -->
+<button class="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-xl shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-50 group">
+<span class="material-symbols-outlined">add</span>
+<span class="absolute right-full mr-md bg-inverse-surface text-inverse-on-surface text-label-sm px-sm py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Nouveau transport</span>
+</button>
+<script>
+        // Simple micro-interaction for stats cards
+        document.querySelectorAll('.grid > div').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('shadow-md');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('shadow-md');
+            });
+        });
+    </script>
+</body></html>

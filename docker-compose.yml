@@ -1,0 +1,87 @@
+name: madalogistics
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: madalogistics-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-madalogistics}
+      POSTGRES_USER: ${DB_USER:-madalogistics}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-madalogistics}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-madalogistics} -d ${DB_NAME:-madalogistics}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - madalogistics-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: madalogistics-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - madalogistics-net
+
+  backend:
+    build:
+      context: ./Backend
+    container_name: madalogistics-backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-madalogistics}
+      DB_USER: ${DB_USER:-madalogistics}
+      DB_PASSWORD: ${DB_PASSWORD:-madalogistics}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be defined in .env}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-900000}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    ports:
+      - "${BACKEND_PORT:-8081}:8080"
+    networks:
+      - madalogistics-net
+
+  web:
+    build:
+      context: ./Frontend
+    container_name: madalogistics-web
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    networks:
+      - madalogistics-net
+
+volumes:
+  postgres_data:
+
+networks:
+  madalogistics-net:
+    driver: bridge

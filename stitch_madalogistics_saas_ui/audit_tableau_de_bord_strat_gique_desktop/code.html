@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics - Audit Stratégique</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Hanken+Grotesk', sans-serif;
+            background-color: #f8f9ff;
+        }
+        .sidebar-active {
+            transition: transform 0.2s ease;
+        }
+        .sidebar-active:active {
+            transform: scale(0.98);
+        }
+        /* Custom scrollbar for data tables */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c4c6d5;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #747684;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#6cf8bb",
+                      "surface-container": "#e5eeff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-error": "#ffffff",
+                      "on-tertiary-container": "#ffb95f",
+                      "on-error-container": "#93000a",
+                      "outline-variant": "#c4c6d5",
+                      "on-background": "#0b1c30",
+                      "tertiary": "#563400",
+                      "secondary": "#006c49",
+                      "background": "#f8f9ff",
+                      "on-secondary-fixed-variant": "#005236",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-secondary": "#ffffff",
+                      "outline": "#747684",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-highest": "#d3e4fe",
+                      "inverse-primary": "#b4c5ff",
+                      "on-primary-container": "#b3c4ff",
+                      "primary-container": "#1e4bb1",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed": "#6ffbbe",
+                      "on-primary-fixed-variant": "#063ea5",
+                      "surface-variant": "#d3e4fe",
+                      "primary": "#00348f",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "on-secondary-container": "#00714d",
+                      "inverse-surface": "#213145",
+                      "surface-bright": "#f8f9ff",
+                      "on-surface-variant": "#434653",
+                      "surface-container-low": "#eff4ff",
+                      "on-secondary-fixed": "#002113",
+                      "primary-fixed": "#dbe1ff",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#ffddb8",
+                      "surface-tint": "#2f58be",
+                      "surface-dim": "#cbdbf5",
+                      "surface-container-high": "#dce9ff",
+                      "secondary-fixed-dim": "#4edea3",
+                      "error": "#ba1a1a",
+                      "surface": "#f8f9ff",
+                      "on-surface": "#0b1c30",
+                      "tertiary-container": "#754900",
+                      "on-primary-fixed": "#00174b"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "4px",
+                      "xl": "2.5rem",
+                      "sm": "0.5rem",
+                      "lg": "1.5rem",
+                      "xs": "0.25rem",
+                      "margin-desktop": "2rem",
+                      "margin-mobile": "1rem",
+                      "gutter": "1.5rem",
+                      "md": "1rem"
+              },
+              "fontFamily": {
+                      "label-sm": ["Geist"],
+                      "body-sm": ["Hanken Grotesk"],
+                      "headline-lg": ["Hanken Grotesk"],
+                      "headline-xl": ["Hanken Grotesk"],
+                      "body-md": ["Hanken Grotesk"],
+                      "body-lg": ["Hanken Grotesk"],
+                      "headline-md": ["Hanken Grotesk"],
+                      "label-md": ["Geist"]
+              },
+              "fontSize": {
+                      "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar Shell (Fixed Left) -->
+<aside class="fixed left-0 top-0 bottom-0 flex flex-col py-6 h-screen w-[280px] bg-surface border-r border-outline-variant z-50">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+</div>
+<div>
+<h1 class="text-headline-md font-headline-md font-bold text-primary">MadaLogistics</h1>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Gestion Stratégique</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Table of Dashboard Items -->
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3 sidebar-active" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-md font-label-md">Tableau de bord</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3 sidebar-active" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="text-label-md font-label-md">Expéditions</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3 sidebar-active" href="#">
+<span class="material-symbols-outlined">conveyor_belt</span>
+<span class="text-label-md font-label-md">Flotte</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3 sidebar-active" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-label-md font-label-md">Entrepôts</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3 sidebar-active" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-label-md font-label-md">Clients</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3 sidebar-active" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-md font-label-md">Paramètres</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant pt-4">
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3 sidebar-active" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-label-md font-label-md">Aide</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg mx-2 px-4 py-3 flex items-center gap-3 sidebar-active" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-label-md font-label-md">Déconnexion</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="ml-[280px] flex-1 flex flex-col min-h-screen">
+<!-- TopNavBar Shell -->
+<header class="flex flex-col w-full px-8 pt-4 pb-0 bg-surface border-b border-outline-variant sticky top-0 z-40">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-6">
+<h2 class="text-headline-md font-headline-md font-bold text-primary">Tableau de bord stratégique</h2>
+<div class="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-outline text-body-md">calendar_month</span>
+<span class="text-label-md font-label-md">Période: Derniers 30 jours</span>
+<span class="material-symbols-outlined text-outline text-body-md">expand_more</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-outline text-body-md">location_on</span>
+<span class="text-label-md font-label-md">Hub: Antananarivo HQ</span>
+<span class="material-symbols-outlined text-outline text-body-md">expand_more</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">filter_alt</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-label-md font-label-md">Admin Mada</p>
+<p class="text-[10px] text-on-surface-variant">Super Utilisateur</p>
+</div>
+<img class="w-10 h-10 rounded-full border-2 border-primary-container object-cover" data-alt="A professional headshot of a logistics executive in a clean office environment, high-key lighting, corporate and modern style, soft focused background showing logistics charts." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4zbD2T1-wLj-tTORSSJZz6iLubHsl-H0evV9ghPvd5w7j8EGG_iZbqzzCbxFwOS2kq_8z7XXTBWndEGYMDPXF9hOR8SILLVOVvf5woIUNUk3aeMQ-dXqpwlf_EYb0rhAnG19BrgKwnSSksB6dLv69-e5Sb9od-LgXXX1N4r3BzqtepRHAdi6gDkfFTZ3Qff9rD3EhE5hI8eqFB1lYpJ-EIxhBiLL94TWVPR5MvbrljQ0rNxnsiO8ZTA"/>
+</div>
+</div>
+</div>
+<!-- Tabs Navigation -->
+<nav class="flex items-center gap-8">
+<a class="text-on-surface-variant hover:text-on-surface pb-2 text-label-md font-label-md transition-all" href="#">Vue d'ensemble</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-2 text-label-md font-label-md transition-all" href="#">Chiffre d'affaires</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-2 text-label-md font-label-md transition-all" href="#">Performance</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-2 text-label-md font-label-md transition-all" href="#">Décisions &amp; Optimisation</a>
+<a class="text-on-surface-variant hover:text-on-surface pb-2 text-label-md font-label-md transition-all" href="#">Équipe</a>
+<a class="text-primary border-b-2 border-primary pb-2 font-bold text-label-md font-label-md" href="#">Audit</a>
+</nav>
+</header>
+<!-- Main Scrollable Canvas -->
+<main class="p-8 space-y-8 flex-1 bg-background overflow-y-auto">
+<!-- KPI Strip -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- KPI Card 1 -->
+<div class="bg-surface p-6 rounded-xl border border-outline-variant flex flex-col gap-2">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Revenue</span>
+<div class="flex items-end justify-between">
+<span class="text-headline-md font-headline-md font-bold">482M Ar</span>
+<div class="flex items-center text-secondary text-label-sm">
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span>
+<span>+12.4%</span>
+</div>
+</div>
+</div>
+<!-- KPI Card 2 -->
+<div class="bg-surface p-6 rounded-xl border border-outline-variant flex flex-col gap-2">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Success Rate</span>
+<div class="flex items-end justify-between">
+<span class="text-headline-md font-headline-md font-bold">94.8%</span>
+<div class="flex items-center text-secondary text-label-sm">
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span>
+<span>+0.5%</span>
+</div>
+</div>
+</div>
+<!-- KPI Card 3 -->
+<div class="bg-surface p-6 rounded-xl border border-outline-variant flex flex-col gap-2">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Fill Rate</span>
+<div class="flex items-end justify-between">
+<span class="text-headline-md font-headline-md font-bold">82%</span>
+<div class="flex items-center text-error text-label-sm">
+<span class="material-symbols-outlined text-[16px]">arrow_downward</span>
+<span>-2.1%</span>
+</div>
+</div>
+</div>
+<!-- KPI Card 4 -->
+<div class="bg-surface p-6 rounded-xl border border-outline-variant flex flex-col gap-2">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Opti. Gains</span>
+<div class="flex items-end justify-between">
+<span class="text-headline-md font-headline-md font-bold">3.8M Ar</span>
+<div class="flex items-center text-secondary text-label-sm">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Cible atteinte</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Top Audit Section: Summary & Distribution -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Total Actions Logged -->
+<div class="bg-surface p-8 rounded-xl border border-outline-variant flex flex-col items-center justify-center text-center relative overflow-hidden h-[300px]">
+<div class="absolute top-4 left-4">
+<span class="material-symbols-outlined text-primary text-[32px] opacity-20">history</span>
+</div>
+<div class="z-10">
+<h3 class="text-headline-xl font-headline-xl font-bold text-primary">12,450</h3>
+<p class="text-body-md font-body-md text-on-surface-variant mt-2">Actions logguées ce mois</p>
+<div class="mt-6 flex items-center gap-2 text-label-sm bg-surface-container px-3 py-1 rounded-full text-on-secondary-container">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+<span>Activité en hausse de 8%</span>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-primary"></div>
+</div>
+<!-- Distribution Chart (Bento Card Large) -->
+<div class="lg:col-span-2 bg-surface p-6 rounded-xl border border-outline-variant flex flex-col h-[300px]">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-body-lg font-bold">Répartition des actions par type</h3>
+<p class="text-body-sm text-on-surface-variant">Analyse structurelle des logs système</p>
+</div>
+<span class="material-symbols-outlined text-outline">more_horiz</span>
+</div>
+<!-- Simulating a Recharts Bar Chart with CSS -->
+<div class="flex-1 flex items-end justify-around gap-4 pt-4">
+<div class="flex flex-col items-center gap-2 w-full max-w-[60px]">
+<div class="w-full bg-primary rounded-t-sm h-[80%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">5,420</div>
+</div>
+<span class="text-[10px] text-on-surface-variant uppercase truncate w-full text-center">Modif.</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full max-w-[60px]">
+<div class="w-full bg-primary/70 rounded-t-sm h-[60%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">3,110</div>
+</div>
+<span class="text-[10px] text-on-surface-variant uppercase truncate w-full text-center">Création</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full max-w-[60px]">
+<div class="w-full bg-primary/50 rounded-t-sm h-[40%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">2,050</div>
+</div>
+<span class="text-[10px] text-on-surface-variant uppercase truncate w-full text-center">Suppr.</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full max-w-[60px]">
+<div class="w-full bg-secondary rounded-t-sm h-[25%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">1,120</div>
+</div>
+<span class="text-[10px] text-on-surface-variant uppercase truncate w-full text-center">Export</span>
+</div>
+<div class="flex flex-col items-center gap-2 w-full max-w-[60px]">
+<div class="w-full bg-outline-variant rounded-t-sm h-[15%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">750</div>
+</div>
+<span class="text-[10px] text-on-surface-variant uppercase truncate w-full text-center">Autre</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Significant Logs Table -->
+<section class="bg-surface rounded-xl border border-outline-variant overflow-hidden flex flex-col">
+<div class="px-6 py-5 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h3 class="text-body-lg font-bold">Dernières entrées significatives d'audit</h3>
+<div class="flex gap-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="pl-10 pr-4 py-2 border border-outline-variant rounded-lg text-body-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Rechercher une action..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-body-sm hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Exporter CSV</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-lowest border-b border-outline-variant">
+<tr>
+<th class="px-6 py-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Date &amp; Heure</th>
+<th class="px-6 py-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Utilisateur</th>
+<th class="px-6 py-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Rôle</th>
+<th class="px-6 py-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Action</th>
+<th class="px-6 py-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Hub</th>
+<th class="px-6 py-4 text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 text-body-sm text-on-surface whitespace-nowrap">24 Oct, 2023 - 14:32</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-[12px]">TR</div>
+<span class="text-body-sm font-medium">Tahina Rakoto</span>
+</div>
+</td>
+<td class="px-6 py-4 text-body-sm text-on-surface-variant">Responsable Logistique</td>
+<td class="px-6 py-4 text-body-sm">
+<p class="text-on-surface font-medium">Réallocation de flotte massive</p>
+<p class="text-[11px] text-on-surface-variant">ID: #FLT-9920 - 15 camions réassignés</p>
+</td>
+<td class="px-6 py-4 text-body-sm">Toamasina Port</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-[11px] font-bold">SUCCESS</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 text-body-sm text-on-surface whitespace-nowrap">24 Oct, 2023 - 13:15</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-[12px]">AD</div>
+<span class="text-body-sm font-medium">Admin System</span>
+</div>
+</td>
+<td class="px-6 py-4 text-body-sm text-on-surface-variant">Administrateur</td>
+<td class="px-6 py-4 text-body-sm">
+<p class="text-on-surface font-medium">Mise à jour des tarifs carburant</p>
+<p class="text-[11px] text-on-surface-variant">Global Update: +2.5% sur la zone Sud</p>
+</td>
+<td class="px-6 py-4 text-body-sm">Antananarivo HQ</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-[11px] font-bold">SUCCESS</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 text-body-sm text-on-surface whitespace-nowrap">24 Oct, 2023 - 11:02</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-[12px]">JR</div>
+<span class="text-body-sm font-medium">Jean Rabemanantsoa</span>
+</div>
+</td>
+<td class="px-6 py-4 text-body-sm text-on-surface-variant">Gestionnaire Stock</td>
+<td class="px-6 py-4 text-body-sm">
+<p class="text-on-surface font-medium">Suppression d'inventaire obsolète</p>
+<p class="text-[11px] text-on-surface-variant">SKU: #INV-445 - Validation managériale OK</p>
+</td>
+<td class="px-6 py-4 text-body-sm">Antsirabe Hub</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-[11px] font-bold">SUCCESS</span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 text-body-sm text-on-surface whitespace-nowrap">24 Oct, 2023 - 09:45</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-error-container/20 text-error flex items-center justify-center font-bold text-[12px]">LL</div>
+<span class="text-body-sm font-medium">Lova Lala</span>
+</div>
+</td>
+<td class="px-6 py-4 text-body-sm text-on-surface-variant">Logistique Interne</td>
+<td class="px-6 py-4 text-body-sm">
+<p class="text-on-surface font-medium">Tentative d'accès non autorisée</p>
+<p class="text-[11px] text-on-surface-variant">Module: Audit Financier - Bloqué par firewall</p>
+</td>
+<td class="px-6 py-4 text-body-sm">Fianarantsoa</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded-full bg-error/10 text-error text-[11px] font-bold">BLOCKED</span>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 text-body-sm text-on-surface whitespace-nowrap">23 Oct, 2023 - 17:50</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-[12px]">HM</div>
+<span class="text-body-sm font-medium">Hery M.</span>
+</div>
+</td>
+<td class="px-6 py-4 text-body-sm text-on-surface-variant">Responsable Hub</td>
+<td class="px-6 py-4 text-body-sm">
+<p class="text-on-surface font-medium">Création de nouveau client VIP</p>
+<p class="text-[11px] text-on-surface-variant">Account: "Mining Madagascar Ltd"</p>
+</td>
+<td class="px-6 py-4 text-body-sm">Toliara Hub</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-[11px] font-bold">SUCCESS</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-outline-variant flex justify-center bg-surface-container-lowest">
+<a class="text-label-md font-label-md text-primary flex items-center gap-2 hover:underline transition-all" href="#">
+<span>Voir le journal complet</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</section>
+</main>
+</div>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('.sidebar-active').forEach(button => {
+            button.addEventListener('click', (e) => {
+                // Prevent default for prototype
+                e.preventDefault();
+                // Visual feedback only
+                document.querySelectorAll('.sidebar-active').forEach(b => b.classList.remove('bg-secondary-container', 'text-on-secondary-container'));
+                button.classList.add('bg-secondary-container', 'text-on-secondary-container');
+            });
+        });
+    </script>
+</body></html>

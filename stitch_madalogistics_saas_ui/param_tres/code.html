@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Paramètres - MadaLogistics Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#2f58be",
+                    "on-tertiary-container": "#ffb95f",
+                    "surface-container-low": "#eff4ff",
+                    "secondary": "#006c49",
+                    "surface-variant": "#d3e4fe",
+                    "primary-container": "#1e4bb1",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed": "#00174b",
+                    "on-background": "#0b1c30",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "outline": "#747684",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "inverse-surface": "#213145",
+                    "secondary-container": "#6cf8bb",
+                    "primary-fixed": "#dbe1ff",
+                    "surface-container-high": "#dce9ff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#e5eeff",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-surface-variant": "#434653",
+                    "outline-variant": "#c4c6d5",
+                    "surface-container-highest": "#d3e4fe",
+                    "primary": "#00348f",
+                    "surface": "#f8f9ff",
+                    "error": "#ba1a1a",
+                    "surface-bright": "#f8f9ff",
+                    "background": "#f8f9ff",
+                    "on-surface": "#0b1c30",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-secondary-container": "#00714d",
+                    "on-primary-container": "#b3c4ff",
+                    "tertiary-container": "#754900",
+                    "on-secondary-fixed": "#002113",
+                    "surface-dim": "#cbdbf5",
+                    "secondary-fixed-dim": "#4edea3",
+                    "tertiary": "#563400",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "inverse-primary": "#b4c5ff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "2rem",
+                    "xs": "0.25rem",
+                    "margin-mobile": "1rem",
+                    "xl": "2.5rem",
+                    "md": "1rem",
+                    "lg": "1.5rem",
+                    "gutter": "1.5rem",
+                    "base": "4px",
+                    "sm": "0.5rem"
+            },
+            "fontFamily": {
+                    "label-sm": ["Geist"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "headline-xl": ["Hanken Grotesk"],
+                    "body-md": ["Hanken Grotesk"],
+                    "label-md": ["Geist"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "body-sm": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                    "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                    "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                    "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                    "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                    "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                    "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                    "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                    "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; }
+        .sidebar-active { 
+            background: theme('colors.surface-container-low'); 
+            color: theme('colors.primary'); 
+            font-weight: 700;
+            border-right: 4px solid theme('colors.primary');
+        }
+        .bento-card {
+            background: white;
+            border: 1px solid theme('colors.outline-variant');
+            border-radius: theme('borderRadius.xl');
+            transition: all 0.3s ease;
+        }
+        .bento-card:hover {
+            border-color: theme('colors.primary');
+        }
+        input, select, textarea {
+            border: 1px solid theme('colors.outline-variant');
+            border-radius: theme('borderRadius.lg');
+            padding: 0.75rem;
+            width: 100%;
+            font-family: 'Geist', sans-serif;
+            font-size: 13px;
+        }
+        input:focus {
+            outline: none;
+            border-color: theme('colors.primary');
+            box-shadow: 0 0 0 2px rgba(0, 52, 143, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-full w-[280px] bg-surface-container-lowest border-r border-outline-variant flex flex-col h-full py-6">
+<div class="px-6 mb-10">
+<h1 class="text-headline-md font-headline-md text-primary">MadaLogistics</h1>
+<p class="text-body-sm text-on-surface-variant">Enterprise Admin</p>
+</div>
+<nav class="flex-1">
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md text-body-md">Users</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-primary font-bold border-r-4 border-primary bg-surface-container-low" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3 px-4 rounded-lg font-label-md text-label-md transition-all active:opacity-90">
+<span class="material-symbols-outlined">support_agent</span>
+                Support Client
+            </button>
+</div>
+</aside>
+<!-- TopAppBar Anchor -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop z-10">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-96 group focus-within:ring-2 focus-within:ring-primary rounded-lg overflow-hidden">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 py-2 bg-surface-container-lowest border-none focus:ring-0" placeholder="Rechercher des paramètres..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+<div class="flex items-center gap-3 border-l border-outline-variant pl-6">
+<div class="text-right">
+<p class="text-label-md font-label-md leading-none">Admin Space</p>
+<p class="text-label-sm text-on-surface-variant mt-1">Super Admin</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a logistics executive in a modern bright office setting. The person is smiling confidently, wearing professional attire. The lighting is bright and clean, matching a corporate light-mode design system with soft blue highlights. High-resolution commercial photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiCoTwVQuQyvV4sw41M4LLX0bKU9h3WDf8NAJaakiWgFYYZxZ__kQrvX2SzeozbzldNc_CZWboBGIyQ3RR7lsnCF0xTwQSXz_OHx_ULlQpEN3MMyDa34xrGrJ12yQKfaZMQKodHwWmW6xGjL0BRf5_PugFqtqHHy6dnKxg0AW5mBkQPleWwHG4g_c4Jr1eYDiVblC0TO6bBKYn6AqM68SK-vS7FSIfO7FDVoOZOpMgCLrTr8CqUnthJw"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] mt-16 p-margin-desktop">
+<div class="max-w-6xl mx-auto">
+<div class="mb-8">
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Paramètres du système</h2>
+<p class="text-body-md text-on-surface-variant">Gérez les informations de votre entreprise, votre abonnement et les préférences globales de l'interface.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Section: Informations Société (Large Span) -->
+<section class="col-span-12 lg:col-span-8 bento-card p-lg">
+<div class="flex items-center justify-between mb-6 border-b border-outline-variant pb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">business</span>
+<h3 class="text-headline-md font-headline-md">Informations société</h3>
+</div>
+<button class="text-primary font-label-md text-label-md flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                            Modifier
+                        </button>
+</div>
+<form class="space-y-6">
+<div class="grid grid-cols-2 gap-md">
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant">Nom de l'entreprise</label>
+<input readonly="" type="text" value="MadaLogistics SARL"/>
+</div>
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant">Numéro d'identification fiscale (NIF)</label>
+<input readonly="" type="text" value="3002568452"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant">Adresse du siège</label>
+<textarea readonly="" rows="2">Enceinte Galaxy, Bureau 402, Ankorondrano, Antananarivo 101, Madagascar</textarea>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant">Email de contact principal</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">mail</span>
+<input class="pl-10" readonly="" type="email" value="admin@madalogistics.mg"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant">Téléphone</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">phone</span>
+<input class="pl-10" readonly="" type="tel" value="+261 34 00 000 00"/>
+</div>
+</div>
+</div>
+</form>
+</section>
+<!-- Section: Abonnement SaaS (Right Side Sidebar) -->
+<section class="col-span-12 lg:col-span-4 space-y-gutter">
+<div class="bento-card p-lg bg-surface-container-low border-primary/20">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+<h3 class="text-headline-md font-headline-md">Plan Premium</h3>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-wider">Prix Mensuel</p>
+<p class="text-headline-md font-headline-md text-primary">€249.00<span class="text-body-sm font-normal text-on-surface-variant">/mois</span></p>
+</div>
+<span class="bg-secondary-container text-on-secondary-container text-label-sm px-2 py-1 rounded-full font-bold">ACTIF</span>
+</div>
+<div class="pt-4 border-t border-outline-variant space-y-3">
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Utilisateurs actifs</span>
+<span class="font-bold">12 / 20</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 60%"></div>
+</div>
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Stockage utilisé</span>
+<span class="font-bold">4.2 GB / 10 GB</span>
+</div>
+</div>
+<button class="w-full mt-4 py-2 border border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-primary/5 transition-colors">
+                                Gérer l'abonnement
+                            </button>
+</div>
+</div>
+<div class="bento-card p-lg">
+<h4 class="text-label-md font-label-md mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+                            Dernières factures
+                        </h4>
+<div class="space-y-3">
+<div class="flex items-center justify-between py-2 border-b border-outline-variant last:border-0">
+<div>
+<p class="text-body-sm font-bold">INV-2023-11</p>
+<p class="text-label-sm text-on-surface-variant">01 Nov 2023</p>
+</div>
+<button class="text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-outline-variant last:border-0">
+<div>
+<p class="text-body-sm font-bold">INV-2023-10</p>
+<p class="text-label-sm text-on-surface-variant">01 Oct 2023</p>
+</div>
+<button class="text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Paramètres Généraux (Full Width Bottom) -->
+<section class="col-span-12 bento-card p-lg">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">tune</span>
+<h3 class="text-headline-md font-headline-md">Paramètres généraux</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-xl">
+<!-- Preference 1: Localization -->
+<div class="space-y-4">
+<h4 class="text-label-md font-bold text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">language</span>
+                                Localisation &amp; Langue
+                            </h4>
+<div class="space-y-4">
+<div class="space-y-1.5">
+<label class="text-label-sm text-on-surface-variant">Langue de l'interface</label>
+<select>
+<option selected="">Français (Madagascar)</option>
+<option>English (International)</option>
+<option>Malagasy</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="text-label-sm text-on-surface-variant">Fuseau horaire</label>
+<select>
+<option selected="">(GMT+03:00) Antananarivo</option>
+<option>(GMT+00:00) UTC</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="text-label-sm text-on-surface-variant">Devise par défaut</label>
+<select>
+<option selected="">MGA - Ariary malgache</option>
+<option>EUR - Euro</option>
+<option>USD - Dollar US</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Preference 2: Security -->
+<div class="space-y-4">
+<h4 class="text-label-md font-bold text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">security</span>
+                                Sécurité &amp; Accès
+                            </h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface border border-outline-variant">
+<div>
+<p class="text-body-sm font-bold">Authentification 2FA</p>
+<p class="text-label-sm text-on-surface-variant">Renforcer la sécurité du compte</p>
+</div>
+<button class="w-12 h-6 rounded-full bg-primary relative transition-all" id="toggle-2fa">
+<span class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></span>
+</button>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface border border-outline-variant">
+<div>
+<p class="text-body-sm font-bold">Logs d'activité</p>
+<p class="text-label-sm text-on-surface-variant">Historique des connexions</p>
+</div>
+<button class="text-primary text-label-sm font-bold">Consulter</button>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-2 border border-error text-error rounded-lg font-label-md text-label-md hover:bg-error/5 transition-colors">
+<span class="material-symbols-outlined text-[18px]">lock_reset</span>
+                                    Réinitialiser tous les mots de passe
+                                </button>
+</div>
+</div>
+<!-- Preference 3: Notifications -->
+<div class="space-y-4">
+<h4 class="text-label-md font-bold text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">notifications_active</span>
+                                Préférences d'alerte
+                            </h4>
+<div class="space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm group-hover:text-primary transition-colors">Alertes de livraison critiques (Email)</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm group-hover:text-primary transition-colors">Rapports de performance hebdomadaires</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm group-hover:text-primary transition-colors">Alertes de stock carburant (SMS)</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-body-sm group-hover:text-primary transition-colors">Notifications de maintenance flotte</span>
+</label>
+</div>
+</div>
+</div>
+<div class="mt-10 pt-6 border-t border-outline-variant flex justify-end gap-4">
+<button class="px-6 py-2 text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high rounded-lg transition-colors">
+                            Annuler
+                        </button>
+<button class="px-8 py-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg shadow-lg hover:shadow-primary/20 transition-all transform active:scale-95">
+                            Sauvegarder les modifications
+                        </button>
+</div>
+</section>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interaction for the 2FA toggle
+        const toggleBtn = document.getElementById('toggle-2fa');
+        let is2faActive = true;
+
+        toggleBtn.addEventListener('click', () => {
+            is2faActive = !is2faActive;
+            const circle = toggleBtn.querySelector('span');
+            
+            if (is2faActive) {
+                toggleBtn.classList.remove('bg-outline');
+                toggleBtn.classList.add('bg-primary');
+                circle.classList.remove('left-1');
+                circle.classList.add('right-1');
+            } else {
+                toggleBtn.classList.remove('bg-primary');
+                toggleBtn.classList.add('bg-outline');
+                circle.classList.remove('right-1');
+                circle.classList.add('left-1');
+            }
+        });
+
+        // Search bar interaction
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('shadow-md');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('shadow-md');
+        });
+    </script>
+</body></html>

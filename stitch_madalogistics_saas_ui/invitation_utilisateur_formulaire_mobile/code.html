@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics - Inviter un membre</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffddb8",
+                        "outline": "#747684",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary-fixed": "#00174b",
+                        "outline-variant": "#c4c6d5",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary": "#563400",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#00714d",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#754900",
+                        "on-tertiary-container": "#ffb95f",
+                        "inverse-primary": "#b4c5ff",
+                        "on-surface-variant": "#434653",
+                        "surface-container": "#e5eeff",
+                        "surface-tint": "#2f58be",
+                        "primary": "#00348f",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "primary-container": "#1e4bb1",
+                        "on-primary-container": "#b3c4ff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "primary-fixed": "#dbe1ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary-fixed-variant": "#063ea5",
+                        "secondary-container": "#6cf8bb",
+                        "on-surface": "#0b1c30",
+                        "surface": "#f8f9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "background": "#f8f9ff",
+                        "secondary": "#006c49",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary-fixed": "#002113"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "0.5rem",
+                        "xl": "2.5rem",
+                        "xs": "0.25rem",
+                        "margin-desktop": "2rem",
+                        "lg": "1.5rem",
+                        "md": "1rem",
+                        "gutter": "1.5rem",
+                        "base": "4px",
+                        "margin-mobile": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .modal-overlay {
+            background-color: rgba(11, 28, 48, 0.7);
+            backdrop-filter: blur(4px);
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00348f !important;
+            box-shadow: 0 0 0 2px rgba(0, 52, 143, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- Background Content (Simulated Dashboard Anchor) -->
+<div class="fixed inset-0 z-0">
+<!-- TopAppBar Placeholder (from JSON) -->
+<header class="bg-surface border-b border-outline-variant w-full top-0 sticky flex justify-between items-center px-4 py-2 z-10">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary cursor-pointer">menu</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">MadaLogistics</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a logistics executive, clean background, high-end corporate style, soft lighting, minimalist color palette consistent with blue and white branding." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuJT1VSzv43W20TxWnD_bAbk7kiyM-VjFNzM64DMySiN6S08bSypzcBdX7MZ-2LRjLjzsxqTZvzjnsB9LtgvsX38jBoA0b9RY7lB9p9IpBR48KsdQaAVvtv2qsIGLLz_AvxNXvyGlGxlR7-g9PJcriI8YHCSMnRaUrPYAY57o8o1FCAEVo4pSdQwTGHl1ZFUkeCbk0H9vjhYvriReheYt61kXtrgmoNL5LgIMI7tapai9Fr_P9tVjnwA"/>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="p-margin-desktop max-w-7xl mx-auto">
+<div class="flex justify-between items-end mb-xl">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary mb-xs">Équipe &amp; Utilisateurs</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Gérez les accès et les hubs de votre personnel logistique.</p>
+</div>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md flex items-center gap-sm">
+<span class="material-symbols-outlined">person_add</span>
+                    Inviter un membre
+                </button>
+</div>
+<!-- Bento Grid Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg mb-xl">
+<div class="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-sm">Membres Actifs</p>
+<p class="font-headline-xl text-headline-xl text-primary">124</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-sm">Invitations en attente</p>
+<p class="font-headline-xl text-headline-xl text-secondary">12</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-sm">Hubs connectés</p>
+<p class="font-headline-xl text-headline-xl text-primary">08</p>
+</div>
+</div>
+<!-- Table Placeholder -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-lg border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-on-surface">Liste du personnel</h3>
+<div class="flex gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">search</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">filter_list</span>
+</div>
+</div>
+<div class="divide-y divide-outline-variant">
+<div class="px-lg py-md flex items-center justify-between hover:bg-surface-container-lowest transition-colors">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">JD</div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Jean Dupont</p>
+<p class="font-body-sm text-on-surface-variant">jean.d@mada-logistics.mg</p>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-sm py-xs rounded text-label-sm">Responsable logistique</span>
+</div>
+<div class="px-lg py-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-bold">MR</div>
+<div>
+<p class="font-body-md font-bold text-on-surface">Miora Rakoto</p>
+<p class="font-body-sm text-on-surface-variant">miora.r@mada-logistics.mg</p>
+</div>
+</div>
+<span class="bg-surface-variant text-on-surface-variant px-sm py-xs rounded text-label-sm">Chauffeur</span>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- MODAL OVERLAY -->
+<div class="fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-margin-mobile" id="invite-modal">
+<!-- MODAL CARD -->
+<div class="bg-surface-container-lowest w-full max-w-[480px] rounded-xl shadow-xl overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300">
+<!-- Modal Header -->
+<div class="px-lg py-lg flex justify-between items-center border-b border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-primary">Inviter un membre</h3>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors cursor-pointer" onclick="closeModal()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Content (Step 1: Form) -->
+<form action="#" class="p-lg space-y-lg" method="POST" onsubmit="event.preventDefault();">
+<!-- Email Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant" for="email">Email de l'utilisateur</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-on-surface placeholder:text-outline-variant focus:ring-0 transition-all" id="email" name="email" placeholder="ex: nom@entreprise.mg" type="email"/>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-outline-variant text-[20px]">mail</span>
+</div>
+</div>
+<!-- Role Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant" for="role">Rôle au sein de l'organisation</label>
+<div class="relative">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-on-surface appearance-none focus:ring-0 transition-all cursor-pointer" id="role" name="role">
+<option disabled="" selected="" value="">Sélectionner un rôle</option>
+<option value="responsable">Responsable logistique</option>
+<option value="chauffeur">Chauffeur</option>
+<option value="direction">Direction</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Assignment Hub Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant" for="hub">Hub d'affectation</label>
+<div class="relative">
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md text-on-surface appearance-none focus:ring-0 transition-all cursor-pointer" id="hub" name="hub">
+<option disabled="" selected="" value="">Choisir un hub</option>
+<option value="antananarivo">Antananarivo (HQ)</option>
+<option value="toamasina">Toamasina (Port)</option>
+<option value="antsirabe">Antsirabe</option>
+<option value="mahajanga">Mahajanga</option>
+<option value="toliara">Toliara</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">location_on</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row gap-md pt-md">
+<button class="flex-1 bg-primary hover:bg-[#1a4bb1] text-on-primary py-sm rounded-lg font-label-md transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-sm" type="submit">
+                        Envoyer l'invitation
+                        <span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+<button class="flex-1 border border-outline-variant text-on-surface-variant hover:bg-surface-variant py-sm rounded-lg font-label-md transition-all active:scale-[0.98]" onclick="closeModal()" type="button">
+                        Annuler
+                    </button>
+</div>
+</form>
+<!-- Footer Meta Info -->
+<div class="px-lg py-md bg-surface-container-low border-t border-outline-variant">
+<p class="font-label-sm text-label-sm text-on-surface-variant text-center">
+                    L'invité recevra un lien d'activation valable 72 heures.
+                </p>
+</div>
+</div>
+</div>
+<script>
+        function closeModal() {
+            const modal = document.getElementById('invite-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            // In a real app, this would probably remove the element or handle routing
+        }
+
+        // Lightweight interaction for selects to change icon color on focus
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.addEventListener('focus', () => {
+                select.nextElementSibling.classList.add('text-primary');
+                select.nextElementSibling.classList.remove('text-outline-variant');
+            });
+            select.addEventListener('blur', () => {
+                select.nextElementSibling.classList.remove('text-primary');
+                select.nextElementSibling.classList.add('text-outline-variant');
+            });
+        });
+    </script>
+</body></html>

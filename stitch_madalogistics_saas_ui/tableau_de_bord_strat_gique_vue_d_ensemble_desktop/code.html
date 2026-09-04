@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics | Direction PME</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "tertiary-container": "#754900",
+                "on-secondary-fixed-variant": "#005236",
+                "primary": "#00348f",
+                "on-tertiary-fixed": "#2a1700",
+                "secondary-container": "#6cf8bb",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary": "#ffffff",
+                "inverse-on-surface": "#eaf1ff",
+                "surface-bright": "#f8f9ff",
+                "surface": "#f8f9ff",
+                "error-container": "#ffdad6",
+                "on-primary-container": "#b3c4ff",
+                "on-tertiary-container": "#ffb95f",
+                "on-secondary-container": "#00714d",
+                "on-error-container": "#93000a",
+                "secondary-fixed": "#6ffbbe",
+                "primary-fixed": "#dbe1ff",
+                "inverse-surface": "#213145",
+                "outline-variant": "#c4c6d5",
+                "primary-container": "#1e4bb1",
+                "on-surface-variant": "#434653",
+                "on-primary-fixed-variant": "#063ea5",
+                "surface-container-high": "#dce9ff",
+                "on-tertiary": "#ffffff",
+                "secondary": "#006c49",
+                "tertiary": "#563400",
+                "surface-container": "#e5eeff",
+                "outline": "#747684",
+                "surface-container-low": "#eff4ff",
+                "background": "#f8f9ff",
+                "secondary-fixed-dim": "#4edea3",
+                "on-tertiary-fixed-variant": "#653e00",
+                "on-primary-fixed": "#00174b",
+                "on-error": "#ffffff",
+                "on-background": "#0b1c30",
+                "primary-fixed-dim": "#b4c5ff",
+                "tertiary-fixed": "#ffddb8",
+                "inverse-primary": "#b4c5ff",
+                "error": "#ba1a1a",
+                "surface-variant": "#d3e4fe",
+                "on-surface": "#0b1c30",
+                "surface-tint": "#2f58be",
+                "tertiary-fixed-dim": "#ffb95f",
+                "surface-dim": "#cbdbf5",
+                "surface-container-highest": "#d3e4fe",
+                "on-secondary-fixed": "#002113",
+                "on-primary": "#ffffff"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "12px",
+                "full": "9999px"
+            },
+            "spacing": {
+                "margin-mobile": "1rem",
+                "gutter": "1.5rem",
+                "xs": "0.25rem",
+                "md": "1rem",
+                "base": "4px",
+                "xl": "2.5rem",
+                "sm": "0.5rem",
+                "margin-desktop": "2rem",
+                "lg": "1.5rem"
+            },
+            "fontFamily": {
+                "label-sm": ["Geist"],
+                "headline-md": ["Hanken Grotesk"],
+                "body-sm": ["Hanken Grotesk"],
+                "headline-xl": ["Hanken Grotesk"],
+                "label-md": ["Geist"],
+                "body-md": ["Hanken Grotesk"],
+                "headline-lg": ["Hanken Grotesk"],
+                "body-lg": ["Hanken Grotesk"],
+                "headline-lg-mobile": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f8f9ff;
+            font-family: 'Hanken Grotesk', sans-serif;
+            color: #0b1c30;
+        }
+        .sidebar-active {
+            background-color: #dbe1ff;
+            color: #00174b;
+            font-weight: 700;
+        }
+        .custom-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .custom-card:hover {
+            box-shadow: 0 4px 12px rgba(0,52,143,0.05);
+        }
+        .chart-container {
+            position: relative;
+            height: 240px;
+            width: 100%;
+        }
+        .tab-active {
+            border-bottom: 2px solid #00348f;
+            color: #00348f;
+            font-weight: 600;
+        }
+        .status-chip {
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .progress-circle {
+            transform: rotate(-90deg);
+        }
+    </style>
+</head>
+<body class="flex overflow-hidden">
+<!-- Navigation Drawer (Sidebar) -->
+<aside class="h-full w-[280px] bg-surface flex flex-col py-lg px-md border-r border-outline-variant z-50 shrink-0">
+<div class="mb-xl px-2">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">MadaLogistics</h1>
+<p class="text-on-surface-variant font-label-sm text-label-sm mt-1 uppercase tracking-wider">Direction Stratégique</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-full bg-secondary-container text-on-secondary-container font-bold transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Vue d'ensemble</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-md text-body-md">Chiffre d'affaires</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined">speed</span>
+<span class="font-body-md text-body-md">Performance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-body-md text-body-md">Décisions &amp; Optimisation</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-body-md text-body-md">Équipe</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-body-md text-body-md">Audit</span>
+</a>
+</nav>
+<div class="mt-auto pt-lg border-t border-outline-variant">
+<div class="flex items-center gap-3 px-2">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up professional portrait of a Malagasy male executive in a sharp navy suit, smiling confidently. Soft office lighting, minimalist corporate background with clean lines and blue-toned accents. High-quality professional photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrZUiC6xkHUEIa4zPm3m0WzlI_U-yfE39UHgX0UzuqHNigAlWHK90CXtAmDJynPkDK7A7mBFrxqXm7DHunTJ0ZdcggnNPAbyAggXfxAVvvG1HYGald8RXxVbBnjziOsyTmv8FPqfy1-TR_fYshHI2_ad1SasfJJjCGn4hg53M28KjCJSisgPm2cO6QcynSV4KQ1hsYDs_qO_hpAB9Z5uDVk-GYIGkpTKWNIp8FQ9NvXR49rLiSwi3gsw"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface">Andry Rakoto</span>
+<span class="text-xs text-on-surface-variant">Directeur Général</span>
+</div>
+<button class="ml-auto text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-screen overflow-y-auto bg-background">
+<!-- Top App Bar / Header -->
+<header class="sticky top-0 bg-surface/80 backdrop-blur-md z-40 px-xl py-md border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-lg">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Direction PME</h2>
+<p class="text-body-sm text-on-surface-variant">Supervision et pilotage stratégique en temps réel</p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<!-- Filters -->
+<div class="flex items-center bg-white border border-outline-variant rounded-lg p-1">
+<button class="px-4 py-1.5 text-label-md rounded-md bg-primary text-white shadow-sm">Ce mois</button>
+<button class="px-4 py-1.5 text-label-md text-on-surface-variant hover:bg-surface-container-low rounded-md transition-colors">Ce trimestre</button>
+<button class="px-4 py-1.5 text-label-md text-on-surface-variant hover:bg-surface-container-low rounded-md transition-colors">Cette année</button>
+</div>
+<div class="relative">
+<select class="appearance-none bg-white border border-outline-variant rounded-lg px-4 py-2 pr-10 text-label-md focus:ring-primary focus:border-primary">
+<option>Tous les hubs</option>
+<option>Antananarivo</option>
+<option>Toamasina</option>
+<option>Antsirabe</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+</header>
+<div class="p-xl space-y-xl max-w-[1600px] mx-auto w-full">
+<!-- KPI Strip -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-lg">
+<!-- Card 1 -->
+<div class="custom-card rounded-xl p-lg flex flex-col justify-between min-h-[140px]">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-on-surface-variant">Chiffre d'affaires</span>
+<span class="material-symbols-outlined text-primary">payments</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-on-surface">482M Ar</div>
+<div class="flex items-center gap-1 text-secondary text-sm font-bold mt-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+                            +12.4% <span class="font-normal text-on-surface-variant ml-1">vs mois dernier</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="custom-card rounded-xl p-lg flex flex-col justify-between min-h-[140px]">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-on-surface-variant">Livraisons réussies</span>
+<span class="material-symbols-outlined text-secondary">verified</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-on-surface">94.8%</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-secondary/10 text-secondary px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tight">Cible atteinte</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="custom-card rounded-xl p-lg flex flex-col justify-between min-h-[140px]">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-on-surface-variant">Taux de remplissage</span>
+<span class="material-symbols-outlined text-tertiary">inventory_2</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-on-surface">82% <span class="text-on-surface-variant font-normal text-sm">/ 85% cible</span></div>
+<div class="w-full bg-surface-container-high h-2 rounded-full mt-3 overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 82%"></div>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="custom-card rounded-xl p-lg flex flex-col justify-between min-h-[140px]">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-on-surface-variant">Gains d'optimisation</span>
+<span class="material-symbols-outlined text-primary">auto_graph</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-on-surface">3.8M Ar</div>
+<div class="text-on-surface-variant text-sm mt-1">Économie réalisée ce mois</div>
+</div>
+</div>
+</section>
+<!-- Horizontal Tabs -->
+<nav class="flex border-b border-outline-variant overflow-x-auto no-scrollbar gap-xl">
+<button class="pb-4 px-2 tab-active transition-all">Vue d'ensemble</button>
+<button class="pb-4 px-2 text-on-surface-variant hover:text-primary transition-all">Chiffre d'affaires</button>
+<button class="pb-4 px-2 text-on-surface-variant hover:text-primary transition-all">Performance</button>
+<button class="pb-4 px-2 text-on-surface-variant hover:text-primary transition-all">Décisions &amp; Optimisation</button>
+<button class="pb-4 px-2 text-on-surface-variant hover:text-primary transition-all">Équipe</button>
+<button class="pb-4 px-2 text-on-surface-variant hover:text-primary transition-all">Audit</button>
+</nav>
+<!-- Tab Content: Vue d'ensemble -->
+<div class="space-y-xl">
+<!-- Top Grid: Charts -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Revenue Chart -->
+<div class="lg:col-span-8 custom-card rounded-xl p-lg">
+<div class="flex items-center justify-between mb-lg">
+<div>
+<h3 class="font-headline-md text-body-lg font-bold">Évolution du CA Hebdomadaire</h3>
+<p class="text-sm text-on-surface-variant">Revenus cumulés par septaine (Ar)</p>
+</div>
+<button class="text-primary hover:bg-primary/10 px-3 py-1 rounded-md text-sm transition-colors">Exporter</button>
+</div>
+<div class="chart-container flex items-end justify-between gap-4 pt-10">
+<!-- Visual placeholder for a line chart -->
+<div class="flex-1 relative h-full flex items-end">
+<div class="absolute inset-0 flex flex-col justify-between opacity-10 pointer-events-none">
+<div class="border-t border-on-surface h-0"></div>
+<div class="border-t border-on-surface h-0"></div>
+<div class="border-t border-on-surface h-0"></div>
+<div class="border-t border-on-surface h-0"></div>
+</div>
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,80 Q10,75 20,65 T40,40 T60,50 T80,20 T100,10" fill="none" stroke="#00348f" stroke-linecap="round" stroke-width="3"></path>
+<path d="M0,80 Q10,75 20,65 T40,40 T60,50 T80,20 T100,10 L100,100 L0,100 Z" fill="url(#grad1)" opacity="0.1"></path>
+<defs>
+<lineargradient id="grad1" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#00348f;stop-opacity:1"></stop>
+<stop offset="100%" style="stop-color:#00348f;stop-opacity:0"></stop>
+</lineargradient>
+</defs>
+</svg>
+</div>
+</div>
+<div class="flex justify-between mt-4 text-[11px] text-on-surface-variant uppercase font-bold tracking-tighter px-2">
+<span>S1</span><span>S2</span><span>S3</span><span>S4</span><span>S5</span><span>S6</span><span>S7</span>
+</div>
+</div>
+<!-- Overall Performance Donut -->
+<div class="lg:col-span-4 custom-card rounded-xl p-lg flex flex-col">
+<h3 class="font-headline-md text-body-lg font-bold mb-sm">Performance Globale</h3>
+<p class="text-sm text-on-surface-variant mb-lg">Succès opérationnel vs Cible</p>
+<div class="flex-1 flex flex-col items-center justify-center py-4">
+<div class="relative w-48 h-48">
+<svg class="w-full h-full progress-circle" viewbox="0 0 100 100">
+<circle class="text-surface-container-high" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="10"></circle>
+<circle class="text-secondary" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="12.56" stroke-linecap="round" stroke-width="10"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-4xl font-extrabold text-on-surface">95%</span>
+<span class="text-xs font-bold text-secondary uppercase tracking-widest">Optimal</span>
+</div>
+</div>
+<div class="mt-8 grid grid-cols-2 gap-4 w-full">
+<div class="text-center">
+<div class="text-xs text-on-surface-variant mb-1">Ponctualité</div>
+<div class="font-bold">98.2%</div>
+</div>
+<div class="text-center">
+<div class="text-xs text-on-surface-variant mb-1">Qualité Service</div>
+<div class="font-bold">92.5%</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Grid: Insights -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Efficiency & IA -->
+<div class="custom-card rounded-xl p-lg">
+<div class="flex items-center gap-3 mb-6">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<h3 class="font-bold text-body-lg">Efficacité &amp; IA</h3>
+</div>
+<div class="space-y-6">
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-on-surface-variant font-medium">Taux de remplissage flotte</span>
+<span class="font-bold">88%</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 88%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-on-surface-variant font-medium">Utilisation Asset</span>
+<span class="font-bold">74%</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 74%"></div>
+</div>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg border border-primary/10 flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-sm mt-1">lightbulb</span>
+<p class="text-xs text-on-surface-variant">L'IA suggère une redistribution de 4 camions légers vers le Hub Toamasina pour optimiser les retours à vide.</p>
+</div>
+</div>
+</div>
+<!-- IA Optimization Impact (Grande carte bleue) -->
+<div class="custom-card rounded-xl p-lg bg-primary text-white flex flex-col relative overflow-hidden group">
+<!-- Decorative background element -->
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-500"></div>
+<div class="relative z-10 flex flex-col h-full">
+<div class="flex items-center justify-between mb-8">
+<span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider">Impact Optimisation IA</span>
+<span class="material-symbols-outlined text-secondary-container">rocket_launch</span>
+</div>
+<div class="mb-auto">
+<div class="text-sm font-medium opacity-80 mb-2">Économies cumulées (YTD)</div>
+<div class="text-4xl font-extrabold tracking-tight mb-6">124.5M Ar</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">co2</span>
+</div>
+<div>
+<div class="text-sm font-bold">-14.2 Tonnes CO2</div>
+<div class="text-[10px] opacity-70">Réduction empreinte carbone</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">schedule</span>
+</div>
+<div>
+<div class="text-sm font-bold">-2,400 Heures</div>
+<div class="text-[10px] opacity-70">Temps de conduite optimisé</div>
+</div>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full py-3 bg-white text-primary font-bold rounded-lg text-sm hover:bg-primary-fixed-dim transition-colors">
+                                Consulter le rapport détaillé
+                            </button>
+</div>
+</div>
+<!-- Priority Alerts -->
+<div class="custom-card rounded-xl p-lg border-l-4 border-l-error">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-bold text-body-lg text-error">Alertes Prioritaires</h3>
+<span class="bg-error/10 text-error px-2 py-0.5 rounded-md text-[10px] font-bold">2 CRITIQUES</span>
+</div>
+<div class="space-y-4">
+<!-- Alert 1 -->
+<div class="flex gap-4 p-3 bg-error/5 rounded-lg border border-error/10">
+<div class="shrink-0 text-error">
+<span class="material-symbols-outlined">engineering</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-sm font-bold">Maintenance Critique</h4>
+<span class="text-[10px] text-on-surface-variant font-medium">Il y a 2h</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">3 camions Hino (Hub Tana) nécessitent une révision immédiate du système de freinage.</p>
+</div>
+</div>
+<!-- Alert 2 -->
+<div class="flex gap-4 p-3 bg-tertiary-fixed/20 rounded-lg border border-tertiary/10">
+<div class="shrink-0 text-tertiary">
+<span class="material-symbols-outlined">badge</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-sm font-bold">Expiration Licences</h4>
+<span class="text-[10px] text-on-surface-variant font-medium">J-5</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">Les permis spéciaux pour 12 chauffeurs arrivent à expiration le 15 du mois.</p>
+</div>
+</div>
+<!-- Small Alert -->
+<div class="flex items-center gap-3 px-3 py-2 bg-surface-container-low rounded-lg">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">report</span>
+<span class="text-xs text-on-surface-variant">4 rapports d'audit en attente de validation</span>
+<span class="material-symbols-outlined ml-auto text-xs text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Contextual Active Projects/Fleet Status (Extra Content) -->
+<section class="custom-card rounded-xl overflow-hidden">
+<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-low/30">
+<h3 class="font-bold text-body-lg">État de la Flotte par Hub</h3>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-white border border-outline-variant text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low/50">
+<tr>
+<th class="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase">Hub de transit</th>
+<th class="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">Actifs</th>
+<th class="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">En transit</th>
+<th class="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">Maintenance</th>
+<th class="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">Dispo IA</th>
+<th class="px-lg py-3 font-label-sm text-label-sm text-on-surface-variant uppercase text-right">Performance</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr>
+<td class="px-lg py-4">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-bold">Antananarivo (Principal)</span>
+</div>
+</td>
+<td class="px-lg py-4 text-center font-medium">84</td>
+<td class="px-lg py-4 text-center text-on-surface-variant">62</td>
+<td class="px-lg py-4 text-center text-error font-bold">5</td>
+<td class="px-lg py-4 text-center font-bold text-primary">17</td>
+<td class="px-lg py-4 text-right">
+<span class="text-secondary font-bold">96.4%</span>
+</td>
+</tr>
+<tr>
+<td class="px-lg py-4">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-bold">Toamasina (Port)</span>
+</div>
+</td>
+<td class="px-lg py-4 text-center font-medium">45</td>
+<td class="px-lg py-4 text-center text-on-surface-variant">38</td>
+<td class="px-lg py-4 text-center text-on-surface-variant">2</td>
+<td class="px-lg py-4 text-center font-bold text-primary">5</td>
+<td class="px-lg py-4 text-right">
+<span class="text-secondary font-bold">94.1%</span>
+</td>
+</tr>
+<tr>
+<td class="px-lg py-4">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="font-bold">Antsirabe</span>
+</div>
+</td>
+<td class="px-lg py-4 text-center font-medium">28</td>
+<td class="px-lg py-4 text-center text-on-surface-variant">19</td>
+<td class="px-lg py-4 text-center text-on-surface-variant">1</td>
+<td class="px-lg py-4 text-center font-bold text-primary">8</td>
+<td class="px-lg py-4 text-right">
+<span class="text-tertiary font-bold">89.8%</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Footer Space -->
+<footer class="mt-auto px-xl py-lg text-center text-on-surface-variant text-xs">
+            © 2024 MadaLogistics SA. Plateforme de Supervision Stratégique v4.2.1-stable.
+        </footer>
+</main>
+<script>
+        // Simple micro-interactions for demonstration
+        document.querySelectorAll('.custom-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Potential light effects could go here
+            });
+        });
+
+        // Tab switching logic (simple visual only)
+        const tabs = document.querySelectorAll('nav button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('tab-active', 'text-on-surface-variant'));
+                tabs.forEach(t => t.classList.add('text-on-surface-variant'));
+                tab.classList.add('tab-active');
+                tab.classList.remove('text-on-surface-variant');
+            });
+        });
+    </script>
+</body></html>

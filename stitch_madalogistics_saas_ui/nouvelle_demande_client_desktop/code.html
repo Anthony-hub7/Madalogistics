@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics - Nouvelle Demande</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&amp;family=Geist:wght@100;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#d3e4fe",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#434653",
+                        "surface-container-low": "#eff4ff",
+                        "on-primary-fixed-variant": "#063ea5",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#4edea3",
+                        "secondary-container": "#6cf8bb",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#213145",
+                        "background": "#f8f9ff",
+                        "outline-variant": "#c4c6d5",
+                        "on-tertiary-fixed": "#2a1700",
+                        "tertiary": "#563400",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary-fixed": "#002113",
+                        "surface-bright": "#f8f9ff",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "inverse-primary": "#b4c5ff",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed": "#6ffbbe",
+                        "primary": "#00348f",
+                        "on-primary-fixed": "#00174b",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#ffb95f",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container": "#e5eeff",
+                        "on-primary-container": "#b3c4ff",
+                        "tertiary-container": "#754900",
+                        "on-secondary-container": "#00714d",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "surface": "#f8f9ff",
+                        "secondary": "#006c49",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-dim": "#cbdbf5",
+                        "primary-container": "#1e4bb1",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#2f58be",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "outline": "#747684",
+                        "tertiary-fixed": "#ffddb8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "1rem",
+                        "margin-mobile": "1rem",
+                        "sm": "0.5rem",
+                        "gutter": "1.5rem",
+                        "base": "4px",
+                        "xl": "2.5rem",
+                        "margin-desktop": "2rem",
+                        "lg": "1.5rem",
+                        "xs": "0.25rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            background-color: #f8f9ff;
+        }
+        .form-input-focus:focus {
+            outline: none;
+            border-color: #00348f;
+            box-shadow: 0 0 0 2px rgba(0, 52, 143, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container-lowest border-r border-outline-variant flex flex-col h-full py-lg px-md z-50">
+<div class="mb-xl px-sm">
+<h1 class="text-headline-md font-headline-md font-bold text-primary">MadaLogistics</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Client Space</p>
+</div>
+<nav class="flex-1 flex flex-col gap-sm">
+<!-- Active Navigation -->
+<a class="flex items-center gap-md px-md py-sm bg-surface-container-high text-primary font-bold rounded-lg scale-[0.98] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="add_box">add_box</span>
+<span class="font-label-md text-label-md">Nouvelle demande</span>
+</a>
+<!-- Inactive Navigation -->
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-label-md text-label-md">Mes commandes</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-md text-label-md">Factures</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant pt-lg flex flex-col gap-sm">
+<button class="w-full mb-md flex items-center justify-center gap-sm px-md py-sm bg-primary text-on-primary font-bold rounded-lg hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-[20px]" data-icon="contact_support">contact_support</span>
+<span class="font-label-md text-label-md">Support Client</span>
+</button>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Paramètres</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-error hover:bg-error-container rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Déconnexion</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 left-[280px] h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop z-40">
+<div class="flex items-center gap-md w-1/2">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-body-sm focus:ring-2 focus:ring-primary/20" placeholder="Rechercher une expédition..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<nav class="hidden lg:flex items-center gap-lg">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Dashboard</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Tracking</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Assistance</a>
+</nav>
+<div class="h-6 w-[1px] bg-outline-variant mx-sm"></div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="help">help</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional business headshot of a corporate logistics manager, clean lighting, blurred modern office background with blue and white tones, high resolution, minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb8_ssdYuPDS7BRWkm4IGDn8O6kjBBb4ByBpJIFJ1KyDss_Nt6bIZh6hv5BVZgWLuhJ02F766dqGchyiM1DJ06CrwlJKPSZ7-GrA4JVxYySTfiTm_TMgvkQmEPulvzU0MtxvDhTGZ-0-5ks_ujCEafwt2Zkah9w0hl0QLCXL8oJNVsTUUFcaH8kkbaTR-T412U8MJFjsu8QZApecujyulEPG23DKbt9-fm3Z0dtlmPl8t4OntHXKAX8Q"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Shell -->
+<main class="ml-[280px] pt-16 min-h-screen">
+<div class="max-w-[1200px] mx-auto p-margin-desktop">
+<!-- Page Header -->
+<div class="mb-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Nouvelle demande d'expédition</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Remplissez les détails ci-dessous pour obtenir une cotation instantanée et planifier votre transport.</p>
+</div>
+<div class="grid grid-cols-12 gap-gutter items-start">
+<!-- Main Form Section (Bento Card) -->
+<div class="col-span-12 lg:col-span-8">
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl">
+<form class="space-y-lg">
+<!-- Address Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-primary flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+                                        Adresse de départ
+                                    </label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md form-input-focus transition-all" placeholder="Rue, Ville, Madagascar" type="text"/>
+</div>
+</div>
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-secondary flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="flag">flag</span>
+                                        Adresse d'arrivée
+                                    </label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md form-input-focus transition-all" placeholder="Rue, Ville, Madagascar" type="text"/>
+</div>
+</div>
+<!-- Cargo Details -->
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="inventory_2">inventory_2</span>
+                                    Description du colis
+                                </label>
+<textarea class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md form-input-focus transition-all resize-none" placeholder="Ex: Pièces détachées automobiles, matériel informatique fragile, etc..." rows="4"></textarea>
+</div>
+<!-- Technical Specs -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="weight">weight</span>
+                                        Poids (kg)
+                                    </label>
+<div class="relative flex items-center">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md form-input-focus transition-all pr-12" placeholder="0.0" step="0.1" type="number"/>
+<span class="absolute right-4 text-label-md text-outline font-bold">KG</span>
+</div>
+</div>
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="aspect_ratio">aspect_ratio</span>
+                                        Volume (m3)
+                                    </label>
+<div class="relative flex items-center">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-md form-input-focus transition-all pr-12" placeholder="0.00" step="0.01" type="number"/>
+<span class="absolute right-4 text-label-md text-outline font-bold">M³</span>
+</div>
+</div>
+</div>
+<!-- Advanced Options (Glassmorphism look) -->
+<div class="p-md bg-surface-container-low rounded-lg border border-outline-variant/50">
+<div class="flex items-center justify-between mb-sm">
+<span class="font-label-md text-label-md font-bold text-on-surface">Options prioritaires</span>
+<span class="text-label-sm px-2 py-1 bg-secondary-container text-on-secondary-container rounded-full">Nouveau</span>
+</div>
+<div class="flex gap-md">
+<label class="flex-1 flex items-center gap-sm p-sm bg-white border border-outline-variant rounded cursor-pointer hover:bg-primary-fixed transition-colors">
+<input class="rounded text-primary focus:ring-primary" type="checkbox"/>
+<span class="font-label-md text-label-md">Assurance Premium</span>
+</label>
+<label class="flex-1 flex items-center gap-sm p-sm bg-white border border-outline-variant rounded cursor-pointer hover:bg-primary-fixed transition-colors">
+<input class="rounded text-primary focus:ring-primary" type="checkbox"/>
+<span class="font-label-md text-label-md">Livraison Express</span>
+</label>
+</div>
+</div>
+<!-- Primary Action -->
+<div class="pt-md">
+<button class="group relative w-full overflow-hidden bg-primary text-on-primary py-4 rounded-xl font-headline-md transition-all duration-300 hover:shadow-lg active:scale-[0.98]" type="submit">
+<span class="relative z-10 flex items-center justify-center gap-md">
+                                        Envoyer la demande
+                                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="send">send</span>
+</span>
+<div class="absolute inset-0 bg-primary-container opacity-0 group-hover:opacity-20 transition-opacity"></div>
+</button>
+<p class="text-center mt-md text-label-sm text-outline">En envoyant cette demande, vous acceptez nos conditions générales de transport.</p>
+</div>
+</form>
+</section>
+</div>
+<!-- Info/Status Column -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<!-- Preview Card -->
+<div class="bg-primary-container text-on-primary-container p-lg rounded-xl shadow-sm relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="font-headline-md text-[20px] mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+                                Estimation du trajet
+                            </h3>
+<div class="space-y-lg relative">
+<div class="flex items-start gap-md">
+<div class="flex flex-col items-center">
+<div class="w-3 h-3 rounded-full bg-white"></div>
+<div class="w-[2px] h-12 border-l-2 border-dashed border-on-primary-container/40"></div>
+</div>
+<div class="pb-md">
+<span class="font-label-sm text-on-primary-container/70">Point de collecte</span>
+<p class="font-body-md font-bold" id="preview-start">—</p>
+</div>
+</div>
+<div class="flex items-start gap-md">
+<div class="w-3 h-3 rounded-full border-2 border-white"></div>
+<div>
+<span class="font-label-sm text-on-primary-container/70">Destination finale</span>
+<p class="font-body-md font-bold" id="preview-end">—</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Abstract Background Decoration -->
+<div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<!-- Map Preview Placeholder -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
+<div class="w-full h-48 rounded-lg overflow-hidden bg-surface-container mb-md relative">
+<div class="w-full h-full bg-cover bg-center grayscale opacity-80 hover:grayscale-0 transition-all duration-700" data-location="Antananarivo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDyNfcykNFPsADzswEaEykXktGlHlQQVu0C6uKZV6CjHa3nEbG74dRxdiEDWJcvLAWuwEh7x55m46OGSJmrTfrf0bs92im4n5SbGxdlYvQdxJIvVpIWrD4UMYXTn3ckgBtz5-ypS9uRAdtI_BNhqWfcsYIZsHhIeEbZBx2ssz4VegHLB5leMqERtwXytQT6pvtQGqlQjY9BQJ3HSPFxeP0RfVxPG-F26dhsl-6NgHeyhL4LOEm06KYaFg')"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="bg-white/80 backdrop-blur-md px-md py-sm rounded-full border border-white/50 text-label-md font-bold text-primary shadow-sm">
+                                    Calcul de l'itinéraire...
+                                </div>
+</div>
+</div>
+<div class="space-y-sm">
+<div class="flex justify-between items-center text-label-md">
+<span class="text-on-surface-variant">Distance estimée</span>
+<span class="font-bold text-on-surface">-- km</span>
+</div>
+<div class="flex justify-between items-center text-label-md">
+<span class="text-on-surface-variant">Délai estimé</span>
+<span class="font-bold text-on-surface">-- h</span>
+</div>
+</div>
+</div>
+<!-- Help Card -->
+<div class="bg-tertiary-container text-on-tertiary-container p-lg rounded-xl">
+<div class="flex items-center gap-md mb-md">
+<span class="material-symbols-outlined text-[32px]" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<h4 class="font-label-md text-label-md font-black uppercase tracking-wider">Transport Sécurisé</h4>
+</div>
+<p class="font-body-sm mb-md opacity-90">Toutes vos expéditions via MadaLogistics sont suivies en temps réel par GPS et bénéficient d'une couverture d'assurance de base incluse.</p>
+<a class="text-label-md font-bold underline hover:no-underline" href="#">Consulter la charte qualité</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Micro-interaction for form feedback -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('input[type="text"]');
+            const previewStart = document.getElementById('preview-start');
+            const previewEnd = document.getElementById('preview-end');
+
+            inputs.forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const placeholder = e.target.placeholder;
+                    if (placeholder.includes('départ')) {
+                        previewStart.textContent = e.target.value || '—';
+                    } else if (placeholder.includes('arrivée')) {
+                        previewEnd.textContent = e.target.value || '—';
+                    }
+                });
+            });
+
+            // Smooth reveal effect
+            const mainContent = document.querySelector('main');
+            mainContent.classList.add('opacity-0', 'translate-y-4');
+            setTimeout(() => {
+                mainContent.style.transition = 'all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                mainContent.classList.remove('opacity-0', 'translate-y-4');
+            }, 100);
+        });
+    </script>
+</body></html>

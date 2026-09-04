@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>MadaLogistics - Détail Livraison</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#00714d",
+                        "surface-container-low": "#eff4ff",
+                        "on-secondary-fixed": "#002113",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-tertiary-fixed": "#2a1700",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-background": "#0b1c30",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#434653",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#213145",
+                        "on-tertiary-container": "#ffb95f",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "error": "#ba1a1a",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-fixed-variant": "#005236",
+                        "outline-variant": "#c4c6d5",
+                        "background": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-fixed": "#00174b",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "primary-container": "#1e4bb1",
+                        "surface-tint": "#2f58be",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "outline": "#747684",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#563400",
+                        "on-primary-fixed-variant": "#063ea5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "primary": "#00348f",
+                        "secondary": "#006c49",
+                        "tertiary-container": "#754900",
+                        "secondary-container": "#6cf8bb",
+                        "surface-variant": "#d3e4fe",
+                        "primary-fixed": "#dbe1ff",
+                        "on-primary-container": "#b3c4ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "2rem",
+                        "gutter": "1.5rem",
+                        "base": "4px",
+                        "xl": "2.5rem",
+                        "sm": "0.5rem",
+                        "xs": "0.25rem",
+                        "lg": "1.5rem",
+                        "md": "1rem",
+                        "margin-mobile": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .geist-font { font-family: 'Geist', sans-serif; }
+        .step-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-surface w-full top-0 sticky border-b border-outline-variant z-50 transition-colors duration-200">
+<div class="flex justify-between items-center px-margin-mobile h-16 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="local_shipping">local_shipping</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">MadaLogistics</h1>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full font-label-md text-label-md">#ML-8842</span>
+</div>
+</div>
+</header>
+<main class="max-w-4xl mx-auto px-margin-mobile pt-6 space-y-6">
+<!-- Client Header Card -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="space-y-1">
+<p class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Destinataire</p>
+<h2 class="font-headline-md text-headline-md text-on-surface">Société Trading Antananarivo</h2>
+<div class="flex items-start gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary mt-0.5">location_on</span>
+<p class="font-body-md text-body-md">Lot IVG 42, Avenue de l'Indépendance, 101 Antananarivo, Madagascar</p>
+</div>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center gap-2 px-6 py-4 rounded-xl active:scale-95 transition-transform shadow-sm">
+<span class="material-symbols-outlined">directions_run</span>
+<span>Lancer la navigation</span>
+</button>
+</div>
+</section>
+<!-- Status Selector (Tactile Steps) -->
+<section class="space-y-4">
+<h3 class="font-label-md text-label-md text-outline uppercase px-1">Progression de la livraison</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+<!-- Step 1: In Preparation -->
+<button class="status-btn group flex items-center gap-4 p-4 rounded-xl border-2 border-primary-container bg-primary-container/10 text-primary step-transition" id="step-0" onclick="updateStatus(0)">
+<div class="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-on-primary">
+<span class="material-symbols-outlined">inventory_2</span>
+</div>
+<div class="text-left">
+<p class="font-label-md text-label-md font-bold">En préparation</p>
+<p class="font-body-sm text-body-sm opacity-80">08:30</p>
+</div>
+</button>
+<!-- Step 2: On the Way -->
+<button class="status-btn group flex items-center gap-4 p-4 rounded-xl border-2 border-outline-variant bg-surface-container-lowest text-on-surface-variant step-transition" id="step-1" onclick="updateStatus(1)">
+<div class="flex items-center justify-center w-12 h-12 rounded-full bg-surface-container-high text-outline group-active:bg-primary-container">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<div class="text-left">
+<p class="font-label-md text-label-md font-bold">En route</p>
+<p class="font-body-sm text-body-sm">À venir</p>
+</div>
+</button>
+<!-- Step 3: Arrived -->
+<button class="status-btn group flex items-center gap-4 p-4 rounded-xl border-2 border-outline-variant bg-surface-container-lowest text-on-surface-variant step-transition" id="step-2" onclick="updateStatus(2)">
+<div class="flex items-center justify-center w-12 h-12 rounded-full bg-surface-container-high text-outline">
+<span class="material-symbols-outlined">location_city</span>
+</div>
+<div class="text-left">
+<p class="font-label-md text-label-md font-bold">Arrivé</p>
+<p class="font-body-sm text-body-sm">Sur place</p>
+</div>
+</button>
+<!-- Step 4: Delivered -->
+<button class="status-btn group flex items-center gap-4 p-4 rounded-xl border-2 border-outline-variant bg-surface-container-lowest text-on-surface-variant step-transition" id="step-3" onclick="updateStatus(3)">
+<div class="flex items-center justify-center w-12 h-12 rounded-full bg-surface-container-high text-outline">
+<span class="material-symbols-outlined">task_alt</span>
+</div>
+<div class="text-left">
+<p class="font-label-md text-label-md font-bold">Livré</p>
+<p class="font-body-sm text-body-sm">Finalisé</p>
+</div>
+</button>
+</div>
+</section>
+<!-- Package Summary -->
+<section class="space-y-4">
+<div class="flex items-center justify-between px-1">
+<h3 class="font-label-md text-label-md text-outline uppercase">Résumé des colis (3)</h3>
+<span class="font-label-sm text-label-sm text-secondary font-bold">Poids total: 142kg</span>
+</div>
+<div class="space-y-3">
+<!-- Package Item -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-outline">package_2</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-semibold">Pièces mécaniques moteur</p>
+<p class="font-label-sm text-label-sm text-outline">ID: PKG-001 • Fragile</p>
+</div>
+</div>
+<div class="text-right">
+<span class="bg-secondary-container text-on-secondary-container font-label-sm px-2 py-1 rounded">2 Unités</span>
+</div>
+</div>
+<!-- Package Item -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-outline">package_2</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-semibold">Huiles industrielles 20L</p>
+<p class="font-label-sm text-label-sm text-outline">ID: PKG-002 • Liquide</p>
+</div>
+</div>
+<div class="text-right">
+<span class="bg-secondary-container text-on-secondary-container font-label-sm px-2 py-1 rounded">5 Unités</span>
+</div>
+</div>
+<!-- Package Item -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-outline">package_2</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-semibold">Équipement électrique</p>
+<p class="font-label-sm text-label-sm text-outline">ID: PKG-003 • Prioritaire</p>
+</div>
+</div>
+<div class="text-right">
+<span class="bg-secondary-container text-on-secondary-container font-label-sm px-2 py-1 rounded">1 Unité</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Map Placeholder -->
+<section class="h-64 rounded-xl overflow-hidden border border-outline-variant relative">
+<div class="w-full h-full bg-cover bg-center" data-location="Antananarivo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDA5ZKI1lteUqgU1WOwqfjXuBMpRcn3Ymo4XbVOvYfMEaM7awmrVKhVrXulhz_442_AXngwnNO1FZIGmV9D91hA5OxKfcvqEjBn1Xwh20iUzesXlysH7vpz4OGLocxa9GSo-kC9VasJ-DsyjtvlXWS6fG8zpeyonjNnNFKYprH7GdBd-YX2KBsGDqTNho-qbxMTKWX_O8j1Ai48MW-r36cjXS3u63CcrsybKMOIEBdYmIU9gB-dxfDy4g')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-4">
+<div class="bg-surface-container-lowest/90 backdrop-blur-md p-3 rounded-lg flex items-center gap-3 w-full">
+<span class="material-symbols-outlined text-primary">my_location</span>
+<span class="font-label-md text-label-md">Position actuelle: Analakely - 1.2km de la destination</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 h-20 bg-surface border-t border-outline-variant transition-colors shadow-md md:hidden">
+<div class="flex justify-around items-center w-full px-2 pb-safe h-full">
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-xl px-6 py-2 transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="package_2">package_2</span>
+<span class="font-label-md text-label-md">Livraisons</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-6 py-2 transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="directions_run">directions_run</span>
+<span class="font-label-md text-label-md">Navigation</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high px-6 py-2 transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-md text-label-md">Historique</span>
+</a>
+</div>
+</nav>
+<script>
+        function updateStatus(activeStep) {
+            const buttons = document.querySelectorAll('.status-btn');
+            buttons.forEach((btn, index) => {
+                const iconContainer = btn.querySelector('div:first-child');
+                const label = btn.querySelector('p:first-child');
+                const subtext = btn.querySelector('p:last-child');
+
+                if (index < activeStep) {
+                    // Completed Steps
+                    btn.className = "status-btn group flex items-center gap-4 p-4 rounded-xl border-2 border-secondary bg-secondary/10 text-secondary step-transition";
+                    iconContainer.className = "flex items-center justify-center w-12 h-12 rounded-full bg-secondary text-on-secondary";
+                    const icon = iconContainer.querySelector('span');
+                    icon.textContent = "check_circle";
+                    subtext.textContent = "Validé";
+                } else if (index === activeStep) {
+                    // Current Active Step
+                    btn.className = "status-btn group flex items-center gap-4 p-4 rounded-xl border-2 border-primary bg-primary-container/20 text-primary step-transition shadow-md ring-2 ring-primary/20";
+                    iconContainer.className = "flex items-center justify-center w-12 h-12 rounded-full bg-primary text-on-primary animate-pulse";
+                    const icon = iconContainer.querySelector('span');
+                    // Reset icon based on index
+                    const icons = ["inventory_2", "local_shipping", "location_city", "task_alt"];
+                    icon.textContent = icons[index];
+                    subtext.textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                } else {
+                    // Future Steps
+                    btn.className = "status-btn group flex items-center gap-4 p-4 rounded-xl border-2 border-outline-variant bg-surface-container-lowest text-on-surface-variant step-transition hover:border-outline";
+                    iconContainer.className = "flex items-center justify-center w-12 h-12 rounded-full bg-surface-container-high text-outline group-active:bg-primary-container";
+                    const icon = iconContainer.querySelector('span');
+                    const icons = ["inventory_2", "local_shipping", "location_city", "task_alt"];
+                    icon.textContent = icons[index];
+                    subtext.textContent = "À venir";
+                }
+            });
+        }
+    </script>
+</body></html>

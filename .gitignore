@@ -1,0 +1,36 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+
+# Frontend
+Frontend/node_modules/
+Frontend/dist/
+Frontend/dist-ssr/
+*.local
+
+# Backend
+Backend/target/
+Backend/.mvn/wrapper/maven-wrapper.jar
+**/src/main/**/target/
+**/src/test/**/target/
+build/
+.gradle/
+
+# Docker
+docker-compose.override.yml
+
+# Stitch UI
+stitch_madalogistics_saas_ui/node_modules/
+stitch_madalogistics_saas_ui/dist/

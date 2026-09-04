@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LogiStrategy Executive Board Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800;900&amp;family=Geist:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#e5eeff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "inverse-surface": "#213145",
+                        "on-primary": "#ffffff",
+                        "outline": "#747684",
+                        "on-secondary-fixed": "#002113",
+                        "secondary": "#006c49",
+                        "on-secondary-container": "#00714d",
+                        "tertiary-container": "#754900",
+                        "on-surface": "#0b1c30",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary-fixed": "#6ffbbe",
+                        "outline-variant": "#c4c6d5",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "on-primary-container": "#b3c4ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "inverse-on-surface": "#eaf1ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-primary-fixed": "#00174b",
+                        "secondary-container": "#6cf8bb",
+                        "inverse-primary": "#b4c5ff",
+                        "tertiary": "#563400",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#1e4bb1",
+                        "surface": "#f8f9ff",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "primary": "#00348f",
+                        "background": "#f8f9ff",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed": "#dbe1ff",
+                        "on-surface-variant": "#434653",
+                        "on-primary-fixed-variant": "#063ea5",
+                        "surface-container-low": "#eff4ff",
+                        "on-background": "#0b1c30",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#2f58be",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-tertiary-container": "#ffb95f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "1rem",
+                        "xs": "0.25rem",
+                        "sm": "0.5rem",
+                        "margin-desktop": "2rem",
+                        "gutter": "1.5rem",
+                        "xl": "2.5rem",
+                        "lg": "1.5rem",
+                        "base": "4px",
+                        "margin-mobile": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "label-md": ["Geist"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #F8FAFC;
+            font-family: 'Hanken Grotesk', sans-serif;
+        }
+        .geist-font {
+            font-family: 'Geist', sans-serif;
+        }
+        .tonal-card {
+            background-color: #ffffff;
+            border: 1px solid #E2E8F0;
+            transition: all 0.2s ease-in-out;
+        }
+        .tonal-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(47, 88, 190, 0.05);
+        }
+        .fill-rate-gauge {
+            background: conic-gradient(#00348f 82%, #e5eeff 0);
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- Sidebar -->
+<aside class="fixed left-0 top-0 h-full w-[280px] bg-surface border-r border-outline-variant flex flex-col py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="text-headline-md font-headline-md font-bold text-primary">LogiStrategy</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Executive Board</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-colors cursor-pointer" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant px-2 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">person</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Admin Executive</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">CEO Office</p>
+</div>
+</div>
+</aside>
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 right-0 h-16 bg-surface-bright border-b border-outline-variant flex justify-between items-center pl-[304px] pr-8 z-40">
+<div class="flex items-center gap-6">
+<div class="flex bg-surface-container-low rounded-lg p-1">
+<button class="px-4 py-1.5 text-label-md font-label-md bg-surface-container-highest text-primary rounded-md shadow-sm">Ce mois</button>
+<button class="px-4 py-1.5 text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors">Ce trimestre</button>
+<button class="px-4 py-1.5 text-label-md font-label-md text-on-surface-variant hover:text-primary transition-colors">Cette année</button>
+</div>
+<div class="h-6 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-2">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Hub:</span>
+<select class="bg-transparent border-none text-label-md font-label-md text-primary focus:ring-0 cursor-pointer">
+<option>Tous les Hubs</option>
+<option>Antananarivo North</option>
+<option>Toamasina Port</option>
+<option>Majunga Central</option>
+</select>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-lg transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-lg transition-colors">settings</button>
+<button class="ml-2 bg-primary text-on-primary px-4 py-2 rounded-lg text-label-md font-label-md hover:opacity-90 transition-opacity">Download Report</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pl-[304px] pr-8 pt-24 pb-12">
+<!-- Section 1: KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-gutter">
+<div class="tonal-card p-6 rounded-xl">
+<div class="flex justify-between items-start mb-4">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Revenue Total</span>
+<span class="material-symbols-outlined text-primary">payments</span>
+</div>
+<div class="flex flex-col">
+<span class="text-headline-md font-headline-md">1.248.000.000 Ar</span>
+<div class="flex items-center gap-1 mt-2 text-[#16A34A]">
+<span class="material-symbols-outlined text-[18px]">trending_up</span>
+<span class="text-label-md font-label-md">+12.4% vs last month</span>
+</div>
+</div>
+</div>
+<div class="tonal-card p-6 rounded-xl">
+<div class="flex justify-between items-start mb-4">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Volume &amp; Poids</span>
+<span class="material-symbols-outlined text-primary">inventory_2</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Volume (m³)</p>
+<p class="text-headline-sm font-bold text-on-surface">4.850</p>
+</div>
+<div>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Poids (T)</p>
+<p class="text-headline-sm font-bold text-on-surface">1.120</p>
+</div>
+</div>
+</div>
+<div class="tonal-card p-6 rounded-xl">
+<div class="flex justify-between items-start mb-4">
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Delivery Success</span>
+<span class="material-symbols-outlined text-[#16A34A]">task_alt</span>
+</div>
+<div class="flex flex-col">
+<span class="text-headline-md font-headline-md">98.2%</span>
+<div class="w-full bg-surface-container-low h-1.5 rounded-full mt-4">
+<div class="bg-[#16A34A] h-1.5 rounded-full" style="width: 98.2%"></div>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-2">Target: 95.0%</span>
+</div>
+</div>
+<div class="tonal-card p-6 rounded-xl flex items-center gap-6">
+<div class="relative w-20 h-20 rounded-full fill-rate-gauge flex items-center justify-center">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+<span class="text-label-md font-bold text-primary">82%</span>
+</div>
+</div>
+<div>
+<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider block mb-1">Fill Rate</span>
+<span class="text-body-md font-bold text-on-surface">82% vs 85% Target</span>
+<span class="text-label-sm font-label-sm text-error block mt-1">-3% off target</span>
+</div>
+</div>
+</div>
+<!-- Section 2: Revenue Chart & Invoices -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-gutter">
+<div class="lg:col-span-2 tonal-card p-6 rounded-xl">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-headline-sm font-bold">Courbe de Revenu Mensuel</h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-label-sm font-label-sm">Revenu Réel</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-outline-variant"></span>
+<span class="text-label-sm font-label-sm">Projection</span>
+</div>
+</div>
+</div>
+<div class="h-64 flex items-end justify-between gap-2 px-4">
+<!-- Fake Chart Visualization -->
+<div class="flex-1 bg-primary/20 hover:bg-primary/40 transition-all rounded-t-lg" style="height: 40%"></div>
+<div class="flex-1 bg-primary/20 hover:bg-primary/40 transition-all rounded-t-lg" style="height: 55%"></div>
+<div class="flex-1 bg-primary/20 hover:bg-primary/40 transition-all rounded-t-lg" style="height: 45%"></div>
+<div class="flex-1 bg-primary/20 hover:bg-primary/40 transition-all rounded-t-lg" style="height: 70%"></div>
+<div class="flex-1 bg-primary/20 hover:bg-primary/40 transition-all rounded-t-lg" style="height: 85%"></div>
+<div class="flex-1 bg-primary rounded-t-lg shadow-lg" style="height: 100%"></div>
+<div class="flex-1 bg-primary/20 hover:bg-primary/40 transition-all rounded-t-lg" style="height: 75%"></div>
+</div>
+<div class="flex justify-between mt-4 px-4 text-label-sm font-label-sm text-on-surface-variant">
+<span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span class="text-primary font-bold">Jun</span><span>Jul</span>
+</div>
+</div>
+<div class="tonal-card p-6 rounded-xl">
+<h3 class="text-headline-sm font-bold mb-6">Facturation Executive</h3>
+<div class="space-y-6">
+<div class="p-4 rounded-lg bg-surface-container-low border border-outline-variant/30">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase mb-1">Factures Émises</p>
+<p class="text-headline-md font-bold text-on-surface">1.850.000.000 Ar</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">128 documents ce mois</p>
+</div>
+<div class="p-4 rounded-lg bg-secondary-container/20 border border-secondary/20">
+<p class="text-label-sm font-label-sm text-secondary uppercase mb-1">Paiements Reçus</p>
+<p class="text-headline-md font-bold text-secondary">1.420.000.000 Ar</p>
+<p class="text-label-sm font-label-sm text-secondary/70 mt-1">76.7% de taux de recouvrement</p>
+</div>
+<button class="w-full py-3 rounded-lg border border-primary text-primary font-label-md text-label-md hover:bg-primary/5 transition-colors">
+                        Voir le détail financier
+                    </button>
+</div>
+</div>
+</div>
+<!-- Section 3 & 4: Performance & Fleet Efficiency -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter mb-gutter">
+<!-- Delivery Performance -->
+<div class="tonal-card p-6 rounded-xl">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-headline-sm font-bold">Performance de Livraison</h3>
+<div class="flex items-center gap-2 text-primary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+                        Avg Time: 4.2 hrs
+                    </div>
+</div>
+<div class="grid grid-cols-2 gap-8 items-center">
+<div class="relative flex items-center justify-center h-48">
+<svg class="w-40 h-40 transform -rotate-90" viewbox="0 0 36 36">
+<circle class="stroke-surface-container-low" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+<circle cx="18" cy="18" fill="none" r="16" stroke="#16A34A" stroke-dasharray="75, 100" stroke-width="3"></circle>
+<circle cx="18" cy="18" fill="none" r="16" stroke="#2563EB" stroke-dasharray="15, 100" stroke-dashoffset="-75" stroke-width="3"></circle>
+<circle cx="18" cy="18" fill="none" r="16" stroke="#F97316" stroke-dasharray="8, 100" stroke-dashoffset="-90" stroke-width="3"></circle>
+<circle cx="18" cy="18" fill="none" r="16" stroke="#ba1a1a" stroke-dasharray="2, 100" stroke-dashoffset="-98" stroke-width="3"></circle>
+</svg>
+<div class="absolute text-center">
+<span class="text-headline-md font-bold">98%</span>
+<span class="block text-label-sm text-on-surface-variant">SLA Compliance</span>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-label-md">
+<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#16A34A]"></span> Livré</div>
+<span class="font-bold">1,240</span>
+</div>
+<div class="flex justify-between items-center text-label-md">
+<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#2563EB]"></span> En cours</div>
+<span class="font-bold">342</span>
+</div>
+<div class="flex justify-between items-center text-label-md text-orange-500">
+<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#F97316]"></span> Retardé</div>
+<span class="font-bold">42</span>
+</div>
+<div class="flex justify-between items-center text-label-md text-error">
+<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-error"></span> Incidents</div>
+<span class="font-bold">12</span>
+</div>
+<div class="mt-6 pt-4 border-t border-outline-variant">
+<p class="text-label-sm font-bold uppercase mb-3">Derniers Incidents</p>
+<div class="space-y-3">
+<div class="flex items-center gap-3 text-body-sm">
+<span class="material-symbols-outlined text-error text-[16px]">report</span>
+<span class="flex-1 truncate">Panne moteur - Camion ID: #TK-882</span>
+<span class="text-label-sm text-on-surface-variant">12m</span>
+</div>
+<div class="flex items-center gap-3 text-body-sm">
+<span class="material-symbols-outlined text-error text-[16px]">warning</span>
+<span class="flex-1 truncate">Retard barrière douane - Zone Sud</span>
+<span class="text-label-sm text-on-surface-variant">45m</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Fleet Efficiency -->
+<div class="tonal-card p-6 rounded-xl flex flex-col">
+<h3 class="text-headline-sm font-bold mb-6">Efficacité de la Flotte</h3>
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="bg-surface-container-low p-4 rounded-lg flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<div>
+<p class="text-headline-sm font-bold">148</p>
+<p class="text-label-sm text-on-surface-variant">Véhicules Actifs</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined">engineering</span>
+</div>
+<div>
+<p class="text-headline-sm font-bold">162</p>
+<p class="text-label-sm text-on-surface-variant">Chauffeurs</p>
+</div>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center mb-4">
+<span class="text-label-md font-bold">Taux d'utilisation quotidien</span>
+<span class="text-label-md text-primary">88% Peak</span>
+</div>
+<div class="space-y-4">
+<div class="relative h-20 w-full overflow-hidden rounded-lg bg-surface-container-low">
+<!-- Simple SVG Visualization for utilization -->
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 400 100">
+<path d="M0,80 Q50,40 100,60 T200,30 T300,70 T400,20" fill="none" stroke="#00348f" stroke-linecap="round" stroke-width="3"></path>
+<path d="M0,80 Q50,40 100,60 T200,30 T300,70 T400,20 L400,100 L0,100 Z" fill="rgba(0,52,143,0.1)"></path>
+</svg>
+</div>
+<div class="grid grid-cols-3 text-center text-label-sm text-on-surface-variant">
+<div>06:00</div>
+<div>12:00</div>
+<div>18:00</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 5: Optimization Gains -->
+<div class="tonal-card p-8 rounded-xl bg-primary text-on-primary mb-gutter overflow-hidden relative">
+<div class="absolute right-0 top-0 h-full w-1/3 opacity-10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[240px] rotate-12">auto_awesome</span>
+</div>
+<div class="relative z-10 grid grid-cols-1 md:grid-cols-3 items-center gap-12">
+<div class="md:col-span-1">
+<span class="text-label-md uppercase tracking-[0.2em] font-bold text-on-primary-container">Optimization Total Gains</span>
+<h2 class="text-headline-xl font-bold mt-2">124.5M Ar</h2>
+<p class="text-body-md mt-2 opacity-80">Économies générées par l'IA ce trimestre via le groupage et l'optimisation des trajets.</p>
+<button class="mt-8 bg-on-primary text-primary px-6 py-3 rounded-lg font-bold text-label-md flex items-center gap-2 hover:bg-surface-container-low transition-colors">
+                        Rapport d'optimisation
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-secondary-fixed">route</span>
+<span class="text-label-md font-bold">Groupage Hub Nord</span>
+</div>
+<p class="text-body-sm opacity-90">3 tours groupés en 1 seul trajet direct.</p>
+<div class="mt-3 text-secondary-fixed font-bold">-12% distance</div>
+</div>
+<div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-secondary-fixed">electric_car</span>
+<span class="text-label-md font-bold">Réduction Émissions</span>
+</div>
+<p class="text-body-sm opacity-90">Optimisation du carburant sur zone rurale.</p>
+<div class="mt-3 text-secondary-fixed font-bold">-850kg CO2</div>
+</div>
+<div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-secondary-fixed">timer</span>
+<span class="text-label-md font-bold">Temps de Chargement</span>
+</div>
+<p class="text-body-sm opacity-90">Séquencement intelligent des quais.</p>
+<div class="mt-3 text-secondary-fixed font-bold">-18min / camion</div>
+</div>
+<div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-secondary-fixed">package_2</span>
+<span class="text-label-md font-bold">Densité de Chargement</span>
+</div>
+<p class="text-body-sm opacity-90">Algorithme Tetris pour les colis hors gabarit.</p>
+<div class="mt-3 text-secondary-fixed font-bold">+15% m3 utile</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 6: Audit Traceability Footer -->
+<footer class="flex justify-between items-center py-6 border-t border-outline-variant">
+<div class="flex items-center gap-4">
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">history</span>
+                    Audit Log
+                </a>
+<span class="text-outline-variant">•</span>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Data Privacy</a>
+<span class="text-outline-variant">•</span>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Export Logs</a>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Last Data Sync: Today, 14:42 (UTC+3)</p>
+</footer>
+</main>
+<script>
+        // Micro-interaction: Update active state on period filters
+        document.querySelectorAll('header button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if(btn.closest('.flex')){
+                    btn.parentNode.querySelectorAll('button').forEach(b => {
+                        b.classList.remove('bg-surface-container-highest', 'text-primary', 'shadow-sm');
+                        b.classList.add('text-on-surface-variant');
+                    });
+                    btn.classList.add('bg-surface-container-highest', 'text-primary', 'shadow-sm');
+                    btn.classList.remove('text-on-surface-variant');
+                }
+            });
+        });
+
+        // Simple animation for the progress bars on load
+        window.addEventListener('load', () => {
+            const bars = document.querySelectorAll('.h-1.5.rounded-full div');
+            bars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.transition = 'width 1s ease-out';
+                    bar.style.width = width;
+                }, 300);
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Connexion | MadaLogistics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#00174b",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-container": "#754900",
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary-container": "#b3c4ff",
+                        "on-secondary-container": "#00714d",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "inverse-surface": "#213145",
+                        "background": "#f8f9ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "surface": "#f8f9ff",
+                        "on-surface": "#0b1c30",
+                        "on-primary-fixed-variant": "#063ea5",
+                        "tertiary-fixed": "#ffddb8",
+                        "primary": "#00348f",
+                        "surface-variant": "#d3e4fe",
+                        "tertiary": "#563400",
+                        "surface-container-low": "#eff4ff",
+                        "on-surface-variant": "#434653",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#2f58be",
+                        "surface-container": "#e5eeff",
+                        "surface-container-high": "#dce9ff",
+                        "primary-fixed": "#dbe1ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary": "#006c49",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-container": "#6cf8bb",
+                        "inverse-primary": "#b4c5ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-background": "#0b1c30",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f8f9ff",
+                        "outline": "#747684",
+                        "primary-container": "#1e4bb1",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline-variant": "#c4c6d5",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "0.25rem",
+                        "gutter": "1.5rem",
+                        "xl": "2.5rem",
+                        "margin-desktop": "2rem",
+                        "md": "1rem",
+                        "lg": "1.5rem",
+                        "margin-mobile": "1rem",
+                        "sm": "0.5rem",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-md": ["Geist"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .login-card {
+            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .bg-pattern {
+            background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA9M6Al5QG8O8ViqpcLD5X6zbSwQqoiTv3nfeU-CHlK7ZtG-B69yV6stHKtVmBNt8fITICkjBlmvyRAczyYFxxphjCxLZkmh6gQvgEb6u0Bi6IHgAm1IpJaiOH0mJyyPbY-1F0xKK3UxndktQPpgQgdFJy_FDc8T-nhsB_eaVr8E904sbeK6j0k6tzvmMulE3PaIaQ79cgfhXpo8iUtL168EJ8p5gllsdfXHbRlmw8RMJ1iY_-gLc1_pA');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            filter: grayscale(0.5);
+        }
+
+        /* Micro-interactions */
+        .btn-hover-effect:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+        
+        .input-focus-ring:focus-within {
+            border-color: #00348f;
+            box-shadow: 0 0 0 2px rgba(0, 52, 143, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex items-center justify-center overflow-hidden">
+<!-- Subtle Full Screen Background -->
+<div class="fixed inset-0 bg-pattern z-0"></div>
+<!-- Decorative Floating Elements (Atmospheric) -->
+<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+<div class="absolute top-[10%] right-[15%] w-64 h-64 bg-primary-container/20 rounded-full blur-[80px]"></div>
+<div class="absolute bottom-[20%] left-[10%] w-96 h-96 bg-secondary-container/10 rounded-full blur-[100px]"></div>
+</div>
+<main class="relative z-10 w-full max-w-md px-margin-mobile md:px-0">
+<!-- Main Login Card -->
+<div class="login-card rounded-xl border border-outline-variant p-lg md:p-xl space-y-lg animate-in fade-in zoom-in duration-500">
+<!-- Logo & Brand Header -->
+<div class="flex flex-col items-center text-center space-y-md">
+<div class="w-20 h-20 rounded-full bg-white p-sm shadow-sm border border-outline-variant flex items-center justify-center overflow-hidden">
+<img alt="MadaLogistics Logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0mKxCWRJ8fry1ciE5u7Pz-DNgw_pH6-yUEj6xJ6Plp3lv4XUoaHoq5UDv0Wbdf01fAKh8q3jGcjh7B5fu8tKWqzF61baRBamE4CC50VrO2xN0z_mglVX7GYHcpQ8KHfqEwoUzZZkDah9y1o07jHWGsZpmTQM8dh13ULKc_F8irO68G_CQohEfLTkXApCUeEYBSoxpI9kctI0cNUkdWY4yrBr6n5EZRTLuErBCDSV95Z4kuMyRLmdubEU2yvEIuQmS8fQ"/>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary">MadaLogistics</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Connectez-vous à votre portail de gestion</p>
+</div>
+</div>
+<!-- Login Form -->
+<form class="space-y-lg" id="loginForm" onsubmit="event.preventDefault();">
+<!-- Role Selector -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant ml-xs" for="role">Choisir votre rôle</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">badge</span>
+<select class="w-full h-12 pl-11 pr-md rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer" id="role" name="role">
+<option disabled="" selected="" value="">Sélectionner un profil...</option>
+<option value="admin">Administrateur</option>
+<option value="logistique">Responsable logistique</option>
+<option value="chauffeur">Chauffeur</option>
+<option value="client">Client</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Username Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant ml-xs" for="username">Nom d'utilisateur</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">person</span>
+<input class="w-full h-12 pl-11 pr-md rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline-variant" id="username" name="username" placeholder="votre_nom_utilisateur" type="text"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-xs">
+<div class="flex justify-between items-center px-xs">
+<label class="font-label-md text-label-md text-on-surface-variant" for="password">Mot de passe</label>
+<a class="font-label-md text-label-md text-primary hover:underline transition-all" href="#">Oublié ?</a>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">lock</span>
+<input class="w-full h-12 pl-11 pr-md rounded-lg border border-outline-variant bg-surface-container-lowest font-body-md text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-outline-variant" id="password" name="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-on-surface-variant transition-colors" onclick="togglePasswordVisibility()" type="button">
+<span class="material-symbols-outlined" id="passIcon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex items-center space-x-sm pt-sm">
+<input class="w-4 h-4 rounded text-primary border-outline-variant focus:ring-primary" id="remember" type="checkbox"/>
+<label class="font-body-sm text-body-sm text-on-surface-variant select-none" for="remember">Se souvenir de moi</label>
+</div>
+<button class="w-full h-12 bg-primary text-on-primary rounded-lg font-label-md text-label-md font-bold btn-hover-effect transition-all flex items-center justify-center space-x-sm shadow-md hover:shadow-lg hover:bg-primary/95" type="submit">
+<span>Se connecter</span>
+<span class="material-symbols-outlined text-[20px]">login</span>
+</button>
+</form>
+<!-- Footer Links (Subtle) -->
+<div class="pt-lg border-t border-outline-variant flex flex-col items-center space-y-md">
+<div class="flex space-x-lg text-on-surface-variant font-label-sm text-label-sm">
+<a class="hover:text-primary transition-colors" href="#">Aide</a>
+<span class="text-outline-variant">•</span>
+<a class="hover:text-primary transition-colors" href="#">Confidentialité</a>
+<span class="text-outline-variant">•</span>
+<a class="hover:text-primary transition-colors" href="#">Conditions</a>
+</div>
+<p class="font-label-sm text-label-sm text-outline">© 2024 MadaLogistics. Tous droits réservés.</p>
+</div>
+</div>
+<!-- Language Switcher (Floating Bottom) -->
+<div class="mt-lg flex justify-center space-x-md font-label-sm text-label-sm text-on-surface-variant">
+<button class="font-bold text-primary border-b border-primary">Français</button>
+<button class="hover:text-primary transition-colors">Malagasy</button>
+<button class="hover:text-primary transition-colors">English</button>
+</div>
+</main>
+<script>
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('password');
+            const passIcon = document.getElementById('passIcon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                passIcon.innerText = 'visibility_off';
+            } else {
+                passInput.type = 'password';
+                passIcon.innerText = 'visibility';
+            }
+        }
+
+        // Simple animation on load for inputs
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach((input, index) => {
+                input.style.opacity = '0';
+                input.style.transform = 'translateY(10px)';
+                setTimeout(() => {
+                    input.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+                    input.style.opacity = '1';
+                    input.style.transform = 'translateY(0)';
+                }, 100 + (index * 50));
+            });
+        });
+
+        // Submit Interaction
+        const form = document.getElementById('loginForm');
+        form.addEventListener('submit', () => {
+            const btn = form.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-spin material-symbols-outlined">sync</span><span>Chargement...</span>';
+            
+            // Simulating a network request
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 2000);
+        });
+    </script>
+</body></html>

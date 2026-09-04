@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics - Strategic Revenue Dashboard</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#e5eeff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-tertiary-container": "#ffb95f",
+                    "inverse-surface": "#213145",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#dce9ff",
+                    "error-container": "#ffdad6",
+                    "primary": "#00348f",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-primary-fixed": "#00174b",
+                    "surface-tint": "#2f58be",
+                    "on-surface-variant": "#434653",
+                    "primary-container": "#1e4bb1",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "secondary-fixed": "#6ffbbe",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-error": "#ffffff",
+                    "background": "#f8f9ff",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-background": "#0b1c30",
+                    "on-surface": "#0b1c30",
+                    "inverse-primary": "#b4c5ff",
+                    "on-secondary-fixed": "#002113",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#6cf8bb",
+                    "outline-variant": "#c4c6d5",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#d3e4fe",
+                    "surface": "#f8f9ff",
+                    "outline": "#747684",
+                    "surface-bright": "#f8f9ff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "primary-fixed": "#dbe1ff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-primary-container": "#b3c4ff",
+                    "surface-container-low": "#eff4ff",
+                    "secondary": "#006c49",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#754900",
+                    "on-secondary-container": "#00714d",
+                    "tertiary-fixed": "#ffddb8",
+                    "tertiary": "#563400",
+                    "surface-dim": "#cbdbf5"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "12px",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "0.25rem",
+                    "margin-desktop": "2rem",
+                    "base": "4px",
+                    "lg": "1.5rem",
+                    "md": "1rem",
+                    "gutter": "1.5rem",
+                    "xl": "2.5rem",
+                    "sm": "0.5rem",
+                    "margin-mobile": "1rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Hanken Grotesk"],
+                    "headline-xl": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "label-md": ["Geist"],
+                    "body-md": ["Hanken Grotesk"],
+                    "label-sm": ["Geist"],
+                    "body-sm": ["Hanken Grotesk"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f8f9ff;
+            font-family: 'Hanken Grotesk', sans-serif;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .chart-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 3s ease-in-out forwards;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface-container-lowest border-b border-outline-variant shadow-sm h-16 flex items-center">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer active:scale-95 transition-transform" data-icon="menu">menu</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">MadaLogistics</h1>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex items-center gap-sm bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-label-md w-48" placeholder="Rechercher une facture..." type="text"/>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="notifications">notifications</span>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">
+                    JD
+                </div>
+</div>
+</div>
+</header>
+<!-- Sidebar (Navigation Drawer) -->
+<aside class="fixed left-0 top-0 h-full w-[280px] z-40 bg-surface-container-low border-r border-outline-variant pt-20 hidden lg:flex flex-col py-lg space-y-sm">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional corporate headshot of a logistics executive in Madagascar, wearing a sharp navy blue suit, standing in front of a blurred modern shipping hub with vibrant blue and white lighting, emphasizing SME strategic leadership and executive confidence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQJ79yR6QijxeyI2mvmsXqPSJzVB0SS7olTyEHEqTf5wh4E83AKSZZgWot6YKUFOornpPNO12-Cm82zcUIEZeJWuBWMr0tbw7IvenoxQjNWTUZ1zquU-mj2OPEoC8jRcU6IrEQhkUd06JSFkjBfqc5ZB9FptpMwsL4N2k5scOkg0cKozTFNfx8EziapxGUYyuL66mbqYQ7dhTooCc_NIYWRn-_HGG6I1tDNZ2NIsy589X3rzxwD-Gi6A"/>
+</div>
+<div>
+<p class="font-headline-md text-sm font-bold text-primary">SME Executive</p>
+<p class="text-xs text-on-surface-variant">Strategic Overview</p>
+</div>
+</div>
+<div class="mt-4 px-3 py-1 bg-secondary-container/30 text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-wider inline-block">
+                Premium Account
+            </div>
+</div>
+<nav class="flex-1 space-y-1 px-4">
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-r-full font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 bg-primary-container text-on-primary-container font-bold rounded-r-full font-body-md shadow-sm" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Revenue</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-r-full font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="speed">speed</span>
+<span>Performance</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-r-full font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="auto_fix_high">auto_fix_high</span>
+<span>Optimization</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-r-full font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Team</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:bg-surface-container-highest transition-all rounded-r-full font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="fact_check">fact_check</span>
+<span>Audit</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="lg:ml-[280px] pt-16 pb-24 lg:pb-12 px-margin-mobile md:px-margin-desktop min-h-screen">
+<!-- Header Section -->
+<div class="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Direction Stratégique</h2>
+<p class="text-on-surface-variant font-body-md">Analyse du Chiffre d'Affaires et Facturation</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex bg-surface-container-high rounded-lg p-1 border border-outline-variant">
+<button class="px-3 py-1.5 text-xs font-medium rounded-md hover:bg-white transition-colors">Ce mois</button>
+<button class="px-3 py-1.5 text-xs font-medium rounded-md bg-white shadow-sm">Ce trimestre</button>
+<button class="px-3 py-1.5 text-xs font-medium rounded-md hover:bg-white transition-colors">Cette année</button>
+</div>
+<div class="relative group">
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg bg-white text-xs font-medium hover:bg-surface-container-low transition-colors">
+<span>Tous les hubs</span>
+<span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<!-- KPI Section -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mt-8">
+<!-- KPI Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant shadow-sm">
+<div class="flex items-start justify-between mb-2">
+<span class="text-on-surface-variant text-label-md">Chiffre d'affaires</span>
+<span class="text-green-600 bg-green-50 px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="trending_up">trending_up</span>
+                        +12.4%
+                    </span>
+</div>
+<div class="text-2xl font-bold text-on-surface">482M Ar</div>
+<div class="w-full bg-surface-container-high h-1 mt-4 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[72%]"></div>
+</div>
+</div>
+<!-- KPI Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant shadow-sm">
+<div class="flex items-start justify-between mb-2">
+<span class="text-on-surface-variant text-label-md">Taux de livraison</span>
+<span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-[10px] font-bold">Stable</span>
+</div>
+<div class="text-2xl font-bold text-on-surface">94.8%</div>
+<div class="w-full bg-surface-container-high h-1 mt-4 rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[94.8%]"></div>
+</div>
+</div>
+<!-- KPI Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant shadow-sm">
+<div class="flex items-start justify-between mb-2">
+<span class="text-on-surface-variant text-label-md">Remplissage vs Cible</span>
+<span class="text-on-surface-variant text-[10px] font-bold">Cible: 85%</span>
+</div>
+<div class="text-2xl font-bold text-on-surface">82%</div>
+<div class="w-full bg-surface-container-high h-1 mt-4 rounded-full overflow-hidden">
+<div class="bg-tertiary-container h-full w-[82%]"></div>
+</div>
+</div>
+<!-- KPI Card 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant shadow-sm">
+<div class="flex items-start justify-between mb-2">
+<span class="text-on-surface-variant text-label-md">Gains d'optimisation</span>
+<span class="text-on-surface-variant text-[10px] font-bold">Economies</span>
+</div>
+<div class="text-2xl font-bold text-on-surface">3.8M Ar</div>
+<div class="flex items-center gap-1 mt-4">
+<span class="material-symbols-outlined text-green-500 text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-xs text-on-surface-variant">Sur objectif mensuel</span>
+</div>
+</div>
+</div>
+<!-- Revenue Evolution Section (Line Chart) -->
+<div class="mt-8 bg-surface-container-lowest p-lg rounded-lg border border-outline-variant shadow-sm">
+<div class="flex justify-between items-center mb-10">
+<div>
+<h3 class="font-headline-md text-lg font-bold text-on-surface">Évolution du Chiffre d'Affaires</h3>
+<p class="text-sm text-on-surface-variant">Variation mensuelle par Hub logistique</p>
+</div>
+<div class="flex items-center gap-4 text-xs font-medium">
+<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-primary"></span> Hub Nord</div>
+<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-secondary"></span> Hub Sud</div>
+<div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-tertiary-container"></span> Hub Ouest</div>
+</div>
+</div>
+<div class="h-64 w-full relative">
+<!-- SVG Chart Logic -->
+<svg class="w-full h-full" viewbox="0 0 1000 300">
+<!-- Grid Lines -->
+<line stroke="#E2E8F0" stroke-width="1" x1="0" x2="1000" y1="50" y2="50"></line>
+<line stroke="#E2E8F0" stroke-width="1" x1="0" x2="1000" y1="150" y2="150"></line>
+<line stroke="#E2E8F0" stroke-width="1" x1="0" x2="1000" y1="250" y2="250"></line>
+<!-- Hub Nord (Primary) -->
+<path class="chart-line" d="M0,220 Q125,200 250,180 T500,120 T750,140 T1000,60" fill="none" stroke="#00348f" stroke-linecap="round" stroke-width="3"></path>
+<!-- Hub Sud (Secondary) -->
+<path class="chart-line" d="M0,250 Q125,230 250,240 T500,200 T750,220 T1000,180" fill="none" stroke="#006c49" stroke-dasharray="5,5" stroke-width="2"></path>
+<!-- Hub Ouest (Tertiary) -->
+<path class="chart-line" d="M0,280 Q125,260 250,270 T500,240 T750,250 T1000,210" fill="none" stroke="#754900" stroke-width="2"></path>
+<!-- Highlight Dots -->
+<circle cx="500" cy="120" fill="#00348f" r="6"></circle>
+<circle cx="1000" cy="60" fill="#00348f" r="6"></circle>
+</svg>
+<div class="absolute bottom-[-24px] left-0 w-full flex justify-between text-[10px] text-on-surface-variant font-bold">
+<span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span><span>JUL</span>
+</div>
+</div>
+</div>
+<!-- Invoices Table Section -->
+<div class="mt-12">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-lg font-bold text-on-surface">Tableau des Factures</h3>
+<button class="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
+                    Exporter CSV
+                    <span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+</button>
+</div>
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="px-6 py-4 text-label-sm uppercase text-on-surface-variant">Date</th>
+<th class="px-6 py-4 text-label-sm uppercase text-on-surface-variant">Identifiant</th>
+<th class="px-6 py-4 text-label-sm uppercase text-on-surface-variant">Hub</th>
+<th class="px-6 py-4 text-label-sm uppercase text-on-surface-variant">Client</th>
+<th class="px-6 py-4 text-label-sm uppercase text-on-surface-variant">Montant</th>
+<th class="px-6 py-4 text-label-sm uppercase text-on-surface-variant">Statut</th>
+<th class="px-6 py-4 text-label-sm uppercase text-on-surface-variant text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Invoice Row 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4 font-body-sm">12 Oct 2023</td>
+<td class="px-6 py-4 font-body-sm font-bold">#INV-98234</td>
+<td class="px-6 py-4 font-body-sm">Hub Nord</td>
+<td class="px-6 py-4 font-body-sm">Vanilla Exporters Ltd</td>
+<td class="px-6 py-4 font-body-sm font-bold">12.4M Ar</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full border border-green-200">Payée</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+<!-- Invoice Row 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4 font-body-sm">10 Oct 2023</td>
+<td class="px-6 py-4 font-body-sm font-bold">#INV-98233</td>
+<td class="px-6 py-4 font-body-sm">Hub Sud</td>
+<td class="px-6 py-4 font-body-sm">Zebu Logistique</td>
+<td class="px-6 py-4 font-body-sm font-bold">4.2M Ar</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full border border-blue-200">Émise</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+<!-- Invoice Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4 font-body-sm">08 Oct 2023</td>
+<td class="px-6 py-4 font-body-sm font-bold">#INV-98232</td>
+<td class="px-6 py-4 font-body-sm">Hub Ouest</td>
+<td class="px-6 py-4 font-body-sm">Mining Partners Mg</td>
+<td class="px-6 py-4 font-body-sm font-bold">28.9M Ar</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full border border-green-200">Payée</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+<!-- Invoice Row 4 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4 font-body-sm">05 Oct 2023</td>
+<td class="px-6 py-4 font-body-sm font-bold">#INV-98231</td>
+<td class="px-6 py-4 font-body-sm">Hub Nord</td>
+<td class="px-6 py-4 font-body-sm">Bio-Vanilla Sarl</td>
+<td class="px-6 py-4 font-body-sm font-bold">8.1M Ar</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-[10px] font-bold rounded-full border border-outline-variant">Émise</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="px-6 py-4 border-t border-outline-variant flex items-center justify-between">
+<span class="text-xs text-on-surface-variant">Affichage 1-4 sur 142 factures</span>
+<div class="flex gap-2">
+<button class="p-1 border border-outline-variant rounded hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span></button>
+<button class="p-1 border border-outline-variant rounded hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span></button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Mobile Only) -->
+<footer class="fixed bottom-0 w-full z-50 bg-surface-container-lowest border-t border-outline-variant shadow-lg h-16 md:hidden flex justify-around items-center px-4 pb-safe">
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-label-sm text-label-sm">Fleet</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary bg-secondary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-sm text-label-sm font-bold">Revenue</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-sm text-label-sm">Analytics</span>
+</div>
+</footer>
+<!-- FAB for quick action (Dashboard Context) -->
+<button class="fixed right-6 bottom-20 lg:bottom-10 z-50 w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+</button>
+<script>
+        // Simple micro-interaction for rows
+        document.querySelectorAll('tr').forEach(row => {
+            row.addEventListener('click', () => {
+                row.classList.toggle('bg-surface-container-high');
+            });
+        });
+    </script>
+</body></html>

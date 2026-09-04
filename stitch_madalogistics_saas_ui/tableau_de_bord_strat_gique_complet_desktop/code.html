@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Antsa Logistics | Executive Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;900&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Design System Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "primary": "#00348f",
+                "primary-container": "#1e4bb1",
+                "on-primary-container": "#b3c4ff",
+                "surface": "#f8f9ff",
+                "surface-container-lowest": "#ffffff",
+                "surface-container-low": "#eff4ff",
+                "surface-container-high": "#dce9ff",
+                "surface-container-highest": "#d3e4fe",
+                "on-surface": "#0b1c30",
+                "on-surface-variant": "#434653",
+                "outline": "#747684",
+                "outline-variant": "#c4c6d5",
+                "success": "#16a34a",
+                "alert": "#f97316",
+                "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px",
+                "card": "12px"
+            },
+            "fontFamily": {
+                "body-sm": ["Hanken Grotesk"],
+                "headline-lg": ["Hanken Grotesk"],
+                "headline-md": ["Hanken Grotesk"],
+                "label-md": ["Geist"],
+                "label-sm": ["Geist"]
+            },
+            "fontSize": {
+                "body-sm": ["14px", {"lineHeight": "20px"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .active-tab {
+            border-bottom: 2px solid #00348f;
+            color: #00348f;
+            font-weight: 600;
+        }
+        .chart-placeholder {
+            background: linear-gradient(180deg, rgba(0, 52, 143, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-sm overflow-hidden">
+<!-- Shell Layout -->
+<div class="flex h-screen w-full">
+<!-- SideNavBar (Shared Component) -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 bg-surface flex flex-col py-md px-sm border-r border-outline-variant z-50">
+<div class="px-md mb-xl">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+<div>
+<h1 class="text-headline-md font-black text-primary leading-tight">Antsa Logistics</h1>
+<p class="text-label-sm text-outline uppercase tracking-wider">Executive Workspace</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-xs">
+<!-- Dashboard Active -->
+<a class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container rounded-lg font-bold scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="text-label-md">Planning</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="text-label-md">Fleet</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="auto_graph">auto_graph</span>
+<span class="text-label-md">Optimization</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="text-label-md">Map</span>
+</a>
+</nav>
+<div class="mt-auto space-y-xs pt-md border-t border-outline-variant">
+<div class="p-md bg-surface-container-low rounded-xl mb-md">
+<p class="text-label-sm font-bold text-primary mb-xs">Upgrade Plan</p>
+<p class="text-[10px] text-outline leading-tight">Accédez à l'audit complet et aux rapports IA.</p>
+</div>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="support_agent">support_agent</span>
+<span class="text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="text-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] flex-1 h-screen overflow-y-auto bg-surface-container-low">
+<!-- Header (Fixed Top) -->
+<header class="sticky top-0 bg-surface/80 backdrop-blur-md z-40 px-xl py-md border-b border-outline-variant flex justify-between items-center">
+<div>
+<h2 class="text-headline-md font-headline-md text-primary">Executive Dashboard</h2>
+<p class="text-body-sm text-outline">Real-time supply chain overview</p>
+</div>
+<div class="flex items-center gap-md">
+<!-- Filters -->
+<div class="flex bg-white border border-outline-variant rounded-lg overflow-hidden p-xs">
+<button class="px-md py-xs text-label-md bg-primary-container text-on-primary-container rounded-md">Ce mois</button>
+<button class="px-md py-xs text-label-md text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors">Trimestre</button>
+<button class="px-md py-xs text-label-md text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors">Année</button>
+</div>
+<select class="bg-white border-outline-variant rounded-lg text-label-md focus:ring-primary focus:border-primary px-lg">
+<option>Toutes les plateformes (Hubs)</option>
+<option>Antananarivo Hub</option>
+<option>Tamatave Port</option>
+<option>Antsirabe Center</option>
+</select>
+<button class="bg-primary text-white px-lg py-sm rounded-lg text-label-md font-bold hover:bg-primary-container transition-all">
+                        Exporter PDF
+                    </button>
+</div>
+</header>
+<!-- KPI Header (4 Cards) -->
+<section class="grid grid-cols-4 gap-lg p-xl">
+<!-- Revenue -->
+<div class="bg-white border border-outline-variant rounded-card p-lg shadow-sm">
+<div class="flex justify-between items-start mb-sm">
+<p class="text-label-sm text-outline uppercase font-bold">Revenue Total</p>
+<span class="material-symbols-outlined text-primary">payments</span>
+</div>
+<h3 class="text-headline-md font-bold">45.2M Ar</h3>
+<div class="flex items-center gap-xs mt-xs text-success">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="text-label-sm">+12.5% vs mois dernier</span>
+</div>
+</div>
+<!-- Success Rate -->
+<div class="bg-white border border-outline-variant rounded-card p-lg shadow-sm">
+<div class="flex justify-between items-start mb-sm">
+<p class="text-label-sm text-outline uppercase font-bold">Delivery Success</p>
+<span class="material-symbols-outlined text-success">task_alt</span>
+</div>
+<h3 class="text-headline-md font-bold">98.4%</h3>
+<div class="flex items-center gap-xs mt-xs text-success">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="text-label-sm">+2.1% benchmark</span>
+</div>
+</div>
+<!-- Fill Rate -->
+<div class="bg-white border border-outline-variant rounded-card p-lg shadow-sm">
+<div class="flex justify-between items-start mb-sm">
+<p class="text-label-sm text-outline uppercase font-bold">Fill Rate vs Target</p>
+<span class="material-symbols-outlined text-alert">inventory_2</span>
+</div>
+<h3 class="text-headline-md font-bold">82.1%</h3>
+<div class="flex items-center gap-xs mt-xs text-alert">
+<span class="material-symbols-outlined text-sm">trending_down</span>
+<span class="text-label-sm">-4% vs objectif (86%)</span>
+</div>
+</div>
+<!-- Gains -->
+<div class="bg-white border border-outline-variant rounded-card p-lg shadow-sm">
+<div class="flex justify-between items-start mb-sm">
+<p class="text-label-sm text-outline uppercase font-bold">Optimization Gains</p>
+<span class="material-symbols-outlined text-primary">auto_fix_high</span>
+</div>
+<h3 class="text-headline-md font-bold">3.8M Ar</h3>
+<div class="flex items-center gap-xs mt-xs text-success">
+<span class="material-symbols-outlined text-sm">savings</span>
+<span class="text-label-sm">Économie de carburant</span>
+</div>
+</div>
+</section>
+<!-- Navigation Tabs -->
+<div class="px-xl mb-lg">
+<nav class="flex gap-xl border-b border-outline-variant overflow-x-auto no-scrollbar">
+<button class="tab-link pb-md text-label-md active-tab cursor-pointer whitespace-nowrap" onclick="switchTab('overview')">Vue d'ensemble</button>
+<button class="tab-link pb-md text-label-md text-outline hover:text-primary cursor-pointer whitespace-nowrap" onclick="switchTab('revenue')">Chiffre d'affaires</button>
+<button class="tab-link pb-md text-label-md text-outline hover:text-primary cursor-pointer whitespace-nowrap" onclick="switchTab('deliveries')">Livraisons &amp; Incidents</button>
+<button class="tab-link pb-md text-label-md text-outline hover:text-primary cursor-pointer whitespace-nowrap" onclick="switchTab('fleet')">Flotte</button>
+<button class="tab-link pb-md text-label-md text-outline hover:text-primary cursor-pointer whitespace-nowrap" onclick="switchTab('optimization')">Optimisation</button>
+<button class="tab-link pb-md text-label-md text-outline hover:text-primary cursor-pointer whitespace-nowrap" onclick="switchTab('audit')">Audit</button>
+</nav>
+</div>
+<!-- Dynamic Content Container -->
+<div class="px-xl pb-xl" id="tab-content">
+<!-- VUE D'ENSEMBLE (Default Content) -->
+<div class="tab-pane space-y-lg" id="content-overview">
+<div class="grid grid-cols-2 gap-lg">
+<!-- Revenue Mini Chart -->
+<div class="bg-white border border-outline-variant rounded-card p-lg h-64 flex flex-col">
+<h4 class="text-label-md font-bold mb-md">Evolution Chiffre d'Affaires</h4>
+<div class="flex-1 chart-placeholder rounded-lg flex items-end gap-xs px-sm pb-xs overflow-hidden">
+<div class="w-full bg-primary h-[40%] rounded-t-sm"></div>
+<div class="w-full bg-primary h-[55%] rounded-t-sm"></div>
+<div class="w-full bg-primary h-[45%] rounded-t-sm"></div>
+<div class="w-full bg-primary h-[70%] rounded-t-sm"></div>
+<div class="w-full bg-primary h-[65%] rounded-t-sm"></div>
+<div class="w-full bg-primary h-[85%] rounded-t-sm"></div>
+<div class="w-full bg-primary h-[75%] rounded-t-sm"></div>
+</div>
+</div>
+<!-- Delivery Rate Mini Chart -->
+<div class="bg-white border border-outline-variant rounded-card p-lg h-64 flex flex-col">
+<h4 class="text-label-md font-bold mb-md">Taux de Livraison Réussie (%)</h4>
+<div class="flex-1 chart-placeholder rounded-lg relative overflow-hidden">
+<svg class="w-full h-full" viewbox="0 0 400 150">
+<path d="M0 120 Q 50 100, 100 110 T 200 80 T 300 50 T 400 30" fill="none" stroke="#16a34a" stroke-width="3"></path>
+<path d="M0 120 Q 50 100, 100 110 T 200 80 T 300 50 T 400 30 V 150 H 0 Z" fill="rgba(22, 163, 74, 0.1)"></path>
+</svg>
+</div>
+</div>
+<!-- Fill Rate Mini Gauge -->
+<div class="bg-white border border-outline-variant rounded-card p-lg h-64 flex flex-col items-center justify-center">
+<h4 class="text-label-md font-bold mb-md w-full">Taux de Remplissage Moyen</h4>
+<div class="relative w-40 h-40">
+<svg class="w-full h-full" viewbox="0 0 36 36">
+<path class="stroke-surface-container-high" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+<path class="stroke-alert" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="82, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-headline-md font-bold">82%</span>
+<span class="text-label-sm text-outline">Optimisé</span>
+</div>
+</div>
+</div>
+<!-- Optimization Gains -->
+<div class="bg-primary rounded-card p-lg h-64 text-white flex flex-col relative overflow-hidden">
+<div class="z-10">
+<h4 class="text-label-md font-bold mb-sm opacity-80">Gains d'Optimisation IA</h4>
+<p class="text-headline-lg font-bold">3.820.000 Ar</p>
+<p class="text-body-sm mt-md opacity-90 max-w-[280px]">Grâce à la mutualisation des tournées et la réduction des kilomètres à vide ce mois-ci.</p>
+<button class="mt-lg bg-white text-primary px-lg py-sm rounded-lg text-label-sm font-bold flex items-center gap-sm">
+                                    Voir le rapport <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<span class="material-symbols-outlined absolute -bottom-8 -right-8 text-[160px] opacity-10">hub</span>
+</div>
+</div>
+</div>
+<!-- CHIFFRE D'AFFAIRES (Hidden initially) -->
+<div class="tab-pane hidden space-y-lg" id="content-revenue">
+<div class="bg-white border border-outline-variant rounded-card p-lg h-[400px]">
+<div class="flex justify-between items-center mb-xl">
+<h4 class="text-label-md font-bold">CA Mensuel par Hub</h4>
+<div class="flex gap-md">
+<span class="flex items-center gap-xs text-label-sm text-outline"><div class="w-3 h-3 bg-primary rounded-full"></div> Tana</span>
+<span class="flex items-center gap-xs text-label-sm text-outline"><div class="w-3 h-3 bg-success rounded-full"></div> Tamatave</span>
+<span class="flex items-center gap-xs text-label-sm text-outline"><div class="w-3 h-3 bg-alert rounded-full"></div> Antsirabe</span>
+</div>
+</div>
+<div class="flex-1 flex items-end gap-8 h-64 px-md">
+<!-- Placeholder visualization for line charts -->
+<div class="w-full relative h-full">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0 80 L 20 70 L 40 75 L 60 50 L 80 55 L 100 30" fill="none" stroke="#00348f" stroke-width="2"></path>
+<path d="M0 90 L 20 85 L 40 82 L 60 70 L 80 65 L 100 55" fill="none" stroke="#16a34a" stroke-width="2"></path>
+</svg>
+<div class="absolute bottom-0 left-0 right-0 flex justify-between text-label-sm text-outline mt-md">
+<span>Jan</span><span>Fev</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-lg">
+<div class="col-span-2 bg-white border border-outline-variant rounded-card overflow-hidden">
+<div class="p-lg border-b border-outline-variant bg-surface-container-low">
+<h4 class="text-label-md font-bold">Facturation &amp; Paiements</h4>
+</div>
+<table class="w-full text-left">
+<thead class="bg-surface-container-lowest border-b border-outline-variant">
+<tr>
+<th class="p-md text-label-sm text-outline uppercase font-bold">Facture #</th>
+<th class="p-md text-label-sm text-outline uppercase font-bold">Client</th>
+<th class="p-md text-label-sm text-outline uppercase font-bold">Montant</th>
+<th class="p-md text-label-sm text-outline uppercase font-bold">Statut</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr>
+<td class="p-md text-label-sm font-bold">FAC-2023-0891</td>
+<td class="p-md text-body-sm">Madexport S.A.</td>
+<td class="p-md text-body-sm">4.200.000 Ar</td>
+<td class="p-md"><span class="px-md py-xs bg-success/10 text-success text-label-sm rounded-full">Payée</span></td>
+</tr>
+<tr>
+<td class="p-md text-label-sm font-bold">FAC-2023-0892</td>
+<td class="p-md text-body-sm">E-Mada Express</td>
+<td class="p-md text-body-sm">1.550.000 Ar</td>
+<td class="p-md"><span class="px-md py-xs bg-alert/10 text-alert text-label-sm rounded-full">En attente</span></td>
+</tr>
+<tr>
+<td class="p-md text-label-sm font-bold">FAC-2023-0893</td>
+<td class="p-md text-body-sm">Distrimad Group</td>
+<td class="p-md text-body-sm">8.400.000 Ar</td>
+<td class="p-md"><span class="px-md py-xs bg-success/10 text-success text-label-sm rounded-full">Payée</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-white border border-outline-variant rounded-card p-lg flex flex-col justify-between shadow-sm">
+<div>
+<h4 class="text-label-md font-bold mb-lg">Résumé Financier</h4>
+<div class="space-y-md">
+<div class="flex justify-between">
+<span class="text-body-sm text-outline">Émis</span>
+<span class="text-body-sm font-bold">14.150.000 Ar</span>
+</div>
+<div class="flex justify-between">
+<span class="text-body-sm text-outline">Encaissé</span>
+<span class="text-body-sm font-bold text-success">12.600.000 Ar</span>
+</div>
+<div class="flex justify-between pt-md border-t border-outline-variant">
+<span class="text-body-sm text-outline">Reste à percevoir</span>
+<span class="text-body-sm font-bold text-alert">1.550.000 Ar</span>
+</div>
+</div>
+</div>
+<button class="w-full bg-surface-container-high text-primary py-sm rounded-lg font-bold text-label-sm mt-md">Détails Trésorerie</button>
+</div>
+</div>
+</div>
+<!-- LIVRAISONS & INCIDENTS (Hidden) -->
+<div class="tab-pane hidden grid grid-cols-3 gap-lg" id="content-deliveries">
+<div class="col-span-1 space-y-lg">
+<div class="bg-white border border-outline-variant rounded-card p-lg h-64 flex flex-col items-center">
+<h4 class="text-label-md font-bold mb-md w-full">Statut des Livraisons</h4>
+<div class="flex-1 w-full flex items-center justify-around">
+<div class="w-32 h-32 rounded-full border-8 border-success flex items-center justify-center relative">
+<div class="absolute inset-0 border-8 border-primary border-t-transparent border-l-transparent rotate-45 rounded-full"></div>
+<span class="text-headline-md font-bold">92%</span>
+</div>
+<div class="space-y-xs">
+<div class="flex items-center gap-xs text-label-sm"><div class="w-2 h-2 bg-success rounded-full"></div> Livré</div>
+<div class="flex items-center gap-xs text-label-sm"><div class="w-2 h-2 bg-primary rounded-full"></div> En cours</div>
+<div class="flex items-center gap-xs text-label-sm"><div class="w-2 h-2 bg-alert rounded-full"></div> Retard</div>
+<div class="flex items-center gap-xs text-label-sm"><div class="w-2 h-2 bg-error rounded-full"></div> Incident</div>
+</div>
+</div>
+</div>
+<div class="bg-white border border-outline-variant rounded-card p-lg flex items-center gap-lg">
+<div class="p-md bg-surface-container-low rounded-lg">
+<span class="material-symbols-outlined text-primary text-3xl">schedule</span>
+</div>
+<div>
+<p class="text-label-sm text-outline font-bold">Délai de Livraison Moyen</p>
+<p class="text-headline-md font-bold">4h 12m</p>
+<p class="text-label-sm text-success font-bold">-18m vs mois préc.</p>
+</div>
+</div>
+</div>
+<div class="col-span-2 bg-white border border-outline-variant rounded-card overflow-hidden">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center">
+<h4 class="text-label-md font-bold">Journal des Incidents Récents</h4>
+<span class="px-md py-xs bg-error/10 text-error text-label-sm rounded-full font-bold">3 Critiques</span>
+</div>
+<table class="w-full text-left">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="p-md text-label-sm text-outline">Date</th>
+<th class="p-md text-label-sm text-outline">Véhicule</th>
+<th class="p-md text-label-sm text-outline">Incident</th>
+<th class="p-md text-label-sm text-outline">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-lowest">
+<td class="p-md text-label-sm">12/06 14:30</td>
+<td class="p-md text-body-sm font-bold">TANA-012-AX</td>
+<td class="p-md text-body-sm"><span class="flex items-center gap-sm text-error"><span class="material-symbols-outlined text-sm">warning</span> Panne moteur</span></td>
+<td class="p-md"><button class="text-primary text-label-sm font-bold hover:underline">Détails</button></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest">
+<td class="p-md text-label-sm">12/06 11:20</td>
+<td class="p-md text-body-sm font-bold">ANTSA-45-BG</td>
+<td class="p-md text-body-sm"><span class="flex items-center gap-sm text-alert"><span class="material-symbols-outlined text-sm">location_off</span> Écart d'itinéraire</span></td>
+<td class="p-md"><button class="text-primary text-label-sm font-bold hover:underline">Détails</button></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest">
+<td class="p-md text-label-sm">11/06 09:15</td>
+<td class="p-md text-body-sm font-bold">MADA-99-CC</td>
+<td class="p-md text-body-sm"><span class="flex items-center gap-sm text-error"><span class="material-symbols-outlined text-sm">block</span> Livraison refusée</span></td>
+<td class="p-md"><button class="text-primary text-label-sm font-bold hover:underline">Détails</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- FLOTTE (Hidden) -->
+<div class="tab-pane hidden space-y-lg" id="content-fleet">
+<div class="grid grid-cols-2 gap-lg">
+<div class="bg-white border border-outline-variant rounded-card p-lg flex items-center gap-lg">
+<div class="p-lg bg-surface-container-high rounded-full">
+<span class="material-symbols-outlined text-primary text-4xl">local_shipping</span>
+</div>
+<div>
+<h4 class="text-label-md text-outline">Véhicules Actifs</h4>
+<p class="text-headline-lg font-bold">42 / 48</p>
+<p class="text-label-sm text-success">87% de disponibilité</p>
+</div>
+</div>
+<div class="bg-white border border-outline-variant rounded-card p-lg flex items-center gap-lg">
+<div class="p-lg bg-surface-container-high rounded-full">
+<span class="material-symbols-outlined text-primary text-4xl">badge</span>
+</div>
+<div>
+<h4 class="text-label-md text-outline">Chauffeurs en Service</h4>
+<p class="text-headline-lg font-bold">38 / 40</p>
+<p class="text-label-sm text-success">95% de présence</p>
+</div>
+</div>
+</div>
+<div class="bg-white border border-outline-variant rounded-card p-lg h-80 flex flex-col">
+<h4 class="text-label-md font-bold mb-lg">Taux d'utilisation de la flotte (%)</h4>
+<div class="flex-1 flex items-end gap-2 h-full">
+<!-- Utilization Bar Chart -->
+<div class="flex-1 bg-surface-container-low h-full flex flex-col justify-end">
+<div class="bg-primary h-[85%] rounded-t-sm w-full"></div>
+<span class="text-[10px] text-outline text-center mt-xs">Lun</span>
+</div>
+<div class="flex-1 bg-surface-container-low h-full flex flex-col justify-end">
+<div class="bg-primary h-[92%] rounded-t-sm w-full"></div>
+<span class="text-[10px] text-outline text-center mt-xs">Mar</span>
+</div>
+<div class="flex-1 bg-surface-container-low h-full flex flex-col justify-end">
+<div class="bg-primary h-[88%] rounded-t-sm w-full"></div>
+<span class="text-[10px] text-outline text-center mt-xs">Mer</span>
+</div>
+<div class="flex-1 bg-surface-container-low h-full flex flex-col justify-end">
+<div class="bg-primary h-[70%] rounded-t-sm w-full"></div>
+<span class="text-[10px] text-outline text-center mt-xs">Jeu</span>
+</div>
+<div class="flex-1 bg-surface-container-low h-full flex flex-col justify-end">
+<div class="bg-primary h-[82%] rounded-t-sm w-full"></div>
+<span class="text-[10px] text-outline text-center mt-xs">Ven</span>
+</div>
+<div class="flex-1 bg-surface-container-low h-full flex flex-col justify-end">
+<div class="bg-primary h-[40%] rounded-t-sm w-full"></div>
+<span class="text-[10px] text-outline text-center mt-xs">Sam</span>
+</div>
+</div>
+</div>
+<div class="bg-white border border-outline-variant rounded-card overflow-hidden">
+<div class="p-lg border-b border-outline-variant">
+<h4 class="text-label-md font-bold">Remplissage par Véhicule</h4>
+</div>
+<table class="w-full text-left">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="p-md text-label-sm text-outline">Matricule</th>
+<th class="p-md text-label-sm text-outline">Capacité Max</th>
+<th class="p-md text-label-sm text-outline">Moy. Remplissage</th>
+<th class="p-md text-label-sm text-outline">Statut</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr>
+<td class="p-md text-label-sm font-bold">TANA-001</td>
+<td class="p-md text-body-sm">3.5 Tonnes</td>
+<td class="p-md text-body-sm">
+<div class="flex items-center gap-md">
+<div class="flex-1 bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-success h-full w-[95%]"></div>
+</div>
+<span class="text-label-sm font-bold">95%</span>
+</div>
+</td>
+<td class="p-md"><span class="px-md py-xs bg-success/10 text-success text-label-sm rounded-full">Optimal</span></td>
+</tr>
+<tr>
+<td class="p-md text-label-sm font-bold">TANA-005</td>
+<td class="p-md text-body-sm">10 Tonnes</td>
+<td class="p-md text-body-sm">
+<div class="flex items-center gap-md">
+<div class="flex-1 bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-alert h-full w-[62%]"></div>
+</div>
+<span class="text-label-sm font-bold">62%</span>
+</div>
+</td>
+<td class="p-md"><span class="px-md py-xs bg-alert/10 text-alert text-label-sm rounded-full">Sous-exploité</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- OPTIMISATION (Hidden) -->
+<div class="tab-pane hidden grid grid-cols-12 gap-lg" id="content-optimization">
+<div class="col-span-4 space-y-lg">
+<div class="bg-primary rounded-card p-xl text-white shadow-lg shadow-primary/20 flex flex-col justify-between h-full">
+<div>
+<h4 class="text-label-sm font-bold opacity-75 uppercase tracking-widest mb-sm">Total Savings IA</h4>
+<p class="text-[48px] font-black leading-none">12.4M Ar</p>
+<p class="text-body-sm mt-md opacity-80">Cumul des gains sur les 6 derniers mois grâce aux algorithmes de pooling et d'optimisation de trajets.</p>
+</div>
+<div class="mt-xl grid grid-cols-2 gap-md">
+<div class="p-md bg-white/10 rounded-lg">
+<p class="text-label-sm opacity-70">Distance</p>
+<p class="text-body-lg font-bold">-4,200 km</p>
+</div>
+<div class="p-md bg-white/10 rounded-lg">
+<p class="text-label-sm opacity-70">Carburant</p>
+<p class="text-body-lg font-bold">-1,850 L</p>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-8 bg-white border border-outline-variant rounded-card overflow-hidden">
+<div class="p-lg border-b border-outline-variant">
+<h4 class="text-label-md font-bold">Exécutions &amp; Justifications</h4>
+</div>
+<table class="w-full text-left">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="p-md text-label-sm text-outline font-bold">Execution ID</th>
+<th class="p-md text-label-sm text-outline font-bold">Méthode</th>
+<th class="p-md text-label-sm text-outline font-bold">Impact Direct</th>
+<th class="p-md text-label-sm text-outline font-bold">Justification</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr>
+<td class="p-md text-label-sm font-bold">OPT-0422</td>
+<td class="p-md text-body-sm">Tour Pooling</td>
+<td class="p-md text-body-sm font-bold text-success">-12% distance</td>
+<td class="p-md text-body-sm text-outline">Fusion des tournées Tana-Sud et Tana-Est.</td>
+</tr>
+<tr>
+<td class="p-md text-label-sm font-bold">OPT-0425</td>
+<td class="p-md text-body-sm">Rerouting dynamique</td>
+<td class="p-md text-body-sm font-bold text-success">-45min trajet</td>
+<td class="p-md text-body-sm text-outline">Contournement zone embouteillée Analakely.</td>
+</tr>
+<tr>
+<td class="p-md text-label-sm font-bold">OPT-0429</td>
+<td class="p-md text-body-sm">Optimisation de charge</td>
+<td class="p-md text-body-sm font-bold text-success">+15% fill rate</td>
+<td class="p-md text-body-sm text-outline">Réorganisation du chargement LIFO.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- AUDIT (Hidden) -->
+<div class="tab-pane hidden space-y-lg" id="content-audit">
+<div class="grid grid-cols-4 gap-lg">
+<div class="bg-white border border-outline-variant rounded-card p-lg text-center">
+<p class="text-label-sm text-outline mb-xs">Actions Auditées</p>
+<p class="text-headline-md font-bold">1,248</p>
+</div>
+<div class="bg-white border border-outline-variant rounded-card p-lg text-center">
+<p class="text-label-sm text-outline mb-xs">Connexions</p>
+<p class="text-headline-md font-bold">84</p>
+</div>
+<div class="bg-white border border-outline-variant rounded-card p-lg text-center border-l-4 border-l-alert">
+<p class="text-label-sm text-outline mb-xs">Alertes Sécurité</p>
+<p class="text-headline-md font-bold text-alert">2</p>
+</div>
+<div class="bg-white border border-outline-variant rounded-card p-lg text-center border-l-4 border-l-success">
+<p class="text-label-sm text-outline mb-xs">Modifications Validées</p>
+<p class="text-headline-md font-bold text-success">100%</p>
+</div>
+</div>
+<div class="bg-white border border-outline-variant rounded-card overflow-hidden">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center">
+<h4 class="text-label-md font-bold">Entrées Significatives Récentes</h4>
+<a class="text-primary text-label-sm font-bold flex items-center gap-sm" href="#">Voir tous les logs <span class="material-symbols-outlined text-sm">open_in_new</span></a>
+</div>
+<div class="divide-y divide-outline-variant">
+<div class="p-lg flex justify-between items-center hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-lg">
+<div class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center font-bold">JD</div>
+<div>
+<p class="text-body-sm font-bold">Jean Dupont <span class="text-outline font-normal">a modifié le tarif de zone Tamatave</span></p>
+<p class="text-label-sm text-outline">Aujourd'hui à 09:15 • IP: 197.158.0.42</p>
+</div>
+</div>
+<span class="px-md py-xs bg-surface-container-high rounded text-label-sm text-primary font-bold">Finance</span>
+</div>
+<div class="p-lg flex justify-between items-center hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-lg">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-outline flex items-center justify-center font-bold">RS</div>
+<div>
+<p class="text-body-sm font-bold">Rakoto Solo <span class="text-outline font-normal">a forcé la clôture de la tournée #4521</span></p>
+<p class="text-label-sm text-outline">Hier à 18:30 • IP: 41.242.12.11</p>
+</div>
+</div>
+<span class="px-md py-xs bg-alert/10 rounded text-alert text-label-sm font-bold">Operation</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Scripts for Interaction -->
+<script>
+        function switchTab(tabId) {
+            // Update Tab Links Style
+            const links = document.querySelectorAll('.tab-link');
+            links.forEach(link => {
+                link.classList.remove('active-tab');
+                link.classList.add('text-outline');
+            });
+            event.target.classList.add('active-tab');
+            event.target.classList.remove('text-outline');
+
+            // Hide all tab panes
+            const panes = document.querySelectorAll('.tab-pane');
+            panes.forEach(pane => pane.classList.add('hidden'));
+
+            // Show target tab pane
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+        }
+
+        // Initialize any specific logic
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Antsa Logistics Executive Dashboard Initialized");
+        });
+    </script>
+</body></html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inscription - MadaLogistics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Hanken+Grotesk:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#b3c4ff",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary": "#006c49",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-bright": "#f8f9ff",
+                        "on-surface": "#0b1c30",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "secondary-container": "#6cf8bb",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#00348f",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary": "#563400",
+                        "surface-container-low": "#eff4ff",
+                        "error": "#ba1a1a",
+                        "background": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "on-error": "#ffffff",
+                        "primary-container": "#1e4bb1",
+                        "inverse-surface": "#213145",
+                        "outline-variant": "#c4c6d5",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-background": "#0b1c30",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-fixed-dim": "#4edea3",
+                        "tertiary-container": "#754900",
+                        "on-tertiary-container": "#ffb95f",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-primary-fixed-variant": "#063ea5",
+                        "error-container": "#ffdad6",
+                        "outline": "#747684",
+                        "on-surface-variant": "#434653",
+                        "on-secondary-container": "#00714d",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-tint": "#2f58be",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "0.5rem",
+                        "lg": "1.5rem",
+                        "base": "4px",
+                        "xl": "2.5rem",
+                        "gutter": "1.5rem",
+                        "margin-mobile": "1rem",
+                        "margin-desktop": "2rem",
+                        "md": "1rem",
+                        "xs": "0.25rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-md": ["Geist"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #F8FAFC;
+        }
+        .signup-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        .input-focus-ring:focus {
+            outline: none;
+            border-color: #00348f;
+            box-shadow: 0 0 0 2px rgba(0, 52, 143, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-on-background antialiased overflow-x-hidden">
+<!-- Sticky Header (Suppressing Nav as per Transactional Rule) -->
+<header class="w-full top-0 sticky bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop h-16 z-10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl">local_shipping</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">MadaLogistics</span>
+</div>
+<div class="hidden md:flex gap-4">
+<span class="text-label-sm font-label-sm text-outline uppercase tracking-widest">SaaS B2B Madagascar</span>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center p-gutter">
+<div class="w-full max-w-2xl bg-surface-container-lowest signup-card rounded-xl border border-outline-variant p-xl flex flex-col gap-8">
+<div class="text-center space-y-2">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Créer un compte entreprise</h1>
+<p class="text-on-surface-variant font-body-md">Optimisez votre chaîne logistique sur toute la Grande Île.</p>
+</div>
+<form class="space-y-6" onsubmit="return false;">
+<!-- Row 1: Company & Name -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant" for="company">Nom de l'entreprise</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">domain</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md input-focus-ring transition-all placeholder:text-outline-variant" id="company" placeholder="Ex: Transit Madagascar SARL" type="text"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant" for="fullname">Nom complet du contact</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">person</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md input-focus-ring transition-all placeholder:text-outline-variant" id="fullname" placeholder="Ex: Jean Rakoto" type="text"/>
+</div>
+</div>
+</div>
+<!-- Row 2: Email & Phone -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant" for="email">Email professionnel</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">mail</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md input-focus-ring transition-all placeholder:text-outline-variant" id="email" placeholder="contact@entreprise.mg" type="email"/>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant" for="phone">Téléphone</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">call</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md input-focus-ring transition-all placeholder:text-outline-variant" id="phone" placeholder="+261 -- -- --- --" type="tel"/>
+</div>
+</div>
+</div>
+<!-- Row 3: Hub Selector -->
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant" for="hub">Hub logistique principal</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">hub</span>
+<select class="w-full pl-10 pr-10 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md input-focus-ring transition-all appearance-none" id="hub">
+<option disabled="" selected="" value="">Sélectionnez un hub</option>
+<option value="antananarivo">Antananarivo (Analamanga)</option>
+<option value="toamasina">Toamasina (Atsinanana)</option>
+<option value="antsirabe">Antsirabe (Vakinankaratra)</option>
+<option value="mahajanga">Mahajanga (Boeny)</option>
+<option value="fianarantsoa">Fianarantsoa (Haute Matsiatra)</option>
+<option value="toliara">Toliara (Atsimo-Andrefana)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Row 4: Passwords -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant" for="password">Mot de passe</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">lock</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md input-focus-ring transition-all placeholder:text-outline-variant" id="password" oninput="updateStrength(this.value)" placeholder="••••••••" type="password"/>
+</div>
+<!-- Strength Indicator -->
+<div class="flex gap-1 mt-2 px-1">
+<div class="h-1 flex-1 rounded-full bg-outline-variant transition-colors" id="strength-1"></div>
+<div class="h-1 flex-1 rounded-full bg-outline-variant transition-colors" id="strength-2"></div>
+<div class="h-1 flex-1 rounded-full bg-outline-variant transition-colors" id="strength-3"></div>
+<div class="h-1 flex-1 rounded-full bg-outline-variant transition-colors" id="strength-4"></div>
+</div>
+<p class="text-[10px] font-label-sm text-outline uppercase tracking-wider px-1" id="strength-text">Sécurité : À remplir</p>
+</div>
+<div class="space-y-1.5">
+<label class="font-label-md text-label-md text-on-surface-variant" for="confirm-password">Confirmer le mot de passe</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">lock_reset</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md input-focus-ring transition-all placeholder:text-outline-variant" id="confirm-password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+</div>
+<!-- T&C Checkbox -->
+<div class="flex items-start gap-3">
+<input class="mt-1 w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary-container" id="terms" type="checkbox"/>
+<label class="text-body-sm font-body-sm text-on-surface-variant" for="terms">
+                        J'accepte les <a class="text-primary font-medium hover:underline" href="#">Conditions Générales d'Utilisation</a> et la <a class="text-primary font-medium hover:underline" href="#">Politique de Confidentialité</a> de MadaLogistics.
+                    </label>
+</div>
+<!-- CTA -->
+<button class="w-full py-3.5 bg-primary text-on-primary font-label-md text-label-md uppercase tracking-widest rounded-lg shadow-sm hover:bg-primary-container active:scale-[0.98] transition-all duration-200">
+                    Créer mon compte
+                </button>
+<div class="text-center pt-2">
+<p class="font-body-md text-on-surface-variant">
+                        Déjà un compte ? <a class="text-primary font-semibold hover:underline" href="#">Se connecter</a>
+</p>
+</div>
+</form>
+</div>
+</main>
+<!-- Simple Footer for Transactional Screen -->
+<footer class="py-8 text-center border-t border-outline-variant/30 mt-auto">
+<p class="text-label-sm font-label-sm text-outline">
+            © 2024 MadaLogistics Solutions. Tous droits réservés. <br class="md:hidden"/> 
+            Propulsé par la technologie Cloud locale.
+        </p>
+</footer>
+<script>
+        function updateStrength(val) {
+            const s1 = document.getElementById('strength-1');
+            const s2 = document.getElementById('strength-2');
+            const s3 = document.getElementById('strength-3');
+            const s4 = document.getElementById('strength-4');
+            const text = document.getElementById('strength-text');
+
+            // Reset
+            [s1, s2, s3, s4].forEach(el => el.classList.remove('bg-error', 'bg-tertiary', 'bg-secondary', 'bg-outline-variant'));
+            [s1, s2, s3, s4].forEach(el => el.classList.add('bg-outline-variant'));
+
+            if (val.length === 0) {
+                text.innerText = 'Sécurité : À remplir';
+                return;
+            }
+
+            if (val.length < 6) {
+                s1.classList.remove('bg-outline-variant');
+                s1.classList.add('bg-error');
+                text.innerText = 'Sécurité : Faible';
+                text.classList.add('text-error');
+                text.classList.remove('text-outline', 'text-tertiary', 'text-secondary');
+            } else if (val.length < 10) {
+                s1.classList.replace('bg-outline-variant', 'bg-tertiary');
+                s2.classList.replace('bg-outline-variant', 'bg-tertiary');
+                text.innerText = 'Sécurité : Moyenne';
+                text.classList.replace('text-error', 'text-tertiary');
+            } else if (val.length < 14) {
+                s1.classList.replace('bg-outline-variant', 'bg-secondary');
+                s2.classList.replace('bg-outline-variant', 'bg-secondary');
+                s3.classList.replace('bg-outline-variant', 'bg-secondary');
+                text.innerText = 'Sécurité : Forte';
+                text.classList.replace('text-tertiary', 'text-secondary');
+            } else {
+                s1.classList.replace('bg-outline-variant', 'bg-secondary');
+                s2.classList.replace('bg-outline-variant', 'bg-secondary');
+                s3.classList.replace('bg-outline-variant', 'bg-secondary');
+                s4.classList.replace('bg-outline-variant', 'bg-secondary');
+                text.innerText = 'Sécurité : Optimale';
+                text.classList.replace('text-tertiary', 'text-secondary');
+            }
+        }
+    </script>
+</body></html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics - Gestion de la Flotte</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#b4c5ff",
+                        "on-secondary-container": "#00714d",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#434653",
+                        "surface": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#00174b",
+                        "on-background": "#0b1c30",
+                        "surface-variant": "#d3e4fe",
+                        "primary-container": "#1e4bb1",
+                        "primary": "#00348f",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "inverse-surface": "#213145",
+                        "tertiary": "#563400",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#c4c6d5",
+                        "on-primary-container": "#b3c4ff",
+                        "secondary-container": "#6cf8bb",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#eff4ff",
+                        "on-secondary-fixed": "#002113",
+                        "secondary-fixed": "#6ffbbe",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "outline": "#747684",
+                        "on-surface": "#0b1c30",
+                        "background": "#f8f9ff",
+                        "surface-tint": "#2f58be",
+                        "primary-fixed": "#dbe1ff",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary": "#006c49",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary-fixed-variant": "#063ea5",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "tertiary-container": "#754900",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-container": "#ffb95f",
+                        "on-secondary-fixed-variant": "#005236"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "1rem",
+                        "base": "4px",
+                        "margin-desktop": "2rem",
+                        "lg": "1.5rem",
+                        "xl": "2.5rem",
+                        "gutter": "1.5rem",
+                        "xs": "0.25rem",
+                        "margin-mobile": "1rem",
+                        "sm": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-md": ["Geist"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"]
+                    },
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #F8FAFC;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar Shell -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 bg-surface-container-low dark:bg-on-background border-r border-outline-variant dark:border-outline flex flex-col h-full py-md px-sm z-50">
+<!-- Brand Identity -->
+<div class="px-md py-lg flex items-center gap-sm">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-black text-primary dark:text-primary-fixed-dim leading-none">MadaLogistics</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Supply Chain Ops</p>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="mt-lg flex-1 flex flex-col gap-xs overflow-y-auto hide-scrollbar">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-inverse-surface transition-all cursor-pointer transform active:scale-95 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span>Orders</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-inverse-surface transition-all cursor-pointer transform active:scale-95 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Planning</span>
+</a>
+<!-- Active State: Fleet (Flotte) -->
+<a class="flex items-center gap-md px-md py-sm text-primary dark:text-primary-fixed-dim font-bold bg-primary-container/10 rounded-lg hover:bg-surface-container-highest transition-all cursor-pointer transform active:scale-95 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+<span>Fleet</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-inverse-surface transition-all cursor-pointer transform active:scale-95 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">auto_graph</span>
+<span>Optimization</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest dark:hover:bg-inverse-surface transition-all cursor-pointer transform active:scale-95 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">map</span>
+<span>Map</span>
+</a>
+</nav>
+<!-- CTA Action -->
+<div class="px-md py-md">
+<button class="w-full py-md bg-primary text-on-primary rounded-xl font-bold flex items-center justify-center gap-sm hover:opacity-90 transition-opacity transform active:scale-95">
+<span class="material-symbols-outlined">add_circle</span>
+                New Dispatch
+            </button>
+</div>
+<!-- Footer Links -->
+<div class="mt-auto border-t border-outline-variant/30 pt-md flex flex-col gap-xs">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-highest transition-all font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas Wrapper -->
+<main class="ml-[280px] min-h-screen flex flex-col">
+<!-- TopNavBar Shell -->
+<header class="w-full h-16 bg-surface dark:bg-on-background border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg sticky top-0 z-40">
+<div class="flex items-center gap-md flex-1">
+<div class="max-w-md w-full relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-body-sm text-body-sm transition-all" placeholder="Rechercher un véhicule..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg ml-lg">
+<div class="flex items-center gap-sm">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant/50"></div>
+<div class="flex items-center gap-md cursor-pointer hover:bg-surface-container-low p-1 pr-3 rounded-full transition-all">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="Close-up professional headshot of a Malagasy male logistics manager in his 40s, wearing a crisp navy polo shirt. He has a warm, confident expression and short dark hair. The lighting is soft and professional, set against a blurred modern office background with subtle blue accents, following a clean corporate B2B aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_za10V4BZ6-jyOfY62-ywygmFNGxfuoZpToT86CvZld5VuQHpHv6YLrZvVfuFFnmh6OnI7n9fabyxLQLNCOQjo1ea_Uskspwvm6EkVGcXfajnXmVVYgb7iMtknfSi3XOP-VyAC1k-8CNFmlPsUuv5d4rFeJUxFj8HOPPIYDEMfjqqzLbRrAGi1ubH48Fp8R6eWQSgFTFnaTGPHqEefZZjRNJvyC9NnW6s3Dj75v4w3MBGWKPAGxqmiQ"/>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Admin Panel</span>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<section class="p-xl space-y-xl max-w-[1440px] mx-auto w-full">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-lg">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Gestion de la Flotte</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Suivi et disponibilité de vos véhicules en temps réel</p>
+</div>
+<button class="flex items-center justify-center gap-sm bg-primary text-on-primary px-lg py-md rounded-xl font-bold shadow-sm hover:bg-primary-container transition-all active:scale-95">
+<span class="material-symbols-outlined">add</span>
+                    Ajouter un véhicule
+                </button>
+</div>
+<!-- Dashboard Stats / Filters -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-lg">
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant hover:border-primary transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<div class="p-3 bg-surface-container rounded-lg text-primary group-hover:bg-primary group-hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<span class="text-label-sm font-bold text-on-surface-variant uppercase tracking-widest">Tous</span>
+</div>
+<div class="text-headline-md font-bold text-on-surface">32</div>
+<div class="text-label-sm text-on-surface-variant mt-1">Total de véhicules</div>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant hover:border-secondary transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<div class="p-3 bg-secondary/10 rounded-lg text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-all">
+<span class="material-symbols-outlined">task_alt</span>
+</div>
+<span class="text-label-sm font-bold text-on-surface-variant uppercase tracking-widest">Disponibles</span>
+</div>
+<div class="text-headline-md font-bold text-on-surface">18</div>
+<div class="text-label-sm text-on-surface-variant mt-1">Prêts pour mission</div>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant hover:border-tertiary transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<div class="p-3 bg-tertiary/10 rounded-lg text-tertiary group-hover:bg-tertiary group-hover:text-on-tertiary transition-all">
+<span class="material-symbols-outlined">departure_board</span>
+</div>
+<span class="text-label-sm font-bold text-on-surface-variant uppercase tracking-widest">En mission</span>
+</div>
+<div class="text-headline-md font-bold text-on-surface">12</div>
+<div class="text-label-sm text-on-surface-variant mt-1">En cours de trajet</div>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant hover:border-error transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<div class="p-3 bg-error/10 rounded-lg text-error group-hover:bg-error group-hover:text-on-error transition-all">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<span class="text-label-sm font-bold text-on-surface-variant uppercase tracking-widest">Maintenance</span>
+</div>
+<div class="text-headline-md font-bold text-on-surface">2</div>
+<div class="text-label-sm text-on-surface-variant mt-1">Arrêt technique</div>
+</div>
+</div>
+<!-- Fleet Table -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-sm">
+<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-low/30">
+<h3 class="font-headline-md text-headline-md text-on-surface">Détails de la Flotte</h3>
+<div class="flex items-center gap-md">
+<button class="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg text-label-md font-semibold text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                            Filtres
+                        </button>
+<button class="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg text-label-md font-semibold text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                            Exporter CSV
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low/50">
+<tr>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Matricule</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Type</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Capacité (kg)</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Capacité (m³)</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Chauffeur</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Statut</th>
+<th class="px-lg py-md font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<!-- Entry 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-lg py-lg">
+<span class="font-headline-md text-body-md text-primary font-bold">4502 TBD</span>
+</td>
+<td class="px-lg py-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">local_shipping</span>
+<span class="font-body-md text-on-surface">Camion Isuzu</span>
+</div>
+</td>
+<td class="px-lg py-lg text-right font-label-md text-on-surface">10,000 kg</td>
+<td class="px-lg py-lg text-right font-label-md text-on-surface">45 m³</td>
+<td class="px-lg py-lg">
+<div class="flex items-center gap-md">
+<img class="w-8 h-8 rounded-full object-cover ring-2 ring-outline-variant/20" data-alt="Portrait of a Malagasy driver named Rakoto, wearing a uniform vest and a baseball cap. He is standing outdoors in a logistics hub in Antananarivo, Madagascar, with warm afternoon sunlight casting long shadows. The style is cinematic and professional, with high contrast and natural skin tones, reflecting a reliable B2B corporate image." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7T0Www5rZYdZCo0Y-wBrMt9g03RplX_6ck63b5ezxv5jpz8zRlkoq68nK8fsYAShJKnoNPSAWQH-hZiCldE54EuLj_j7moUXtZgHI19K-qlfkQZGbXS_t1PsxdNPSoHLFBa1jWluzDMnHGdS_vxVU9-hyKJBt_ALo4ylcNC5aNw6ihDHM3bWhjhaT7eXbgwGLDOJs9wfsyweg-Y7olkK_WeLLdPRgd84qH298Ezg5-dSRznUct0NAxA"/>
+<span class="font-label-md text-on-surface">Rakoto Jean</span>
+</div>
+</td>
+<td class="px-lg py-lg">
+<span class="inline-flex items-center px-sm py-1 rounded-full bg-secondary-container/20 text-on-secondary-container text-label-sm font-bold border border-secondary-container/50">
+<span class="w-1.5 h-1.5 rounded-full bg-on-secondary-container mr-2"></span>
+                                        Disponible
+                                    </span>
+</td>
+<td class="px-lg py-lg text-right">
+<div class="flex items-center justify-end gap-md">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Entry 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-lg py-lg">
+<span class="font-headline-md text-body-md text-primary font-bold">8841 TAB</span>
+</td>
+<td class="px-lg py-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">waves</span>
+<span class="font-body-md text-on-surface">Mercedes Actros</span>
+</div>
+</td>
+<td class="px-lg py-lg text-right font-label-md text-on-surface">25,000 kg</td>
+<td class="px-lg py-lg text-right font-label-md text-on-surface">80 m³</td>
+<td class="px-lg py-lg">
+<div class="flex items-center gap-md">
+<img class="w-8 h-8 rounded-full object-cover ring-2 ring-outline-variant/20" data-alt="Candid professional photograph of Marc, a truck driver in Madagascar. He is sitting in the driver's seat of a modern truck, looking towards the road with a focused and professional expression. The interior of the truck cab is clean and high-tech. The lighting is bright daylight, highlighting sharp details and rich textures, in line with modern logistic B2B photography standards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfizSsxX0QXKpmqi3im3cKi2stVzJ1UUWWGq82NkjfU_Udn4BdGfyVf3eEfzQUu91piT8omqS1z80WhLbvffvAFF_gqJzDu17slyPCrfK_dl9_-BgwGSLTy87eJncEE-ZlX6KVBkwi6sUgS8eSLe7hxdZ0A0oeOTiLLAXml359cTlceCSpU-77lpaSRI3hupiUyydIQ5BolrfgkaTbTZMBSjjZvXUL3OWDL8dUy2l2a5t_tkjgXA66Hw"/>
+<span class="font-label-md text-on-surface">Razafy Marc</span>
+</div>
+</td>
+<td class="px-lg py-lg">
+<span class="inline-flex items-center px-sm py-1 rounded-full bg-tertiary-container/20 text-on-tertiary-container text-label-sm font-bold border border-tertiary-container/50">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container mr-2"></span>
+                                        En mission
+                                    </span>
+</td>
+<td class="px-lg py-lg text-right">
+<div class="flex items-center justify-end gap-md">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Entry 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-lg py-lg">
+<span class="font-headline-md text-body-md text-primary font-bold">1024 TAA</span>
+</td>
+<td class="px-lg py-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">airport_shuttle</span>
+<span class="font-body-md text-on-surface">Renault Master</span>
+</div>
+</td>
+<td class="px-lg py-lg text-right font-label-md text-on-surface">3,500 kg</td>
+<td class="px-lg py-lg text-right font-label-md text-on-surface">12 m³</td>
+<td class="px-lg py-lg">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-full bg-outline-variant/20 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[18px]">person_off</span>
+</div>
+<span class="font-label-md text-outline-variant italic">Non assigné</span>
+</div>
+</td>
+<td class="px-lg py-lg">
+<span class="inline-flex items-center px-sm py-1 rounded-full bg-outline-variant/20 text-on-surface-variant text-label-sm font-bold border border-outline-variant/50">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant mr-2"></span>
+                                        Indisponible
+                                    </span>
+</td>
+<td class="px-lg py-lg text-right">
+<div class="flex items-center justify-end gap-md">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error hover:bg-error/5 rounded-lg transition-all">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-lg py-md border-t border-outline-variant bg-surface-container-low/10 flex items-center justify-between">
+<span class="font-label-sm text-on-surface-variant">Affichage 1-3 sur 32 véhicules</span>
+<div class="flex gap-sm">
+<button class="p-2 border border-outline-variant rounded-lg text-on-surface-variant disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="px-4 py-2 border border-primary bg-primary-container/10 text-primary rounded-lg font-bold">1</button>
+<button class="px-4 py-2 border border-outline-variant text-on-surface-variant hover:bg-surface-container rounded-lg">2</button>
+<button class="px-4 py-2 border border-outline-variant text-on-surface-variant hover:bg-surface-container rounded-lg">3</button>
+<button class="p-2 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Operational Insight (Bento Pattern) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="md:col-span-2 bg-surface-container-lowest p-xl rounded-xl border border-outline-variant">
+<div class="flex justify-between items-center mb-xl">
+<h4 class="font-headline-md text-headline-md text-on-surface">Activité de la Flotte (24h)</h4>
+<select class="bg-surface-container-low border-outline-variant rounded-lg text-label-md p-2">
+<option>Aujourd'hui</option>
+<option>7 derniers jours</option>
+</select>
+</div>
+<!-- Placeholder for interactive chart -->
+<div class="w-full h-48 bg-surface-container-low rounded-lg relative overflow-hidden flex items-end px-md gap-4">
+<div class="w-full bg-primary/20 h-[60%] rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-[45%] rounded-t-sm"></div>
+<div class="w-full bg-primary h-[85%] rounded-t-sm"></div>
+<div class="w-full bg-primary/70 h-[30%] rounded-t-sm"></div>
+<div class="w-full bg-primary/50 h-[55%] rounded-t-sm"></div>
+<div class="w-full bg-primary/90 h-[70%] rounded-t-sm"></div>
+<div class="w-full bg-primary/30 h-[40%] rounded-t-sm"></div>
+<div class="absolute inset-0 flex items-center justify-center bg-surface/50 backdrop-blur-[2px] opacity-0 hover:opacity-100 transition-opacity">
+<button class="bg-primary text-on-primary px-lg py-md rounded-full text-label-md font-bold">Voir Rapports Détaillés</button>
+</div>
+</div>
+<div class="flex justify-between mt-md px-md text-label-sm text-outline font-medium">
+<span>06:00</span>
+<span>09:00</span>
+<span>12:00</span>
+<span>15:00</span>
+<span>18:00</span>
+<span>21:00</span>
+<span>00:00</span>
+</div>
+</div>
+<div class="bg-inverse-surface p-xl rounded-xl text-inverse-on-surface flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-secondary-fixed">bolt</span>
+<h4 class="font-headline-md text-headline-md">MadaAI Optimizer</h4>
+</div>
+<p class="font-body-md text-body-sm opacity-80 mb-lg">Optimisez vos tournées en temps réel pour réduire la consommation de 12%.</p>
+</div>
+<div class="space-y-md">
+<div class="p-md bg-white/10 rounded-lg border border-white/20">
+<div class="text-label-sm uppercase tracking-tighter opacity-60">Recommandation</div>
+<div class="text-label-md mt-1 font-semibold">Réaffectez 8841 TAB pour Antsirabe</div>
+</div>
+<button class="w-full py-md bg-secondary-fixed text-on-secondary-fixed font-black rounded-lg transform active:scale-95 transition-transform">
+                            Lancer l'Optimisation
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="mt-auto px-xl py-lg bg-surface border-t border-outline-variant flex flex-col md:flex-row items-center justify-between gap-md">
+<p class="text-label-sm text-on-surface-variant">© 2024 MadaLogistics. Système de gestion certifié Antsa.</p>
+<div class="flex gap-xl">
+<a class="text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Politique de confidentialité</a>
+<a class="text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Conditions d'utilisation</a>
+<a class="text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Support Technique</a>
+</div>
+</footer>
+</main>
+<!-- Micro-interaction JS -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Placeholder for row highlight or detail expansion
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                row.addEventListener('click', () => {
+                    // Logic for selecting a row would go here
+                    rows.forEach(r => r.classList.remove('bg-primary-container/5'));
+                    row.classList.add('bg-primary-container/5');
+                });
+            });
+
+            // Smooth ripple effect or feedback on buttons
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.addEventListener('mousedown', () => {
+                    btn.classList.add('scale-95');
+                });
+                btn.addEventListener('mouseup', () => {
+                    btn.classList.remove('scale-95');
+                });
+            });
+        });
+    </script>
+</body></html>

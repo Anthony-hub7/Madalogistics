@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics - Finalisation de compte</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Geist:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Hanken+Grotesk:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-variant": "#d3e4fe",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-background": "#0b1c30",
+                    "surface-container": "#e5eeff",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-primary-fixed": "#00174b",
+                    "on-primary-container": "#b3c4ff",
+                    "tertiary-fixed": "#ffddb8",
+                    "tertiary-container": "#754900",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#dbe1ff",
+                    "on-secondary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary-fixed": "#002113",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-secondary-container": "#00714d",
+                    "surface-dim": "#cbdbf5",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "outline-variant": "#c4c6d5",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "on-surface-variant": "#434653",
+                    "inverse-primary": "#b4c5ff",
+                    "tertiary": "#563400",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "inverse-surface": "#213145",
+                    "surface": "#f8f9ff",
+                    "primary": "#00348f",
+                    "on-tertiary-container": "#ffb95f",
+                    "on-surface": "#0b1c30",
+                    "secondary": "#006c49",
+                    "outline": "#747684",
+                    "surface-container-high": "#dce9ff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-primary": "#ffffff",
+                    "background": "#f8f9ff",
+                    "surface-container-low": "#eff4ff",
+                    "surface-tint": "#2f58be",
+                    "error": "#ba1a1a",
+                    "primary-container": "#1e4bb1",
+                    "secondary-container": "#6cf8bb",
+                    "secondary-fixed-dim": "#4edea3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "gutter": "1.5rem",
+                    "sm": "0.5rem",
+                    "xs": "0.25rem",
+                    "md": "1rem",
+                    "xl": "2.5rem",
+                    "margin-mobile": "1rem",
+                    "margin-desktop": "2rem",
+                    "lg": "1.5rem"
+            },
+            "fontFamily": {
+                    "label-md": ["Geist"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-md": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "body-sm": ["Hanken Grotesk"],
+                    "label-sm": ["Geist"],
+                    "headline-xl": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #F8FAFC;
+        }
+        .form-card {
+            box-shadow: 0 4px 12px rgba(11, 28, 48, 0.05), 0 1px 2px rgba(11, 28, 48, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-on-surface">
+<!-- Header / TopAppBar -->
+<header class="bg-surface w-full h-16 flex justify-between items-center px-margin-desktop border-b border-outline-variant fixed top-0 z-50">
+<div class="text-headline-md font-headline-md font-bold text-primary">MadaLogistics</div>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-surface-container transition-colors p-2 rounded-full">help_outline</span>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow flex items-center justify-center pt-24 pb-12 px-4">
+<!-- Centered White Card -->
+<div class="bg-surface-container-lowest form-card w-full max-w-[520px] p-xl rounded-xl border border-outline-variant">
+<!-- Branding & Welcome -->
+<div class="text-center mb-xl">
+<div class="inline-flex items-center justify-center w-16 h-16 bg-primary-container rounded-lg mb-lg">
+<span class="material-symbols-outlined text-on-primary-container" style="font-size: 32px;">local_shipping</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-on-surface mb-sm">Finalisez votre inscription</h1>
+<p class="font-body-md text-on-surface-variant max-w-sm mx-auto">
+                    Vous avez été invité(e) à rejoindre <span class="font-bold text-on-surface">Transit Madagascar SARL</span> en tant que <span class="text-secondary font-semibold">Responsable logistique</span>.
+                </p>
+</div>
+<!-- Form -->
+<form class="space-y-lg">
+<!-- Email (Read-only/Disabled) -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant block">Email professionnel</label>
+<div class="relative">
+<input class="w-full h-12 px-md bg-surface-container-low border border-outline-variant rounded-lg text-on-surface-variant cursor-not-allowed font-body-md" disabled="" type="email" value="tahina.rakoto@transit.mg"/>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-outline-variant">lock</span>
+</div>
+</div>
+<!-- Full Name -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant block" for="full_name">Nom complet</label>
+<input class="w-full h-12 px-md bg-surface border border-outline-variant rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md" id="full_name" placeholder="Ex: Tahina Rakoto" type="text"/>
+</div>
+<!-- Phone -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant block" for="phone">Téléphone</label>
+<div class="flex gap-sm">
+<div class="w-24 h-12 px-md bg-surface-container-low border border-outline-variant rounded-lg flex items-center justify-between font-body-sm text-on-surface-variant">
+<span>+261</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</div>
+<input class="flex-grow h-12 px-md bg-surface border border-outline-variant rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md" id="phone" placeholder="34 00 000 00" type="tel"/>
+</div>
+</div>
+<!-- Password Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant block" for="password">Mot de passe</label>
+<input class="w-full h-12 px-md bg-surface border border-outline-variant rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md" id="password" placeholder="••••••••" type="password"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant block" for="confirm_password">Confirmation</label>
+<input class="w-full h-12 px-md bg-surface border border-outline-variant rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md" id="confirm_password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<!-- Terms -->
+<div class="flex items-start gap-sm py-xs">
+<input class="mt-1 w-4 h-4 text-primary border-outline rounded focus:ring-primary" id="terms" type="checkbox"/>
+<label class="font-body-sm text-body-sm text-on-surface-variant leading-tight" for="terms">
+                        J'accepte les <a class="text-primary hover:underline transition-all" href="#">conditions d'utilisation</a> et la <a class="text-primary hover:underline transition-all" href="#">politique de confidentialité</a> de MadaLogistics.
+                    </label>
+</div>
+<!-- Submit Button -->
+<button class="w-full h-14 bg-primary text-on-primary font-headline-md text-[18px] rounded-lg shadow-sm hover:bg-primary-container hover:shadow-md active:opacity-90 transition-all flex items-center justify-center gap-sm" type="submit">
+                    Activer mon compte
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</form>
+<!-- Decorative Trust Marker -->
+<div class="mt-xl pt-lg border-t border-outline-variant flex justify-center items-center gap-xl grayscale opacity-50">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">SÉCURISÉ</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">cloud_done</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">SAAS</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant py-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="text-label-md font-label-md font-bold text-on-surface">MadaLogistics</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">© 2024 MadaLogistics. Tous droits réservés.</div>
+<div class="flex gap-lg">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Conditions d'utilisation</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Politique de confidentialité</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</footer>
+<script>
+        // Simple visual feedback for form
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalContent = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Activation en cours...';
+            
+            setTimeout(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Compte activé !';
+                btn.classList.replace('bg-primary', 'bg-secondary');
+                
+                // Mock redirect
+                setTimeout(() => {
+                    alert('Bienvenue sur MadaLogistics ! Redirection vers votre tableau de bord...');
+                }, 1000);
+            }, 1500);
+        });
+
+        // Micro-interaction for inputs
+        const inputs = document.querySelectorAll('input:not([disabled])');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.querySelector('label')?.classList.add('text-primary');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.querySelector('label')?.classList.remove('text-primary');
+            });
+        });
+    </script>
+</body></html>

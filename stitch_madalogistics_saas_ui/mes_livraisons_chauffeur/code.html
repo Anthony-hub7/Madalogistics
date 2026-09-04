@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>MadaLogistics - Mes Livraisons</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#00714d",
+                    "surface-container-low": "#eff4ff",
+                    "on-secondary-fixed": "#002113",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-tertiary-fixed": "#2a1700",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-background": "#0b1c30",
+                    "surface-container-high": "#dce9ff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "surface": "#f8f9ff",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#434653",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#213145",
+                    "on-tertiary-container": "#ffb95f",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#b4c5ff",
+                    "error": "#ba1a1a",
+                    "on-surface": "#0b1c30",
+                    "on-secondary-fixed-variant": "#005236",
+                    "outline-variant": "#c4c6d5",
+                    "background": "#f8f9ff",
+                    "surface-bright": "#f8f9ff",
+                    "surface-container": "#e5eeff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "primary-container": "#1e4bb1",
+                    "surface-tint": "#2f58be",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "outline": "#747684",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#563400",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "inverse-on-surface": "#eaf1ff",
+                    "primary": "#00348f",
+                    "secondary": "#006c49",
+                    "tertiary-container": "#754900",
+                    "secondary-container": "#6cf8bb",
+                    "surface-variant": "#d3e4fe",
+                    "primary-fixed": "#dbe1ff",
+                    "on-primary-container": "#b3c4ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "2rem",
+                    "gutter": "1.5rem",
+                    "base": "4px",
+                    "xl": "2.5rem",
+                    "sm": "0.5rem",
+                    "xs": "0.25rem",
+                    "lg": "1.5rem",
+                    "md": "1rem",
+                    "margin-mobile": "1rem"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "label-sm": ["Geist"],
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "body-sm": ["Hanken Grotesk"],
+                    "body-md": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "label-md": ["Geist"]
+            },
+            "fontSize": {
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f8f9ff;
+            color: #0b1c30;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        .route-line {
+            position: absolute;
+            left: 28px;
+            top: 40px;
+            bottom: -40px;
+            width: 2px;
+            background: repeating-linear-gradient(to bottom, #dbe1ff 0px, #dbe1ff 8px, transparent 8px, transparent 16px);
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md pb-24">
+<!-- Top Navigation Bar -->
+<header class="bg-surface w-full top-0 sticky border-b border-outline-variant z-40 transition-colors duration-200 flex justify-between items-center px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="local_shipping">local_shipping</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">MadaLogistics</h1>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="person">person</span>
+</div>
+</div>
+</header>
+<main class="max-w-xl mx-auto px-margin-mobile py-6">
+<!-- Header Section -->
+<section class="mb-8">
+<div class="flex justify-between items-end mb-2">
+<div>
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider">Aujourd'hui</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Missions assignées</h2>
+</div>
+<div class="bg-primary-container text-white px-3 py-1 rounded-full font-label-md text-label-md">
+                    3 Missions
+                </div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Suivez l'ordre de passage optimisé pour votre trajet à Antananarivo.</p>
+</section>
+<!-- Delivery Feed -->
+<div class="relative space-y-8">
+<!-- Delivery Item 1 (Active/Next) -->
+<article class="relative">
+<div class="route-line"></div>
+<div class="flex gap-4">
+<!-- Status Icon -->
+<div class="relative z-10 w-14 h-14 flex-shrink-0 flex items-center justify-center bg-primary rounded-xl shadow-lg ring-4 ring-surface">
+<span class="material-symbols-outlined text-white text-2xl" data-icon="package_2" style="font-variation-settings: 'FILL' 1;">package_2</span>
+</div>
+<!-- Content Card -->
+<div class="flex-grow glass-card rounded-xl p-5 shadow-sm border-l-4 border-l-primary">
+<div class="flex justify-between items-start mb-3">
+<span class="font-label-sm text-label-sm bg-surface-container text-primary px-2 py-0.5 rounded">#ML-782</span>
+<span class="font-label-sm text-label-sm text-secondary font-bold flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                                EN COURS
+                            </span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1">Pharmacie Centrale</h3>
+<div class="flex items-start gap-2 mb-4">
+<span class="material-symbols-outlined text-outline mt-0.5 text-lg" data-icon="location_on">location_on</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">12 Rue de l'Indépendance, Analakely, Antananarivo</p>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-6">
+<div class="bg-surface-container-low rounded-lg p-2 border border-outline-variant/30">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Poids</p>
+<p class="font-body-md text-body-md font-bold text-on-surface">120 kg</p>
+</div>
+<div class="bg-surface-container-low rounded-lg p-2 border border-outline-variant/30">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Volume</p>
+<p class="font-body-md text-body-md font-bold text-on-surface">2.4 m³</p>
+</div>
+</div>
+<button class="w-full bg-primary text-white py-4 rounded-xl font-headline-md flex items-center justify-center gap-3 transition-transform active:scale-95 shadow-md">
+<span class="material-symbols-outlined" data-icon="navigation">navigation</span>
+                            Démarrer l'itinéraire
+                        </button>
+</div>
+</div>
+</article>
+<!-- Delivery Item 2 -->
+<article class="relative">
+<div class="route-line"></div>
+<div class="flex gap-4">
+<!-- Status Icon -->
+<div class="relative z-10 w-14 h-14 flex-shrink-0 flex items-center justify-center bg-surface-container-highest border-2 border-primary-fixed-dim rounded-xl ring-4 ring-surface">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="schedule">schedule</span>
+</div>
+<!-- Content Card -->
+<div class="flex-grow glass-card rounded-xl p-5 shadow-sm border border-outline-variant opacity-90">
+<div class="flex justify-between items-start mb-3">
+<span class="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded">#ML-785</span>
+<span class="font-label-sm text-label-sm text-outline font-bold">À VENIR (14:30)</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1">Supermaki Ivandry</h3>
+<div class="flex items-start gap-2 mb-4">
+<span class="material-symbols-outlined text-outline mt-0.5 text-lg" data-icon="location_on">location_on</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Lot II U 65, Route d'Analamahitsy, Ivandry</p>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-6">
+<div class="bg-surface-container-low/50 rounded-lg p-2 border border-outline-variant/20">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Poids</p>
+<p class="font-body-md text-body-md font-bold text-on-surface">450 kg</p>
+</div>
+<div class="bg-surface-container-low/50 rounded-lg p-2 border border-outline-variant/20">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Volume</p>
+<p class="font-body-md text-body-md font-bold text-on-surface">5.1 m³</p>
+</div>
+</div>
+<button class="w-full border-2 border-primary text-primary py-3 rounded-xl font-label-md font-bold flex items-center justify-center gap-3 transition-colors hover:bg-primary-container/10">
+                            Accepter la mission
+                        </button>
+</div>
+</div>
+</article>
+<!-- Delivery Item 3 -->
+<article class="relative">
+<div class="flex gap-4">
+<!-- Status Icon -->
+<div class="relative z-10 w-14 h-14 flex-shrink-0 flex items-center justify-center bg-surface-container-highest border-2 border-primary-fixed-dim rounded-xl ring-4 ring-surface">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="pending_actions">pending_actions</span>
+</div>
+<!-- Content Card -->
+<div class="flex-grow glass-card rounded-xl p-5 shadow-sm border border-outline-variant opacity-80">
+<div class="flex justify-between items-start mb-3">
+<span class="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded">#ML-789</span>
+<span class="font-label-sm text-label-sm text-outline font-bold">À VENIR</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1">Dépôt Logistique Est</h3>
+<div class="flex items-start gap-2 mb-4">
+<span class="material-symbols-outlined text-outline mt-0.5 text-lg" data-icon="location_on">location_on</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Zone Industrielle, Ankorondrano</p>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-4">
+<div class="bg-surface-container-low/30 rounded-lg p-2">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Poids</p>
+<p class="font-body-md text-body-md font-bold text-on-surface">85 kg</p>
+</div>
+<div class="bg-surface-container-low/30 rounded-lg p-2">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Volume</p>
+<p class="font-body-md text-body-md font-bold text-on-surface">1.2 m³</p>
+</div>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Quick Summary Mini-Card -->
+<div class="mt-12 bg-on-background text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+<div class="relative z-10">
+<h4 class="font-headline-md text-headline-md mb-2">Résumé de tournée</h4>
+<div class="flex justify-between items-center">
+<div class="space-y-1">
+<p class="text-primary-fixed-dim font-label-sm text-label-sm uppercase">Distance Totale</p>
+<p class="font-headline-lg-mobile text-headline-lg-mobile">18.4 km</p>
+</div>
+<div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+<span class="material-symbols-outlined text-primary-fixed-dim text-3xl" data-icon="map">map</span>
+</div>
+</div>
+</div>
+<!-- Decorative circle -->
+<div class="absolute -right-10 -bottom-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl"></div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 w-full z-50 h-20 bg-surface border-t border-outline-variant shadow-md flex justify-around items-center px-2 pb-safe">
+<!-- Livraisons (Active) -->
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-xl px-6 py-2 transition-transform duration-150 active:scale-95">
+<span class="material-symbols-outlined" data-icon="package_2" style="font-variation-settings: 'FILL' 1;">package_2</span>
+<span class="font-label-md text-label-md">Livraisons</span>
+</button>
+<!-- Navigation -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-2 hover:bg-surface-container-high transition-transform duration-150 active:scale-95">
+<span class="material-symbols-outlined" data-icon="directions_run">directions_run</span>
+<span class="font-label-md text-label-md">Navigation</span>
+</button>
+<!-- Historique -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-6 py-2 hover:bg-surface-container-high transition-transform duration-150 active:scale-95">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-md text-label-md">Historique</span>
+</button>
+</nav>
+<script>
+        // Simple micro-interaction for button press
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                btn.style.opacity = '0.8';
+            });
+            btn.addEventListener('touchend', () => {
+                btn.style.opacity = '1';
+            });
+        });
+
+        // Pull to refresh simulation atmospheric effect
+        let startY;
+        document.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].pageY;
+        });
+        document.addEventListener('touchmove', (e) => {
+            const y = e.touches[0].pageY;
+            if (window.scrollY === 0 && y > startY) {
+                // Potential elastic scroll or refresh indicator
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Confirmation de Livraison - MadaLogistics</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#00714d",
+                    "surface-container-low": "#eff4ff",
+                    "on-secondary-fixed": "#002113",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-tertiary-fixed": "#2a1700",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-background": "#0b1c30",
+                    "surface-container-high": "#dce9ff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "surface": "#f8f9ff",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#434653",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#213145",
+                    "on-tertiary-container": "#ffb95f",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#b4c5ff",
+                    "error": "#ba1a1a",
+                    "on-surface": "#0b1c30",
+                    "on-secondary-fixed-variant": "#005236",
+                    "outline-variant": "#c4c6d5",
+                    "background": "#f8f9ff",
+                    "surface-bright": "#f8f9ff",
+                    "surface-container": "#e5eeff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "primary-container": "#1e4bb1",
+                    "surface-tint": "#2f58be",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "outline": "#747684",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#563400",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "inverse-on-surface": "#eaf1ff",
+                    "primary": "#00348f",
+                    "secondary": "#006c49",
+                    "tertiary-container": "#754900",
+                    "secondary-container": "#6cf8bb",
+                    "surface-variant": "#d3e4fe",
+                    "primary-fixed": "#dbe1ff",
+                    "on-primary-container": "#b3c4ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "2rem",
+                    "gutter": "1.5rem",
+                    "base": "4px",
+                    "xl": "2.5rem",
+                    "sm": "0.5rem",
+                    "xs": "0.25rem",
+                    "lg": "1.5rem",
+                    "md": "1rem",
+                    "margin-mobile": "1rem"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "label-sm": ["Geist"],
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "body-sm": ["Hanken Grotesk"],
+                    "body-md": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "label-md": ["Geist"]
+            },
+            "fontSize": {
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f8f9ff;
+        }
+        .signature-canvas {
+            touch-action: none;
+            cursor: crosshair;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col min-h-screen text-on-surface">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-on-background w-full top-0 sticky z-50 border-b border-outline-variant dark:border-outline flex justify-between items-center px-margin-mobile h-16">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="local_shipping">local_shipping</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">MadaLogistics</h1>
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors duration-200">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="close">close</span>
+</button>
+</div>
+</header>
+<main class="flex-grow w-full max-w-lg mx-auto px-margin-mobile pt-lg pb-32">
+<!-- Order Context Card -->
+<section class="mb-lg">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col gap-xs">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Récapitulatif de livraison</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Commande #ML-2024-9982</h2>
+<div class="flex items-center gap-sm mt-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-md" data-icon="location_on">location_on</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Antananarivo, Madagascar</span>
+</div>
+</div>
+</section>
+<!-- Proof of Delivery Section -->
+<section class="flex flex-col gap-lg">
+<!-- Photo Upload Area -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant ml-1">Preuve visuelle</label>
+<div class="hidden w-full aspect-video rounded-xl bg-cover bg-center mb-sm border border-outline-variant" data-alt="A high-quality professional photograph of a delivered logistical package at a modern office doorstep in Madagascar. The scene is bathed in natural morning light, emphasizing a clean and corporate atmosphere. The package has a clear label with MadaLogistics branding, and the background shows a blurred, minimalist architectural entrance with sleek glass and steel." id="photo-preview" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA7bf7IN3y0a058Z7sOJHWgk8rpblriFOO6_zkO0l9if9TI8o6mHAykBhgJarmCMWq8stHiavjs0uV71Fi5fJq-Jx4e5sm8EqvlBsnuwx-wSXAYjc9mihHmbGOkj7YrHAbWk6ngDvpzLa9lN6Vk0G_pQRh8_24ZeVcGjo9cOHaYXZzvjd_xCq2NLlGT82PfkPNL2OfzlWrCcanlM-GvhVymUhVOnNsmd8T4c0J0nimBr-VuPhQP3xE4hA')"></div>
+<button class="w-full flex items-center justify-center gap-md py-xl border-2 border-dashed border-outline-variant rounded-xl text-on-surface-variant hover:bg-surface-container transition-all duration-200" id="add-photo-btn">
+<div class="flex flex-col items-center gap-xs">
+<span class="material-symbols-outlined text-3xl" data-icon="photo_camera">photo_camera</span>
+<span class="font-label-md text-label-md">Ajouter photo preuve</span>
+</div>
+</button>
+</div>
+<!-- Digital Signature Area -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant ml-1">Signature du client</label>
+<div class="relative w-full aspect-video bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<canvas class="signature-canvas w-full h-full" id="signature-pad"></canvas>
+<div class="absolute bottom-2 right-2">
+<button class="flex items-center gap-xs bg-surface-variant/50 backdrop-blur-sm text-on-surface-variant px-md py-sm rounded-lg hover:bg-surface-variant transition-colors" id="clear-signature">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+<span class="font-label-sm text-label-sm">Effacer</span>
+</button>
+</div>
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20" id="signature-placeholder">
+<span class="material-symbols-outlined text-6xl" data-icon="gesture">gesture</span>
+</div>
+</div>
+</div>
+<!-- Notes Field -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant ml-1">Commentaires (optionnel)</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl p-md font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none h-24 outline-none" placeholder="Précisez ici toute remarque sur l'état du colis..."></textarea>
+</div>
+</section>
+</main>
+<!-- Bottom Actions -->
+<footer class="fixed bottom-0 w-full bg-surface/80 backdrop-blur-md px-margin-mobile pt-md pb-xl flex flex-col gap-md z-50 border-t border-outline-variant">
+<button class="w-full h-16 bg-secondary text-on-secondary rounded-xl font-headline-md text-headline-md flex items-center justify-center gap-md shadow-lg active:scale-95 transition-all duration-150" id="confirm-delivery">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+            Confirmer la livraison
+        </button>
+</footer>
+<script>
+        // Simple Signature Pad Logic
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas.getContext('2d');
+        const clearBtn = document.getElementById('clear-signature');
+        const placeholder = document.getElementById('signature-placeholder');
+        let drawing = false;
+
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#0b1c30';
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function startPosition(e) {
+            drawing = true;
+            placeholder.style.display = 'none';
+            draw(e);
+        }
+
+        function finishedPosition() {
+            drawing = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', finishedPosition);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchstart', startPosition);
+        canvas.addEventListener('touchend', finishedPosition);
+        canvas.addEventListener('touchmove', draw);
+
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            placeholder.style.display = 'flex';
+        });
+
+        // Photo Upload Simulation
+        const addPhotoBtn = document.getElementById('add-photo-btn');
+        const photoPreview = document.getElementById('photo-preview');
+
+        addPhotoBtn.addEventListener('click', () => {
+            // Simulated toggle for demonstration
+            photoPreview.classList.toggle('hidden');
+            if (!photoPreview.classList.contains('hidden')) {
+                addPhotoBtn.querySelector('span:last-child').textContent = "Changer la photo";
+                addPhotoBtn.classList.replace('py-xl', 'py-md');
+            } else {
+                addPhotoBtn.querySelector('span:last-child').textContent = "Ajouter photo preuve";
+                addPhotoBtn.classList.replace('py-md', 'py-xl');
+            }
+        });
+
+        // Confirmation Animation
+        const confirmBtn = document.getElementById('confirm-delivery');
+        confirmBtn.addEventListener('click', () => {
+            confirmBtn.innerHTML = `<span class="material-symbols-outlined animate-spin" data-icon="sync">sync</span> Traitement...`;
+            confirmBtn.classList.replace('bg-secondary', 'bg-secondary-container');
+            confirmBtn.classList.replace('text-on-secondary', 'text-on-secondary-container');
+            
+            setTimeout(() => {
+                confirmBtn.innerHTML = `<span class="material-symbols-outlined" data-icon="task_alt">task_alt</span> Livraison Confirmée`;
+                confirmBtn.classList.add('bg-on-secondary-fixed-variant');
+                confirmBtn.classList.add('text-white');
+                
+                // Haptic feedback simulation
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate([100, 30, 100]);
+                }
+            }, 1500);
+        });
+    </script>
+</body></html>

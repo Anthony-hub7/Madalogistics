@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Invitation Réussie - MadaLogistics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffddb8",
+                        "outline": "#747684",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary-fixed": "#00174b",
+                        "outline-variant": "#c4c6d5",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary": "#563400",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#00714d",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#754900",
+                        "on-tertiary-container": "#ffb95f",
+                        "inverse-primary": "#b4c5ff",
+                        "on-surface-variant": "#434653",
+                        "surface-container": "#e5eeff",
+                        "surface-tint": "#2f58be",
+                        "inverse-surface": "#213145",
+                        "primary": "#00348f",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "primary-container": "#1e4bb1",
+                        "on-primary-container": "#b3c4ff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "primary-fixed": "#dbe1ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary-fixed-variant": "#063ea5",
+                        "secondary-container": "#6cf8bb",
+                        "on-surface": "#0b1c30",
+                        "surface": "#f8f9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "background": "#f8f9ff",
+                        "secondary": "#006c49",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary-fixed": "#002113"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "0.5rem",
+                        "xl": "2.5rem",
+                        "xs": "0.25rem",
+                        "margin-desktop": "2rem",
+                        "lg": "1.5rem",
+                        "md": "1rem",
+                        "gutter": "1.5rem",
+                        "base": "4px",
+                        "margin-mobile": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            background-color: #f8f9ff;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .success-check-pulse {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .modal-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface flex items-center justify-center min-h-screen p-margin-mobile">
+<!-- Success Modal Overlay -->
+<div class="fixed inset-0 bg-on-background/20 backdrop-blur-sm z-40 flex items-center justify-center animate-in fade-in duration-300">
+<!-- Modal Container -->
+<div class="modal-glass w-full max-w-[480px] rounded-xl border border-outline-variant shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+<!-- Modal Body Content -->
+<div class="px-xl py-xl flex flex-col items-center text-center">
+<!-- Success Icon Cluster -->
+<div class="relative mb-lg">
+<div class="absolute inset-0 bg-[#16A34A]/20 rounded-full success-check-pulse scale-150"></div>
+<div class="relative w-20 h-20 bg-white rounded-full flex items-center justify-center border-4 border-[#16A34A] shadow-sm">
+<span class="material-symbols-outlined text-[48px] text-[#16A34A] font-bold" data-icon="check" style="font-variation-settings: 'FILL' 0;">check</span>
+</div>
+</div>
+<!-- Headline -->
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Invitation envoyée !</h2>
+<!-- Description -->
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg leading-relaxed">
+                    L'invitation a été envoyée avec succès à <span class="font-bold text-primary">tahina.rakoto@transit.mg</span>. 
+                    L'utilisateur apparaîtra avec le statut <span class="italic text-on-surface">"En attente"</span> jusqu'à l'activation.
+                </p>
+<!-- Status Badge -->
+<div class="flex items-center gap-xs bg-[#FFF7ED] border border-[#FDBA74] px-md py-sm rounded-lg mb-xl">
+<span class="material-symbols-outlined text-[18px] text-[#F97316]" data-icon="pending" style="font-variation-settings: 'FILL' 1;">pending</span>
+<span class="font-label-md text-label-md text-[#C2410C]">En attente d'activation</span>
+</div>
+<!-- Actions -->
+<div class="w-full flex flex-col gap-sm">
+<button class="w-full py-md px-lg rounded-lg border border-outline text-primary font-bold font-label-md hover:bg-surface-container-low transition-colors active:scale-95 duration-150">
+                        Fermer
+                    </button>
+</div>
+</div>
+<!-- Footer Graphic / Brand Anchor -->
+<div class="bg-surface-container-low px-xl py-md flex justify-between items-center border-t border-outline-variant/30">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px]" data-icon="local_shipping">local_shipping</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">MadaLogistics Hub</span>
+</div>
+<div class="text-[10px] font-label-sm text-outline-variant uppercase">ID: INV-88291-MADA</div>
+</div>
+</div>
+</div>
+<!-- Background Decoration (Bento style grid preview) -->
+<div class="fixed inset-0 -z-10 grid grid-cols-12 grid-rows-6 gap-gutter p-margin-desktop opacity-20 pointer-events-none">
+<div class="col-span-3 row-span-2 bg-surface-container rounded-xl border border-outline-variant"></div>
+<div class="col-span-6 row-span-1 bg-surface-container-high rounded-xl border border-outline-variant"></div>
+<div class="col-span-3 row-span-3 bg-primary-fixed/30 rounded-xl border border-outline-variant"></div>
+<div class="col-span-4 row-span-2 bg-surface-container rounded-xl border border-outline-variant"></div>
+<div class="col-span-5 row-span-4 bg-surface-container-low rounded-xl border border-outline-variant"></div>
+<div class="col-span-3 row-span-1 bg-secondary-fixed/20 rounded-xl border border-outline-variant"></div>
+</div>
+<script>
+        // Simple ripple effect for the button
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const ripple = document.createElement('span');
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                ripple.classList.add('absolute', 'w-4', 'h-4', 'bg-primary/10', 'rounded-full', 'animate-ping', 'pointer-events-none');
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 1000);
+            });
+        });
+
+        // Close modal logic (visual only for the demo)
+        document.querySelector('button').addEventListener('click', () => {
+            const modal = document.querySelector('.animate-in');
+            modal.classList.remove('zoom-in-95', 'fade-in');
+            modal.classList.add('zoom-out-95', 'fade-out');
+            setTimeout(() => {
+                document.querySelector('.fixed.inset-0.z-40').style.display = 'none';
+            }, 300);
+        });
+    </script>
+</body></html>

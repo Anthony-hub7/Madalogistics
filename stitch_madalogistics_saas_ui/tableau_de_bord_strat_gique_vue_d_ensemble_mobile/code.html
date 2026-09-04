@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics - Tableau de bord Stratégique</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Scripts -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "secondary-fixed-dim": "#4edea3",
+                "inverse-surface": "#213145",
+                "on-background": "#0b1c30",
+                "on-secondary-fixed": "#002113",
+                "primary": "#00348f",
+                "error": "#ba1a1a",
+                "on-surface": "#0b1c30",
+                "surface-container-high": "#dce9ff",
+                "secondary-fixed": "#6ffbbe",
+                "on-primary-fixed": "#00174b",
+                "on-tertiary-container": "#ffb95f",
+                "inverse-primary": "#b4c5ff",
+                "outline": "#747684",
+                "surface-container-lowest": "#ffffff",
+                "on-error-container": "#93000a",
+                "surface-tint": "#2f58be",
+                "error-container": "#ffdad6",
+                "secondary": "#006c49",
+                "surface-container-highest": "#d3e4fe",
+                "on-primary-fixed-variant": "#063ea5",
+                "on-secondary": "#ffffff",
+                "tertiary": "#563400",
+                "on-primary": "#ffffff",
+                "tertiary-fixed": "#ffddb8",
+                "primary-fixed-dim": "#b4c5ff",
+                "outline-variant": "#c4c6d5",
+                "surface-container-low": "#eff4ff",
+                "surface-container": "#e5eeff",
+                "background": "#f8f9ff",
+                "on-surface-variant": "#434653",
+                "tertiary-fixed-dim": "#ffb95f",
+                "on-tertiary": "#ffffff",
+                "on-primary-container": "#b3c4ff",
+                "on-error": "#ffffff",
+                "tertiary-container": "#754900",
+                "primary-fixed": "#dbe1ff",
+                "surface-dim": "#cbdbf5",
+                "on-secondary-fixed-variant": "#005236",
+                "surface": "#f8f9ff",
+                "on-secondary-container": "#00714d",
+                "on-tertiary-fixed": "#2a1700",
+                "on-tertiary-fixed-variant": "#653e00",
+                "surface-variant": "#d3e4fe",
+                "secondary-container": "#6cf8bb",
+                "primary-container": "#1e4bb1",
+                "surface-bright": "#f8f9ff",
+                "inverse-on-surface": "#eaf1ff"
+            },
+            "borderRadius": {
+                "DEFAULT": "12px",
+                "lg": "12px",
+                "xl": "16px",
+                "full": "9999px"
+            },
+            "spacing": {
+                "sm": "0.5rem",
+                "xs": "0.25rem",
+                "base": "4px",
+                "margin-mobile": "1rem",
+                "xl": "2.5rem",
+                "gutter": "1.5rem",
+                "md": "1rem",
+                "lg": "1.5rem",
+                "margin-desktop": "2rem"
+            },
+            "fontFamily": {
+                "body-md": ["Hanken Grotesk"],
+                "body-lg": ["Hanken Grotesk"],
+                "headline-xl": ["Hanken Grotesk"],
+                "headline-md": ["Hanken Grotesk"],
+                "headline-lg": ["Hanken Grotesk"],
+                "label-sm": ["Geist"],
+                "headline-lg-mobile": ["Hanken Grotesk"],
+                "body-sm": ["Hanken Grotesk"],
+                "label-md": ["Geist"]
+            },
+            "fontSize": {
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', 'Hanken Grotesk', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#F8FAFC] text-on-surface pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant flex items-center justify-between px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional close-up headshot of a logistics executive in Madagascar, wearing a smart corporate outfit with a subtle, bright background. High-quality corporate photography style, soft natural lighting, conveying leadership and professional reliability within a modern office environment. Deep blue and white color palette consistent with brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCd-9oHrtWmflr7DJcleK0H_-FfV90m-Js9fFD4n2tsLYLJRpTkuTTbthhIdKHjBfq4uR-GS5-4TogG4w6fCa2QGFEUnyDrLYm_zsIbF-Gf_zFGTneH7cIauQuL7t4HBtNwDehPLyjmGLIhFB7Mkx7EunFR9-dVfJT87Y4Pm94Ec-69kgX47RJKOz2WA29ABwqbPkfDnjiJ9Kg1k3hYaHIQO19L2or5AbHVAn1WU7jLBQR3mhkrrEJGOQ"/>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-primary">MadaLogistics</span>
+</div>
+<button class="material-symbols-outlined text-primary p-2 hover:bg-surface-container-low transition-colors rounded-full">notifications</button>
+</header>
+<main class="pt-16 px-4 space-y-6">
+<!-- Filter Bar -->
+<section class="mt-4 flex flex-col gap-3">
+<div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+<button class="px-4 py-2 bg-primary text-white rounded-full text-label-md font-medium whitespace-nowrap">Ce mois</button>
+<button class="px-4 py-2 bg-surface border border-outline-variant text-on-surface-variant rounded-full text-label-md font-medium whitespace-nowrap">Ce trimestre</button>
+<button class="px-4 py-2 bg-surface border border-outline-variant text-on-surface-variant rounded-full text-label-md font-medium whitespace-nowrap">Cette année</button>
+</div>
+<div class="flex items-center gap-2 bg-surface border border-outline-variant rounded-lg px-3 py-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">hub</span>
+<select class="bg-transparent border-none text-body-sm font-medium focus:ring-0 w-full p-0">
+<option>Tous les hubs (Antananarivo, Toamasina...)</option>
+<option>Hub Central Tana</option>
+<option>Hub Portuaire Toamasina</option>
+</select>
+</div>
+</section>
+<!-- Tab Bar (Horizontal Scroll) -->
+<nav class="flex gap-6 overflow-x-auto no-scrollbar border-b border-outline-variant -mx-4 px-4">
+<button class="py-3 text-primary font-bold border-b-2 border-primary whitespace-nowrap">Vue d'ensemble</button>
+<button class="py-3 text-on-surface-variant font-medium whitespace-nowrap">Chiffre d'affaires</button>
+<button class="py-3 text-on-surface-variant font-medium whitespace-nowrap">Performance</button>
+<button class="py-3 text-on-surface-variant font-medium whitespace-nowrap">Optimisation</button>
+<button class="py-3 text-on-surface-variant font-medium whitespace-nowrap">Équipe</button>
+<button class="py-3 text-on-surface-variant font-medium whitespace-nowrap">Audit</button>
+</nav>
+<!-- KPI Strip -->
+<section class="grid grid-cols-2 gap-3">
+<div class="bg-surface border border-outline-variant p-4 rounded-xl">
+<p class="text-label-sm text-on-surface-variant uppercase mb-1">Chiffre d'affaires</p>
+<div class="flex items-end gap-2">
+<span class="text-headline-md font-bold text-on-surface">482M Ar</span>
+<span class="text-secondary font-bold text-label-sm mb-1">+12.4%</span>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-xl">
+<p class="text-label-sm text-on-surface-variant uppercase mb-1">Taux de succès</p>
+<div class="flex flex-col">
+<span class="text-headline-md font-bold text-on-surface">94.8%</span>
+<span class="text-secondary text-label-sm font-medium">Cible atteinte</span>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-xl">
+<p class="text-label-sm text-on-surface-variant uppercase mb-1">Remplissage vs Cible</p>
+<div class="flex flex-col">
+<span class="text-headline-md font-bold text-[#F97316]">82% <span class="text-on-surface-variant text-body-sm font-normal">/ 85%</span></span>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full mt-2">
+<div class="bg-[#F97316] h-1.5 rounded-full" style="width: 82%;"></div>
+</div>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-xl">
+<p class="text-label-sm text-on-surface-variant uppercase mb-1">Gains Optimisation</p>
+<div class="flex items-end gap-2">
+<span class="text-headline-md font-bold text-on-surface">3.8M Ar</span>
+<div class="w-2 h-2 rounded-full bg-secondary mb-2 animate-pulse"></div>
+</div>
+</div>
+</section>
+<!-- Tab Content "Vue d'ensemble" -->
+<div class="space-y-4 pb-4">
+<!-- Card 1: Résumé hebdomadaire -->
+<div class="bg-white border border-outline-variant p-5 rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-headline-md text-body-lg font-bold">Résumé hebdomadaire</h3>
+<p class="text-body-sm text-on-surface-variant">Analyse du CA et volume</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">trending_up</span>
+</div>
+<div class="space-y-6">
+<!-- Mini Curve Chart Placeholder -->
+<div class="relative h-20 w-full flex items-end gap-1">
+<div class="absolute inset-0 flex items-center justify-center opacity-10">
+<span class="text-[60px] material-symbols-outlined text-primary">show_chart</span>
+</div>
+<div class="flex-1 bg-primary/10 rounded-t h-[40%]"></div>
+<div class="flex-1 bg-primary/10 rounded-t h-[60%]"></div>
+<div class="flex-1 bg-primary/20 rounded-t h-[50%]"></div>
+<div class="flex-1 bg-primary/30 rounded-t h-[80%]"></div>
+<div class="flex-1 bg-primary/40 rounded-t h-[70%]"></div>
+<div class="flex-1 bg-primary rounded-t h-[95%]"></div>
+<div class="flex-1 bg-primary/50 rounded-t h-[85%]"></div>
+</div>
+<div class="flex justify-between text-label-sm text-on-surface-variant">
+<span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+</div>
+</div>
+</div>
+<!-- Card 2 & 3 Grid -->
+<div class="grid grid-cols-1 gap-4">
+<!-- Card 2: Performance globale -->
+<div class="bg-white border border-outline-variant p-5 rounded-xl flex items-center gap-6">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-surface-container-high" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-secondary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="12" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-body-lg font-bold">95%</span>
+</div>
+</div>
+<div class="flex-1">
+<h3 class="text-body-lg font-bold">Performance globale</h3>
+<p class="text-body-sm text-on-surface-variant">Succès livraisons directes</p>
+<div class="mt-2 inline-flex items-center px-2 py-1 bg-secondary-container text-on-secondary-container rounded-md text-label-sm font-bold">
+                            OPTIMAL
+                        </div>
+</div>
+</div>
+<!-- Card 3: Efficacité & IA -->
+<div class="bg-white border border-outline-variant p-5 rounded-xl space-y-4">
+<h3 class="text-body-lg font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                        Efficacité &amp; IA
+                    </h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<div class="flex justify-between text-label-sm">
+<span class="text-on-surface-variant">Remplissage</span>
+<span class="font-bold text-[#F97316]">82%</span>
+</div>
+<div class="h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-[#F97316]" style="width: 82%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-label-sm">
+<span class="text-on-surface-variant">Utilisation</span>
+<span class="font-bold text-secondary">92%</span>
+</div>
+<div class="h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 92%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Large Highlight Card: Impact de l'Optimisation IA -->
+<div class="relative overflow-hidden bg-primary p-6 rounded-xl text-white shadow-lg">
+<div class="absolute top-0 right-0 w-32 h-32 opacity-10 -mr-8 -mt-8">
+<span class="material-symbols-outlined text-[120px]">psychology</span>
+</div>
+<div class="relative z-10">
+<span class="bg-white/20 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-full tracking-wider">Focus Stratégique</span>
+<h3 class="text-headline-md font-bold mt-4">Impact de l'Optimisation IA</h3>
+<div class="mt-2 mb-6">
+<p class="text-white/70 text-body-sm">Économies cumulées</p>
+<p class="text-[32px] font-bold leading-none">124.5M Ar</p>
+</div>
+<div class="flex items-start gap-3 bg-white/10 p-3 rounded-lg backdrop-blur-sm">
+<span class="material-symbols-outlined text-secondary-fixed">eco</span>
+<p class="text-body-sm">Réduction de <span class="font-bold">12% des émissions CO2</span> ce trimestre grâce au routage intelligent.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Navigation Shell Logic Mapping -->
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant flex justify-around items-center h-20 px-2 pb-safe w-full">
+<!-- Active Tab: Dashboard -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-xl px-3 py-1 active:scale-90 duration-100 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-all active:scale-90 duration-100" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-label-md text-label-md">Fleet</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-all active:scale-90 duration-100" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md">Shipments</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-all active:scale-90 duration-100" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+</nav>
+<!-- Subtle Floating Sparkle/Effect Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Optional micro-interaction logic
+            const cards = document.querySelectorAll('.bg-white, .bg-surface');
+            cards.forEach(card => {
+                card.addEventListener('touchstart', () => {
+                    card.classList.add('scale-[0.98]');
+                });
+                card.addEventListener('touchend', () => {
+                    card.classList.remove('scale-[0.98]');
+                });
+            });
+        });
+    </script>
+</body></html>

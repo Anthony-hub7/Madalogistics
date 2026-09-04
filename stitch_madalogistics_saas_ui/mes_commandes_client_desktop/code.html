@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mes Commandes | MadaLogistics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#d3e4fe",
+                    "on-surface": "#0b1c30",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#434653",
+                    "surface-container-low": "#eff4ff",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "error-container": "#ffdad6",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#4edea3",
+                    "secondary-container": "#6cf8bb",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#213145",
+                    "background": "#f8f9ff",
+                    "outline-variant": "#c4c6d5",
+                    "on-tertiary-fixed": "#2a1700",
+                    "tertiary": "#563400",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-secondary-fixed": "#002113",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "inverse-primary": "#b4c5ff",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "primary": "#00348f",
+                    "on-primary-fixed": "#00174b",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#ffb95f",
+                    "on-background": "#0b1c30",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-container": "#e5eeff",
+                    "on-primary-container": "#b3c4ff",
+                    "tertiary-container": "#754900",
+                    "on-secondary-container": "#00714d",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#dce9ff",
+                    "surface": "#f8f9ff",
+                    "secondary": "#006c49",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-dim": "#cbdbf5",
+                    "primary-container": "#1e4bb1",
+                    "on-tertiary": "#ffffff",
+                    "surface-tint": "#2f58be",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "outline": "#747684",
+                    "tertiary-fixed": "#ffddb8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "1rem",
+                    "margin-mobile": "1rem",
+                    "sm": "0.5rem",
+                    "gutter": "1.5rem",
+                    "base": "4px",
+                    "xl": "2.5rem",
+                    "margin-desktop": "2rem",
+                    "lg": "1.5rem",
+                    "xs": "0.25rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-sm": ["Hanken Grotesk"],
+                    "label-sm": ["Geist"],
+                    "headline-xl": ["Hanken Grotesk"],
+                    "label-md": ["Geist"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "body-md": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .stepper-line {
+            height: 2px;
+            flex-grow: 1;
+            background-color: #E2E8F0;
+            margin: 0 8px;
+        }
+        .stepper-line.active { background-color: #00348f; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f8f9ff; }
+        ::-webkit-scrollbar-thumb { background: #d3e4fe; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container-lowest border-r border-outline-variant flex flex-col h-full py-lg px-md z-50">
+<div class="mb-xl px-sm">
+<h1 class="text-headline-md font-headline-md font-bold text-primary">MadaLogistics</h1>
+<p class="text-label-md font-label-md text-outline">Client Space</p>
+</div>
+<nav class="flex-grow space-y-sm">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">add_box</span>
+<span class="font-label-md text-label-md">Nouvelle demande</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm bg-surface-container-high text-primary font-bold rounded-lg scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-label-md text-label-md">Mes commandes</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-md text-label-md">Factures</span>
+</a>
+</nav>
+<div class="mt-auto pt-lg border-t border-outline-variant space-y-sm">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Paramètres</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors duration-200 text-error" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Déconnexion</span>
+</a>
+<button class="w-full mt-md bg-primary text-on-primary py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors">
+                Support Client
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] min-h-screen">
+<!-- Top Navigation -->
+<header class="flex justify-between items-center w-full h-16 px-margin-desktop bg-surface border-b border-outline-variant sticky top-0 z-40">
+<div class="flex items-center gap-lg">
+<div class="relative w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-label-md focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Rechercher une commande..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-sm"></div>
+<div class="flex items-center gap-sm">
+<div class="text-right hidden lg:block">
+<p class="font-label-md text-label-md leading-none">Jean Dupont</p>
+<p class="text-xs text-outline">DistriCorp SARL</p>
+</div>
+<img class="w-10 h-10 rounded-full border border-outline-variant object-cover" data-alt="A professional close-up headshot of a smiling business professional for a corporate profile. The background is a blurred high-end office with soft morning light coming through large windows. The overall aesthetic is clean, professional, and trustworthy, using a soft palette of whites and grays." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_gZeEszIDlsBPOC3Hv75ERI4vAXZoidy6K9x90ei2ewu7yhTcCsdEACnZ_G0pdL0NHw7ojq8RsheFV6Am6GYMhAmpmm9ac6L7Lopk1SNBQX_N-eue2a2ZOgIlapKKyCfzr9I6Sh-xudvCAUDsK_xj2-4ymi_KFEII9vm5br8h791Jg1c5xzmoJBPKRjZjiYYvriAGUGM0pJ4fxxNZubfWqLbnS17f_qMBXPf8ykzHb8a8hux-QRl3Fg"/>
+</div>
+</div>
+</header>
+<section class="p-margin-desktop max-w-[1400px] mx-auto">
+<div class="mb-lg flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Mes Commandes</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Gérez vos expéditions en cours et consultez votre historique.</p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-sm border border-primary text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">file_download</span> Exporter
+                    </button>
+<button class="px-md py-sm bg-primary text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary-container transition-all flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">add</span> Nouvelle Expédition
+                    </button>
+</div>
+</div>
+<!-- Active Orders Section (Bento Inspired Grid) -->
+<div class="mb-xl">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">switch_account</span>
+<h3 class="font-headline-md text-headline-md">Commandes Actives</h3>
+<span class="bg-primary-container text-on-primary-container px-sm py-xs rounded-full text-label-sm">2 en cours</span>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-gutter">
+<!-- Active Order Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg hover:border-primary transition-all duration-300">
+<div class="flex justify-between items-start mb-lg">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-primary-container/10 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<div>
+<h4 class="font-headline-md text-body-lg font-bold">CMD-2024-8932</h4>
+<p class="text-label-md text-outline">Destination: Toamasina Port</p>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-md py-xs rounded-full text-label-sm font-bold flex items-center gap-xs">
+<span class="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
+                                EN LIVRAISON
+                            </span>
+</div>
+<!-- Tracking Stepper -->
+<div class="relative py-md">
+<div class="flex items-center justify-between">
+<!-- Step 1 -->
+<div class="flex flex-col items-center gap-xs relative z-10">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-[18px]">
+<span class="material-symbols-outlined">check</span>
+</div>
+<span class="text-label-sm text-primary font-bold">Créée</span>
+</div>
+<div class="stepper-line active"></div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center gap-xs relative z-10">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-[18px]">
+<span class="material-symbols-outlined">check</span>
+</div>
+<span class="text-label-sm text-primary font-bold">Préparation</span>
+</div>
+<div class="stepper-line active"></div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center gap-xs relative z-10">
+<div class="w-10 h-10 rounded-full border-2 border-primary bg-surface-container-lowest text-primary flex items-center justify-center">
+<span class="material-symbols-outlined animate-bounce">local_shipping</span>
+</div>
+<span class="text-label-sm text-primary font-bold">En livraison</span>
+</div>
+<div class="stepper-line"></div>
+<!-- Step 4 -->
+<div class="flex flex-col items-center gap-xs relative z-10">
+<div class="w-8 h-8 rounded-full border border-outline-variant bg-surface text-outline flex items-center justify-center text-[18px]">
+<span class="material-symbols-outlined">flag</span>
+</div>
+<span class="text-label-sm text-outline">Livrée</span>
+</div>
+</div>
+</div>
+<div class="mt-lg pt-md border-t border-outline-variant flex justify-between items-center">
+<div class="flex gap-lg">
+<div>
+<p class="text-label-sm text-outline uppercase tracking-wider">Date Estimée</p>
+<p class="font-label-md text-label-md">24 Oct, 2024</p>
+</div>
+<div>
+<p class="text-label-sm text-outline uppercase tracking-wider">Contenu</p>
+<p class="font-label-md text-label-md">12x Palettes Textiles</p>
+</div>
+</div>
+<button class="text-primary font-label-md text-label-md flex items-center gap-xs hover:underline">
+                                Voir détails <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Active Order Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg hover:border-primary transition-all duration-300">
+<div class="flex justify-between items-start mb-lg">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-primary-container/10 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">inventory_2</span>
+</div>
+<div>
+<h4 class="font-headline-md text-body-lg font-bold">CMD-2024-9104</h4>
+<p class="text-label-md text-outline">Destination: Mahajanga</p>
+</div>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant px-md py-xs rounded-full text-label-sm font-bold flex items-center gap-xs">
+<span class="w-2 h-2 bg-on-surface-variant rounded-full"></span>
+                                PRÉPARATION
+                            </span>
+</div>
+<!-- Tracking Stepper -->
+<div class="relative py-md">
+<div class="flex items-center justify-between">
+<!-- Step 1 -->
+<div class="flex flex-col items-center gap-xs relative z-10">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-[18px]">
+<span class="material-symbols-outlined">check</span>
+</div>
+<span class="text-label-sm text-primary font-bold">Créée</span>
+</div>
+<div class="stepper-line active"></div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center gap-xs relative z-10">
+<div class="w-10 h-10 rounded-full border-2 border-primary bg-surface-container-lowest text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">package_2</span>
+</div>
+<span class="text-label-sm text-primary font-bold">Préparation</span>
+</div>
+<div class="stepper-line"></div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center gap-xs relative z-10">
+<div class="w-8 h-8 rounded-full border border-outline-variant bg-surface text-outline flex items-center justify-center text-[18px]">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<span class="text-label-sm text-outline">En livraison</span>
+</div>
+<div class="stepper-line"></div>
+<!-- Step 4 -->
+<div class="flex flex-col items-center gap-xs relative z-10">
+<div class="w-8 h-8 rounded-full border border-outline-variant bg-surface text-outline flex items-center justify-center text-[18px]">
+<span class="material-symbols-outlined">flag</span>
+</div>
+<span class="text-label-sm text-outline">Livrée</span>
+</div>
+</div>
+</div>
+<div class="mt-lg pt-md border-t border-outline-variant flex justify-between items-center">
+<div class="flex gap-lg">
+<div>
+<p class="text-label-sm text-outline uppercase tracking-wider">Date Estimée</p>
+<p class="font-label-md text-label-md">28 Oct, 2024</p>
+</div>
+<div>
+<p class="text-label-sm text-outline uppercase tracking-wider">Contenu</p>
+<p class="font-label-md text-label-md">02x Conteneurs 20'</p>
+</div>
+</div>
+<button class="text-primary font-label-md text-label-md flex items-center gap-xs hover:underline">
+                                Voir détails <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Order History Table Section -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-low/30">
+<h3 class="font-headline-md text-headline-md">Historique des commandes</h3>
+<div class="flex items-center gap-md">
+<select class="bg-surface border border-outline-variant rounded-lg text-label-md px-md py-1 outline-none">
+<option>Derniers 30 jours</option>
+<option>Derniers 6 mois</option>
+<option>Année 2024</option>
+</select>
+<button class="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-lg py-md text-label-sm text-outline font-bold border-b border-outline-variant">RÉFÉRENCE</th>
+<th class="px-lg py-md text-label-sm text-outline font-bold border-b border-outline-variant">DATE</th>
+<th class="px-lg py-md text-label-sm text-outline font-bold border-b border-outline-variant">DESTINATION</th>
+<th class="px-lg py-md text-label-sm text-outline font-bold border-b border-outline-variant">MONTANT</th>
+<th class="px-lg py-md text-label-sm text-outline font-bold border-b border-outline-variant">STATUT</th>
+<th class="px-lg py-md text-label-sm text-outline font-bold border-b border-outline-variant">ACTIONS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="px-lg py-md">
+<p class="font-label-md text-label-md text-primary font-bold">CMD-2024-7841</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm text-on-surface">12 Oct, 2024</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm text-on-surface">Antananarivo South</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm font-bold text-on-surface">1,450,000 MGA</p>
+</td>
+<td class="px-lg py-md">
+<span class="bg-secondary/10 text-secondary px-sm py-1 rounded text-label-sm font-bold">LIVRÉE</span>
+</td>
+<td class="px-lg py-md">
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors" title="Télécharger facture">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors" title="Détails">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="px-lg py-md">
+<p class="font-label-md text-label-md text-primary font-bold">CMD-2024-7629</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm text-on-surface">05 Oct, 2024</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm text-on-surface">Antsirabe Industrial</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm font-bold text-on-surface">2,100,000 MGA</p>
+</td>
+<td class="px-lg py-md">
+<span class="bg-secondary/10 text-secondary px-sm py-1 rounded text-label-sm font-bold">LIVRÉE</span>
+</td>
+<td class="px-lg py-md">
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="px-lg py-md">
+<p class="font-label-md text-label-md text-primary font-bold">CMD-2024-7410</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm text-on-surface">28 Sep, 2024</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm text-on-surface">Tulear Port</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm font-bold text-on-surface">890,000 MGA</p>
+</td>
+<td class="px-lg py-md">
+<span class="bg-secondary/10 text-secondary px-sm py-1 rounded text-label-sm font-bold">LIVRÉE</span>
+</td>
+<td class="px-lg py-md">
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="px-lg py-md">
+<p class="font-label-md text-label-md text-primary font-bold">CMD-2024-7233</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm text-on-surface">20 Sep, 2024</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm text-on-surface">Diego Suarez</p>
+</td>
+<td class="px-lg py-md">
+<p class="text-body-sm font-bold text-on-surface">3,540,000 MGA</p>
+</td>
+<td class="px-lg py-md">
+<span class="bg-error/10 text-error px-sm py-1 rounded text-label-sm font-bold">ANNULÉE</span>
+</td>
+<td class="px-lg py-md">
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination -->
+<div class="p-md bg-surface border-t border-outline-variant flex items-center justify-between">
+<p class="text-body-sm text-outline">Affichage 1-4 sur 12 commandes</p>
+<div class="flex items-center gap-sm">
+<button class="p-2 border border-outline-variant rounded hover:bg-surface-container-low disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="px-3 py-1 bg-primary text-on-primary rounded text-label-md">1</button>
+<button class="px-3 py-1 hover:bg-surface-container-low rounded text-label-md">2</button>
+<button class="px-3 py-1 hover:bg-surface-container-low rounded text-label-md">3</button>
+<button class="p-2 border border-outline-variant rounded hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer / Simple Stats -->
+<footer class="p-margin-desktop bg-surface mt-xl border-t border-outline-variant">
+<div class="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-lg text-center">
+<div class="p-md">
+<p class="text-label-sm text-outline uppercase tracking-widest mb-xs">Commandes ce mois</p>
+<p class="text-headline-md font-bold text-primary">28</p>
+</div>
+<div class="p-md border-x border-outline-variant">
+<p class="text-label-sm text-outline uppercase tracking-widest mb-xs">Taux de livraison</p>
+<p class="text-headline-md font-bold text-secondary">98.4%</p>
+</div>
+<div class="p-md">
+<p class="text-label-sm text-outline uppercase tracking-widest mb-xs">Volume Expédié</p>
+<p class="text-headline-md font-bold text-primary">145 T</p>
+</div>
+</div>
+</footer>
+</main>
+<!-- Floating Action Button for Support -->
+<div class="fixed bottom-lg right-lg group">
+<div class="absolute right-0 bottom-full mb-md opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-end gap-sm">
+<button class="bg-surface-container-lowest border border-outline-variant px-md py-sm rounded-lg shadow-lg text-label-md flex items-center gap-sm hover:bg-surface-container-low">
+                Chat en direct <span class="material-symbols-outlined text-primary">chat</span>
+</button>
+<button class="bg-surface-container-lowest border border-outline-variant px-md py-sm rounded-lg shadow-lg text-label-md flex items-center gap-sm hover:bg-surface-container-low">
+                Ouvrir un ticket <span class="material-symbols-outlined text-primary">confirmation_number</span>
+</button>
+</div>
+<button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform active:scale-95">
+<span class="material-symbols-outlined">headset_mic</span>
+</button>
+</div>
+<script>
+        // Micro-interactions and interactions
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (link.textContent.trim() === 'Mes commandes') return;
+                
+                // Demo purposes: remove active from current and add to clicked
+                document.querySelectorAll('nav a').forEach(l => {
+                    l.classList.remove('bg-surface-container-high', 'text-primary', 'font-bold', 'scale-[0.98]');
+                    l.classList.add('text-on-surface-variant', 'hover:bg-surface-container-low');
+                });
+                
+                link.classList.add('bg-surface-container-high', 'text-primary', 'font-bold', 'scale-[0.98]');
+                link.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-low');
+            });
+        });
+
+        // Search Bar Focus Effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('ring-2', 'ring-primary/20');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('ring-2', 'ring-primary/20');
+        });
+    </script>
+</body></html>

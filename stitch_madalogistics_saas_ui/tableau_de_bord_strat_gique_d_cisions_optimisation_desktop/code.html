@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics Executive Dashboard - Décisions &amp; Optimisation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#213145",
+                    "on-secondary-container": "#00714d",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#1e4bb1",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#6cf8bb",
+                    "on-secondary-fixed": "#002113",
+                    "surface-container": "#e5eeff",
+                    "surface": "#f8f9ff",
+                    "outline": "#747684",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "background": "#f8f9ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "tertiary-container": "#754900",
+                    "tertiary": "#563400",
+                    "on-surface": "#0b1c30",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-dim": "#cbdbf5",
+                    "inverse-primary": "#b4c5ff",
+                    "on-background": "#0b1c30",
+                    "surface-container-low": "#eff4ff",
+                    "error": "#ba1a1a",
+                    "surface-bright": "#f8f9ff",
+                    "on-primary-container": "#b3c4ff",
+                    "on-surface-variant": "#434653",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#d3e4fe",
+                    "primary": "#00348f",
+                    "surface-tint": "#2f58be",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "secondary": "#006c49",
+                    "outline-variant": "#c4c6d5",
+                    "on-tertiary-container": "#ffb95f",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-primary-fixed": "#00174b",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#dbe1ff",
+                    "surface-container-high": "#dce9ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-secondary-fixed-variant": "#005236"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "1.5rem",
+                    "base": "4px",
+                    "margin-mobile": "1rem",
+                    "xs": "0.25rem",
+                    "md": "1rem",
+                    "xl": "2.5rem",
+                    "sm": "0.5rem",
+                    "margin-desktop": "2rem",
+                    "lg": "1.5rem"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "body-sm": ["Hanken Grotesk"],
+                    "label-sm": ["Geist"],
+                    "body-md": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "label-md": ["Geist"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-xl": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f8f9ff;
+            color: #0b1c30;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab-indicator {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #00348f;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- SideNavBar Shell -->
+<aside class="w-[280px] h-screen fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface border-r border-outline-variant dark:border-outline flex flex-col h-full py-6 z-50">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim leading-none">MadaLogistics</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">PME Direction</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Navigation Items -->
+<a class="flex items-center gap-4 py-2.5 px-4 mx-2 my-1 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-4 py-2.5 px-4 mx-2 my-1 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Revenue</span>
+</a>
+<a class="flex items-center gap-4 py-2.5 px-4 mx-2 my-1 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span>Performance</span>
+</a>
+<a class="flex items-center gap-4 py-2.5 px-4 bg-primary-container text-on-primary-container dark:bg-primary dark:text-on-primary rounded-lg mx-2 my-1 transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span>Optimization</span>
+</a>
+<a class="flex items-center gap-4 py-2.5 px-4 mx-2 my-1 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span>Team</span>
+</a>
+<a class="flex items-center gap-4 py-2.5 px-4 mx-2 my-1 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-colors duration-200 ease-in-out font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span>Audit</span>
+</a>
+</nav>
+<div class="px-4 mt-auto pt-6 border-t border-outline-variant">
+<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-container-high cursor-pointer">
+<img class="w-10 h-10 rounded-full border border-outline-variant" data-alt="A professional portrait of a senior logistics executive in a well-lit modern office environment. The image is crisp with soft bokeh, reflecting a corporate leadership aesthetic. The lighting is bright and clean, aligning with the professional, high-trust theme of MadaLogistics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdf4EcE-s7VoTcDT-rBVkQQ3TKE9maTwivvAdt4ZeorveasV9EzYgBIF65zXKA2r-xVWa5t2nH4eQpLO_VKe-td7uKf2gLK3uh47VFAkWko6Kt4bW-XL_YsB7MSylr-fZUarytwMV4_jyxVrzL95S1SA-GE8SeLo_flbyfN3c0-ZYVO0Rfyd9JmKazLXoVOVlEN7iJHaHRHIQwsTb70Iuw-RzuIBcVwKvr4C-MQ2Rct4RCRDHy3a8QGQ"/>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-label-md font-bold truncate">Executive Profile</p>
+<p class="text-[11px] text-on-surface-variant truncate">Directeur Stratégique</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Shell -->
+<header class="flex justify-between items-center h-16 px-8 ml-[280px] w-[calc(100%-280px)] bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline sticky top-0 z-40">
+<div class="flex items-center gap-8">
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-bold">Executive Dashboard</h2>
+<div class="flex gap-6 items-center">
+<div class="flex gap-2 items-center text-primary font-bold border-b-2 border-primary pb-1 font-label-md text-label-md cursor-pointer">
+<span>Ce mois</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</div>
+<div class="text-on-surface-variant dark:text-surface-variant hover:text-primary transition-all font-label-md text-label-md cursor-pointer">
+                    Tous les hubs
+                </div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="material-symbols-outlined p-2 text-on-surface-variant hover:text-primary transition-all cursor-pointer">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</div>
+<span class="material-symbols-outlined p-2 text-on-surface-variant hover:text-primary transition-all cursor-pointer">settings</span>
+</div>
+</header>
+<!-- Sub Navigation Tabs -->
+<div class="ml-[280px] bg-white border-b border-outline-variant px-8 flex gap-8 h-12 items-center">
+<a class="text-on-surface-variant hover:text-primary font-label-md text-label-md h-full flex items-center relative transition-all" href="#">Vue d'ensemble</a>
+<a class="text-on-surface-variant hover:text-primary font-label-md text-label-md h-full flex items-center relative transition-all" href="#">Chiffre d'affaires</a>
+<a class="text-on-surface-variant hover:text-primary font-label-md text-label-md h-full flex items-center relative transition-all" href="#">Performance</a>
+<a class="text-primary font-bold font-label-md text-label-md h-full flex items-center relative" href="#">
+            Décisions &amp; Optimisation
+            <div class="active-tab-indicator"></div>
+</a>
+<a class="text-on-surface-variant hover:text-primary font-label-md text-label-md h-full flex items-center relative transition-all" href="#">Équipe</a>
+<a class="text-on-surface-variant hover:text-primary font-label-md text-label-md h-full flex items-center relative transition-all" href="#">Audit</a>
+</div>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] p-8 space-y-8 max-w-[1600px]">
+<!-- KPI Banner -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-white p-6 rounded-lg border border-outline-variant hover:border-primary transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Chiffre d'affaires</span>
+<span class="material-symbols-outlined text-primary-container">monetization_on</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-primary">482M Ar</h3>
+<span class="text-secondary font-label-md text-label-md flex items-center">+4.2%</span>
+</div>
+<div class="mt-2 text-on-surface-variant text-[11px] font-label-sm">Vs mois précédent</div>
+</div>
+<div class="bg-white p-6 rounded-lg border border-outline-variant hover:border-primary transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Taux de livraison</span>
+<span class="material-symbols-outlined text-secondary">verified</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-primary">94.8%</h3>
+<span class="text-secondary font-label-md text-label-md flex items-center">+0.5%</span>
+</div>
+<div class="mt-2 text-on-surface-variant text-[11px] font-label-sm">Objectif: 95.0%</div>
+</div>
+<div class="bg-white p-6 rounded-lg border border-outline-variant hover:border-primary transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Taux de remplissage</span>
+<span class="material-symbols-outlined text-tertiary">inventory_2</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-primary">82%</h3>
+<span class="text-error font-label-md text-label-md flex items-center">-1.2%</span>
+</div>
+<div class="mt-2 text-on-surface-variant text-[11px] font-label-sm">Vs cible (85%)</div>
+</div>
+<div class="bg-white p-6 rounded-lg border border-outline-variant hover:border-primary transition-colors cursor-default">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">Gains d'optimisation</span>
+<span class="material-symbols-outlined text-on-secondary-container">savings</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="font-headline-lg text-headline-lg text-secondary">3.8M Ar</h3>
+<span class="text-secondary font-label-md text-label-md flex items-center">+12%</span>
+</div>
+<div class="mt-2 text-on-surface-variant text-[11px] font-label-sm">Période actuelle</div>
+</div>
+</section>
+<!-- Main Dashboard Content -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column: Highlights -->
+<div class="lg:col-span-1 space-y-8">
+<div class="bg-primary-container text-on-primary-container p-8 rounded-lg relative overflow-hidden h-full flex flex-col justify-between">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md uppercase font-bold opacity-80">Résumé de performance</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg mb-2">Montant total économisé</h2>
+<p class="font-label-md text-label-md opacity-70 mb-6">Grâce aux algorithmes de routage et de chargement.</p>
+<div class="flex items-center gap-4">
+<span class="text-[48px] font-bold leading-none">3.8M Ar</span>
+<div class="w-24 h-12">
+<svg class="w-full h-full" viewbox="0 0 100 40">
+<path d="M0 35 Q 20 30, 40 25 T 80 10 T 100 5" fill="none" stroke="white" stroke-width="3"></path>
+</svg>
+</div>
+</div>
+</div>
+<div class="mt-12 space-y-4 relative z-10">
+<div class="bg-white/10 p-4 rounded-lg flex items-center justify-between backdrop-blur-sm">
+<span class="font-label-md text-label-md">Km évités</span>
+<span class="font-bold">1,240 km</span>
+</div>
+<div class="bg-white/10 p-4 rounded-lg flex items-center justify-between backdrop-blur-sm">
+<span class="font-label-md text-label-md">CO2 réduit</span>
+<span class="font-bold">0.8 Tons</span>
+</div>
+</div>
+<!-- Decorative elements -->
+<div class="absolute -right-16 -bottom-16 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+<div class="absolute -left-16 -top-16 w-64 h-64 bg-primary/20 rounded-full blur-3xl"></div>
+</div>
+</div>
+<!-- Right Column: Table -->
+<div class="lg:col-span-2">
+<div class="bg-white rounded-lg border border-outline-variant flex flex-col h-full overflow-hidden">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<h3 class="font-headline-md text-headline-md text-on-surface">Dernières exécutions d'optimisation</h3>
+<div class="flex gap-2">
+<button class="px-4 py-2 text-primary font-label-md text-label-md flex items-center gap-2 hover:bg-primary-container/10 rounded-lg transition-colors border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                                Exporter
+                            </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Date</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Type</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Justification résumée</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Gain estimé</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Validé par</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-6 py-5 font-label-md text-label-md">12 Oct</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-surface-container-highest text-primary text-[11px] font-bold rounded uppercase">VRP</span>
+</td>
+<td class="px-6 py-5 font-body-sm text-body-sm">
+                                        Optimisation itinéraire Antananarivo - 15% km économisés
+                                    </td>
+<td class="px-6 py-5 font-label-md text-label-md text-secondary font-bold">1.2M Ar</td>
+<td class="px-6 py-5 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-dim flex items-center justify-center text-[10px] font-bold">RJ</div>
+<span class="font-label-md text-label-md">Rakoto J.</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-6 py-5 font-label-md text-label-md">11 Oct</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-surface-container-highest text-tertiary text-[11px] font-bold rounded uppercase">Bin Packing</span>
+</td>
+<td class="px-6 py-5 font-body-sm text-body-sm">
+                                        Chargement Camion #402 - Capacité +20%
+                                    </td>
+<td class="px-6 py-5 font-label-md text-label-md text-secondary font-bold">0.8M Ar</td>
+<td class="px-6 py-5 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-dim flex items-center justify-center text-[10px] font-bold">LM</div>
+<span class="font-label-md text-label-md">Lala M.</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-6 py-5 font-label-md text-label-md">10 Oct</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-surface-container-highest text-primary text-[11px] font-bold rounded uppercase">Knapsack</span>
+</td>
+<td class="px-6 py-5 font-body-sm text-body-sm">
+                                        Priorisation haute valeur Hub Toamasina
+                                    </td>
+<td class="px-6 py-5 font-label-md text-label-md text-secondary font-bold">0.6M Ar</td>
+<td class="px-6 py-5 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-dim flex items-center justify-center text-[10px] font-bold">RJ</div>
+<span class="font-label-md text-label-md">Rakoto J.</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-6 py-5 font-label-md text-label-md">09 Oct</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-surface-container-highest text-primary text-[11px] font-bold rounded uppercase">VRP</span>
+</td>
+<td class="px-6 py-5 font-body-sm text-body-sm">
+                                        Regroupement livraisons dernier kilomètre - Tamatave
+                                    </td>
+<td class="px-6 py-5 font-label-md text-label-md text-secondary font-bold">0.7M Ar</td>
+<td class="px-6 py-5 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-dim flex items-center justify-center text-[10px] font-bold">LM</div>
+<span class="font-label-md text-label-md">Lala M.</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-6 py-5 font-label-md text-label-md">08 Oct</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-surface-container-highest text-tertiary text-[11px] font-bold rounded uppercase">Bin Packing</span>
+</td>
+<td class="px-6 py-5 font-body-sm text-body-sm">
+                                        Redimensionnement palettes zone sud
+                                    </td>
+<td class="px-6 py-5 font-label-md text-label-md text-secondary font-bold">0.5M Ar</td>
+<td class="px-6 py-5 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-dim flex items-center justify-center text-[10px] font-bold">RJ</div>
+<span class="font-label-md text-label-md">Rakoto J.</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-outline-variant flex justify-between items-center text-on-surface-variant font-label-md text-label-md mt-auto bg-surface-container-low">
+<span>Affichage de 1-5 sur 42 exécutions</span>
+<div class="flex gap-2">
+<button class="p-1 hover:bg-white rounded border border-outline-variant transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="p-1 hover:bg-white rounded border border-outline-variant transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Strategy Insights section -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-8 pb-12">
+<div class="bg-white p-8 rounded-lg border border-outline-variant flex items-start gap-6">
+<div class="w-16 h-16 rounded-full bg-secondary-container/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-secondary-container text-[32px]">lightbulb</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Insight: Amélioration potentielle</h4>
+<p class="text-on-surface-variant font-body-md text-body-md mb-4">L'algorithme suggère de différer les livraisons non-critiques vers le hub de Fianarantsoa pour un gain estimé de 150k Ar additionnel par semaine.</p>
+<button class="text-primary font-bold font-label-md text-label-md flex items-center gap-2 hover:underline">
+                        Analyser le scénario
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="bg-white p-8 rounded-lg border border-outline-variant flex items-start gap-6">
+<div class="w-16 h-16 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[32px]">history_edu</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Historique d'audit</h4>
+<p class="text-on-surface-variant font-body-md text-body-md mb-4">Toutes les décisions de la semaine passée ont été auditées avec un taux de conformité de 100% aux objectifs de coûts.</p>
+<button class="text-primary font-bold font-label-md text-label-md flex items-center gap-2 hover:underline">
+                        Voir le rapport d'audit
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Micro-interactions and simple state handling
+        document.querySelectorAll('nav a, div.ml-\\[280px\\] a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if(link.getAttribute('href') === '#') e.preventDefault();
+            });
+        });
+        
+        // Tab hover effect simulation
+        const filterLinks = document.querySelectorAll('header .cursor-pointer');
+        filterLinks.forEach(link => {
+            link.addEventListener('mouseenter', () => link.classList.add('opacity-80'));
+            link.addEventListener('mouseleave', () => link.classList.remove('opacity-80'));
+        });
+    </script>
+</body></html>

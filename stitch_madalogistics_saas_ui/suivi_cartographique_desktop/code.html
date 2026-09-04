@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics | Map Optimization</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#563400",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-background": "#0b1c30",
+                        "outline-variant": "#c4c6d5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-surface-variant": "#434653",
+                        "on-secondary-container": "#00714d",
+                        "primary-container": "#1e4bb1",
+                        "primary": "#00348f",
+                        "on-primary-fixed": "#00174b",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary-container": "#ffb95f",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "secondary-container": "#6cf8bb",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#4edea3",
+                        "inverse-surface": "#213145",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-dim": "#cbdbf5",
+                        "primary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-bright": "#f8f9ff",
+                        "on-primary-fixed-variant": "#063ea5",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-primary-container": "#b3c4ff",
+                        "surface-tint": "#2f58be",
+                        "surface-container-low": "#eff4ff",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffddb8",
+                        "tertiary-container": "#754900",
+                        "outline": "#747684",
+                        "error": "#ba1a1a",
+                        "background": "#f8f9ff",
+                        "on-error-container": "#93000a",
+                        "secondary": "#006c49",
+                        "surface": "#f8f9ff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-high": "#dce9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "1rem",
+                        "margin-mobile": "1rem",
+                        "xl": "2.5rem",
+                        "xs": "0.25rem",
+                        "sm": "0.5rem",
+                        "lg": "1.5rem",
+                        "margin-desktop": "2rem",
+                        "gutter": "1.5rem",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .map-container {
+            background-image: radial-gradient(#d3e4fe 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .route-polyline {
+            stroke-dasharray: 10;
+            animation: dash 20s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -1000; }
+        }
+        .marker-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .7; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background overflow-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-margin-desktop z-40">
+<div class="flex items-center gap-md">
+<h1 class="hidden md:block text-headline-md font-bold text-primary">MadaLogistics</h1>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg w-80 font-label-md text-label-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Rechercher une livraison, un véhicule..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex items-center gap-md">
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="apps">apps</span>
+</button>
+</div>
+<div class="flex items-center gap-sm pl-md border-l border-outline-variant">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline">
+<img class="w-full h-full object-cover" data-alt="Close up professional corporate headshot of a logistics manager in a bright office, soft natural lighting, high resolution, minimalist business style with primary blue tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADxxVq26qJqQRhlDMN6szoJuhI9NK_7AdgvwP-3nyUAsWmg2KD__TvzVqbW59oWxlMPg9w-X4Gc7rt_1-S_2S-vsjglsVrldIXsNM8j8ygCpdGnS3-FXlaYjv0PvOmTiaGdOElcv1rhBU7qTSKabCO7jdG9-VnigtHBhGmdQHCro1sctFbxzTYLlMWmhAihw1_x1tVf6nNvY0ESNhXjHEgEgvX4fu-XHGYCCBCKYoApBag7dtAOLMQDw"/>
+</div>
+<div class="hidden lg:block">
+<p class="font-label-md text-label-md font-bold">Jean Ralambo</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Fleet Supervisor</p>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-[280px] bg-surface border-r border-outline-variant flex flex-col py-lg z-50">
+<div class="px-lg mb-xl">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-white text-2xl" data-icon="local_shipping">local_shipping</span>
+</div>
+<div>
+<h2 class="text-headline-md font-bold text-primary">MadaLogistics</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Fleet Management</p>
+</div>
+</div>
+</div>
+<div class="flex-1 px-sm space-y-1">
+<a class="flex items-center gap-md px-md py-3 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-3 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+<span class="font-body-md text-body-md">Planning</span>
+</a>
+<a class="flex items-center gap-md px-md py-3 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-body-md text-body-md">Fleet</span>
+</a>
+<a class="flex items-center gap-md px-md py-3 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-body-md text-body-md">Optimization</span>
+</a>
+<a class="flex items-center gap-md px-md py-3 text-primary font-bold border-r-4 border-primary bg-surface-container-highest rounded-l-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-body-md text-body-md">Map</span>
+</a>
+</div>
+<div class="px-md mt-auto">
+<button class="w-full py-3 bg-primary text-on-primary rounded-xl font-label-md text-label-md font-bold flex items-center justify-center gap-sm shadow-md hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+<span>New Shipment</span>
+</button>
+<div class="mt-xl pt-lg border-t border-outline-variant space-y-1">
+<a class="flex items-center gap-md px-md py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+<a class="flex items-center gap-md px-md py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body-md text-body-md">Support</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Map Canvas -->
+<main class="ml-[280px] mt-16 h-[calc(100vh-64px)] relative overflow-hidden bg-surface-container-lowest">
+<!-- Simulated Map Interface -->
+<div class="absolute inset-0 map-container flex items-center justify-center">
+<!-- Map Background Image -->
+<div class="w-full h-full relative">
+<img class="w-full h-full object-cover opacity-80 mix-blend-multiply" data-alt="A highly detailed satellite and topographical map of Antananarivo, Madagascar city area. The visual style is professional, clean, and modern with soft desaturated colors. Major roads are highlighted in subtle grey. High contrast and minimalist UI aesthetic." data-location="Antananarivo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0NrcUkxhR80e1D6bu9HwuprxJSfi1UJvdDZDgXZug3YzMJoXyNwH3_0n9kWy_9j84vNEaf3pRwxdazW49FeQgZgF_38tUZHPnCghb3FhpL2WxOG3aGDkrjO4uoaNbu_M3TBaTJH6R6CtfDNpgAVC0Z0ZsNHbf5Pf1-XnvrOlioL9hK8uvYqWCeeczQdeT8p2isyDE91YOtgvjccfsqfhdkdT69k0x0T27uHxyaUes6HW0dDZEn62sRA"/>
+<!-- SVG Overlay for Route and Markers -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" viewbox="0 0 1000 800">
+<!-- Optimized Route Polyline -->
+<path class="route-polyline shadow-lg" d="M200,200 L350,250 L420,400 L600,380 L750,550" fill="none" stroke="#00348f" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<path d="M200,200 L350,250 L420,400 L600,380 L750,550" fill="none" stroke="#ffffff" stroke-dasharray="8,8" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+<!-- Dynamic Markers -->
+<!-- Truck 1 (Moving) -->
+<div class="absolute top-[250px] left-[350px] -translate-x-1/2 -translate-y-1/2 group cursor-pointer pointer-events-auto">
+<div class="relative">
+<div class="absolute -inset-2 bg-primary/20 rounded-full marker-pulse"></div>
+<div class="w-10 h-10 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-2 border-white transform hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+</div>
+<div class="absolute top-12 left-1/2 -translate-x-1/2 bg-white px-2 py-1 rounded shadow-md border border-outline-variant whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+<p class="font-label-sm text-label-sm font-bold">V-102 (En route)</p>
+</div>
+</div>
+</div>
+<!-- Delivery Marker 1 -->
+<div class="absolute top-[200px] left-[200px] -translate-x-1/2 -translate-y-1/2 group cursor-pointer pointer-events-auto">
+<div class="w-8 h-8 bg-secondary text-white rounded-full flex items-center justify-center shadow-md border-2 border-white transform hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">inventory</span>
+</div>
+</div>
+<!-- Delivery Marker 2 (Active) -->
+<div class="absolute top-[550px] left-[750px] -translate-x-1/2 -translate-y-1/2 group cursor-pointer pointer-events-auto">
+<div class="w-8 h-8 bg-tertiary-container text-tertiary rounded-full flex items-center justify-center shadow-md border-2 border-white transform hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 bg-white p-2 rounded-lg shadow-xl border border-outline-variant w-32">
+<p class="font-label-sm text-label-sm font-bold text-primary">Stop: Antsirabe</p>
+<p class="font-label-sm text-[10px] text-on-surface-variant">ETA: 14:45</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Map Controls -->
+<div class="absolute bottom-10 left-10 flex flex-col gap-sm">
+<div class="bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden">
+<button class="w-12 h-12 flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors border-b border-outline-variant">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">remove</span>
+</button>
+</div>
+<button class="w-12 h-12 bg-white rounded-xl shadow-xl border border-outline-variant flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+</div>
+<div class="absolute top-10 left-10">
+<div class="bg-white/90 backdrop-blur-md rounded-xl shadow-xl border border-outline-variant p-2 flex gap-1">
+<button class="px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md font-bold transition-all">Satellite</button>
+<button class="px-4 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg font-label-md text-label-md transition-all">Traffic</button>
+<button class="px-4 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg font-label-md text-label-md transition-all">Terrain</button>
+</div>
+</div>
+<!-- Right Side Panel: Active Deliveries -->
+<aside class="absolute top-0 right-0 h-full w-[360px] bg-white border-l border-outline-variant shadow-2xl z-10 flex flex-col">
+<div class="p-lg border-b border-outline-variant">
+<div class="flex justify-between items-center mb-md">
+<h3 class="text-headline-md font-bold text-primary">Active Deliveries</h3>
+<span class="bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full font-label-sm text-label-sm">24 Total</span>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2 border border-primary text-primary rounded-lg font-label-sm text-label-sm font-bold flex items-center justify-center gap-1 hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-sm">filter_list</span> Filtrer
+                    </button>
+<button class="flex-1 py-2 border border-outline-variant text-on-surface-variant rounded-lg font-label-sm text-label-sm font-bold flex items-center justify-center gap-1 hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-sm">sort</span> Trier
+                    </button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<!-- Delivery Item 1 -->
+<div class="p-lg border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<p class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">#TRK-89210</p>
+<h4 class="font-body-md text-body-md font-bold mt-1">Carrefour Ankorondrano</h4>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-sm text-[11px] font-bold">En cours</span>
+</div>
+<div class="flex items-center gap-md mt-md">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-white bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">local_shipping</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="w-full h-1 bg-outline-variant rounded-full overflow-hidden">
+<div class="w-2/3 h-full bg-secondary"></div>
+</div>
+<div class="flex justify-between mt-1">
+<span class="font-label-sm text-[10px] text-on-surface-variant">42.5 km</span>
+<span class="font-label-sm text-[10px] text-secondary font-bold">ETA 12:30</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Delivery Item 2 -->
+<div class="p-lg border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer bg-surface-container-lowest">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<p class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">#TRK-89215</p>
+<h4 class="font-body-md text-body-md font-bold mt-1">Jumbo Score Digue</h4>
+</div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-3 py-1 rounded-full font-label-sm text-[11px] font-bold">En attente</span>
+</div>
+<div class="flex items-center gap-md mt-md">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-white bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">inventory_2</span>
+</div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Prévu pour 14:00 • Camion V-08</p>
+</div>
+</div>
+<!-- Delivery Item 3 -->
+<div class="p-lg border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<p class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">#TRK-89198</p>
+<h4 class="font-body-md text-body-md font-bold mt-1">Pharmacy Ambohibao</h4>
+</div>
+<span class="bg-surface-container-highest text-primary px-3 py-1 rounded-full font-label-sm text-[11px] font-bold">Livré</span>
+</div>
+<div class="flex items-center gap-sm mt-md text-secondary">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<p class="font-label-sm text-label-sm font-bold">Livré à 10:45 AM</p>
+</div>
+</div>
+<!-- More items placeholder -->
+<div class="p-lg border-b border-outline-variant opacity-60">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<p class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">#TRK-89222</p>
+<h4 class="font-body-md text-body-md font-bold mt-1">Supermaki Ivandry</h4>
+</div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-3 py-1 rounded-full font-label-sm text-[11px] font-bold">En attente</span>
+</div>
+</div>
+</div>
+<div class="p-lg bg-surface-container-low">
+<div class="bg-white rounded-xl p-md border border-outline-variant shadow-sm">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm font-bold">Optimization Active</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant">3 routes recalculées</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Stats Bar Overlay (Bottom Center) -->
+<div class="absolute bottom-10 left-[calc(50%-180px)] -translate-x-1/2 flex gap-4 pointer-events-none">
+<div class="bg-white/95 backdrop-blur shadow-2xl rounded-2xl p-4 border border-outline-variant flex items-center gap-lg pointer-events-auto">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase font-bold">Total Vitesse</span>
+<span class="text-headline-md font-bold text-primary">68 km/h</span>
+</div>
+<div class="w-px h-10 bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase font-bold">Véhicules Actifs</span>
+<span class="text-headline-md font-bold text-primary">12/15</span>
+</div>
+<div class="w-px h-10 bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase font-bold">Ponctualité</span>
+<span class="text-headline-md font-bold text-secondary">94%</span>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple Micro-interactions for Map UI
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => btn.classList.add('scale-95'));
+            btn.addEventListener('mouseup', () => btn.classList.remove('scale-95'));
+            btn.addEventListener('mouseleave', () => btn.classList.remove('scale-95'));
+        });
+
+        // Hover animation logic for "markers"
+        const markers = document.querySelectorAll('.group');
+        markers.forEach(marker => {
+            marker.addEventListener('mouseenter', () => {
+                // Potential to show Tooltips if not already in HTML
+            });
+        });
+    </script>
+</body></html>

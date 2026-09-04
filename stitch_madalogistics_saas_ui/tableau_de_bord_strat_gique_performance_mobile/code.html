@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#6ffbbe",
+                    "on-primary-fixed": "#00174b",
+                    "secondary-container": "#6cf8bb",
+                    "background": "#f8f9ff",
+                    "primary": "#00348f",
+                    "on-tertiary-fixed": "#2a1700",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface": "#f8f9ff",
+                    "on-primary-container": "#b3c4ff",
+                    "inverse-surface": "#213145",
+                    "outline-variant": "#c4c6d5",
+                    "tertiary-container": "#754900",
+                    "on-secondary-fixed-variant": "#005236",
+                    "primary-fixed": "#dbe1ff",
+                    "on-surface-variant": "#434653",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-container": "#00714d",
+                    "on-primary": "#ffffff",
+                    "secondary": "#006c49",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#ffb95f",
+                    "error": "#ba1a1a",
+                    "primary-container": "#1e4bb1",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-surface": "#0b1c30",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#4edea3",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-container": "#e5eeff",
+                    "tertiary": "#563400",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#747684",
+                    "tertiary-fixed": "#ffddb8",
+                    "surface-container-low": "#eff4ff",
+                    "surface-container-high": "#dce9ff",
+                    "surface-tint": "#2f58be",
+                    "surface-dim": "#cbdbf5",
+                    "surface-variant": "#d3e4fe",
+                    "on-error": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-secondary-fixed": "#002113",
+                    "on-background": "#0b1c30"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "1rem",
+                    "xs": "0.25rem",
+                    "margin-mobile": "1rem",
+                    "base": "4px",
+                    "xl": "2.5rem",
+                    "margin-desktop": "2rem",
+                    "sm": "0.5rem",
+                    "lg": "1.5rem",
+                    "gutter": "1.5rem"
+            },
+            "fontFamily": {
+                    "label-md": ["Geist"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "label-sm": ["Geist"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-xl": ["Hanken Grotesk"],
+                    "body-sm": ["Hanken Grotesk"],
+                    "body-md": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            background-color: #f8f9ff;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .donut-segment {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant flex items-center justify-between px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a logistics manager in a modern office, high-end corporate photography style. The background is a blurred high-tech control center with screens showing maps of Madagascar. The lighting is soft and professional, using a primary blue corporate palette with clean white highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5o4WHxmL9n7r3g8FiIDZ6NrPECCZ8eCjwZpf6qCvLWC5B4LoR57uuUbZmlQus6jdMBNSCoapuS5r8DA-UOMjw_YR8G2mTcBs6TwZwsAbBxRTVgXFaqw_7pak_D5jDWUM96ZjNAl7ytVD82G1zvJekqWHU-C3Wrn_h7TToDD7tX5zBjWqAwQLZKj1rm-RC_dEHNNJzrUpcSAlCfI0w_UjJAxG3fXxmZkUm43S-e4rq7Np_qBvCndXYKw"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">MadaLogistics</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors active:scale-95 duration-150 text-on-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="pt-16 pb-24 min-h-screen">
+<!-- Navigation Tabs (Horizontal Scrollable) -->
+<nav class="bg-surface sticky top-16 z-40 px-margin-mobile py-3 border-b border-outline-variant overflow-x-auto hide-scrollbar flex gap-2">
+<button class="whitespace-nowrap px-4 py-2 rounded-full font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-low transition-all">Vue d'ensemble</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-low transition-all">Chiffre d'affaires</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full font-body-md text-body-md bg-secondary-container text-on-secondary-container font-bold">Performance</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-low transition-all">Optimisation</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-low transition-all">Équipe</button>
+</nav>
+<!-- Content Area -->
+<div class="px-margin-mobile pt-6 space-y-6">
+<!-- Filters -->
+<section class="flex gap-2 overflow-x-auto hide-scrollbar">
+<div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-outline-variant text-label-md font-label-md text-on-surface-variant">
+<span>Derniers 30 jours</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+<div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-outline-variant text-label-md font-label-md text-on-surface-variant">
+<span>Tous les Hubs</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+<div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-outline-variant text-label-md font-label-md text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+<span>Filtres</span>
+</div>
+</section>
+<!-- KPI Cards Grid (2x2 for Mobile) -->
+<section class="grid grid-cols-2 gap-3">
+<div class="bg-white p-4 rounded-xl border border-outline-variant">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Taux Complétion</p>
+<div class="mt-2 flex items-baseline gap-1">
+<span class="text-headline-md font-headline-md text-on-surface">98.4%</span>
+<span class="text-secondary text-[10px] font-bold">↑ 2%</span>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-outline-variant">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">On-Time Delivery</p>
+<div class="mt-2 flex items-baseline gap-1">
+<span class="text-headline-md font-headline-md text-on-surface">92.1%</span>
+<span class="text-error text-[10px] font-bold">↓ 0.5%</span>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-outline-variant">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Conso Carburant</p>
+<div class="mt-2 flex items-baseline gap-1">
+<span class="text-headline-md font-headline-md text-on-surface">12.4L</span>
+<span class="text-on-surface-variant text-[10px]">/100km</span>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-outline-variant">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Véhicules Actifs</p>
+<div class="mt-2 flex items-baseline gap-1">
+<span class="text-headline-md font-headline-md text-on-surface">142</span>
+<span class="text-on-surface-variant text-[10px]">en route</span>
+</div>
+</div>
+</section>
+<!-- Donut Chart & Delivery Time -->
+<section class="space-y-4">
+<div class="bg-white p-6 rounded-xl border border-outline-variant shadow-sm">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface mb-6">Distribution des Livraisons</h3>
+<div class="flex items-center justify-between">
+<div class="relative w-32 h-32">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle class="text-surface-container" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="12"></circle>
+<circle class="text-primary donut-segment" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-linecap="round" stroke-width="12"></circle>
+<circle class="text-secondary donut-segment" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="200" stroke-linecap="round" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-md text-headline-md">1.2k</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Total</span>
+</div>
+</div>
+<div class="space-y-2 flex-1 ml-8">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-label-md font-label-md text-on-surface-variant">Livrées (75%)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="text-label-md font-label-md text-on-surface-variant">En cours (20%)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-error"></span>
+<span class="text-label-md font-label-md text-on-surface-variant">Retards (5%)</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-primary text-white p-6 rounded-xl shadow-lg flex items-center justify-between">
+<div>
+<p class="text-primary-fixed-dim text-label-md font-label-md uppercase">Délai moyen de livraison</p>
+<h2 class="font-headline-xl text-headline-xl mt-1">4.2h</h2>
+</div>
+<div class="bg-white/10 p-3 rounded-full">
+<span class="material-symbols-outlined text-4xl">timer</span>
+</div>
+</div>
+</section>
+<!-- Derniers Incidents Section -->
+<section class="space-y-4">
+<div class="flex items-center justify-between px-1">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface">Derniers Incidents</h3>
+<button class="text-primary text-label-md font-label-md font-bold">Tout voir</button>
+</div>
+<div class="space-y-3">
+<!-- Incident Card 1 -->
+<div class="bg-white p-4 rounded-xl border border-outline-variant shadow-sm flex gap-4">
+<div class="bg-error-container text-error p-3 rounded-lg h-fit">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div class="flex-1 space-y-2">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-body-md text-on-surface">Panne Moteur - Camion #402</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant">12 Oct 2023 • 14:30</p>
+</div>
+<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-[10px] font-bold uppercase">Critique</span>
+</div>
+<div class="grid grid-cols-2 gap-2 text-label-sm font-label-sm">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-xs">location_on</span>
+                                    Hub Antananarivo
+                                </div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-xs">person</span>
+                                    Rakoto J.
+                                </div>
+</div>
+<div class="pt-2 border-t border-outline-variant flex justify-between items-center">
+<span class="text-label-sm font-label-sm text-error font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                    Non résolu
+                                </span>
+<button class="text-primary text-label-sm font-bold">Intervenir</button>
+</div>
+</div>
+</div>
+<!-- Incident Card 2 -->
+<div class="bg-white p-4 rounded-xl border border-outline-variant shadow-sm flex gap-4">
+<div class="bg-tertiary-fixed text-tertiary p-3 rounded-lg h-fit">
+<span class="material-symbols-outlined">traffic</span>
+</div>
+<div class="flex-1 space-y-2">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-body-md text-on-surface">Retard Trafic RN7</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant">12 Oct 2023 • 10:15</p>
+</div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-2 py-0.5 rounded text-[10px] font-bold uppercase">Moyen</span>
+</div>
+<div class="grid grid-cols-2 gap-2 text-label-sm font-label-sm">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-xs">location_on</span>
+                                    Hub Antsirabe
+                                </div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-xs">person</span>
+                                    Andria M.
+                                </div>
+</div>
+<div class="pt-2 border-t border-outline-variant flex justify-between items-center">
+<span class="text-label-sm font-label-sm text-secondary font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                    Résolu
+                                </span>
+<button class="text-on-surface-variant text-label-sm font-bold">Détails</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant flex justify-around items-center h-20 px-2 pb-safe w-full">
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-all active:scale-90 duration-100 p-2">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md mt-1">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-all active:scale-90 duration-100 p-2">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-label-md text-label-md mt-1">Fleet</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-all active:scale-90 duration-100 p-2">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md mt-1">Shipments</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-xl px-3 py-1 active:scale-90 duration-100">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">query_stats</span>
+<span class="font-label-md text-label-md mt-1 font-bold">Analytics</span>
+</div>
+</nav>
+<script>
+        // Simple micro-interactions for active state feedback
+        document.querySelectorAll('nav button, nav div').forEach(el => {
+            el.addEventListener('touchstart', () => {
+                el.style.opacity = '0.7';
+            });
+            el.addEventListener('touchend', () => {
+                el.style.opacity = '1';
+            });
+        });
+
+        // Dynamic donut chart animation simulated on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const segments = document.querySelectorAll('.donut-segment');
+            segments.forEach(segment => {
+                const offset = segment.getAttribute('stroke-dashoffset');
+                segment.style.strokeDashoffset = '251.2';
+                setTimeout(() => {
+                    segment.style.strokeDashoffset = offset;
+                }, 100);
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#213145",
+                    "on-secondary-container": "#00714d",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#1e4bb1",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#6cf8bb",
+                    "on-secondary-fixed": "#002113",
+                    "surface-container": "#e5eeff",
+                    "surface": "#f8f9ff",
+                    "outline": "#747684",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "background": "#f8f9ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "tertiary-container": "#754900",
+                    "tertiary": "#563400",
+                    "on-surface": "#0b1c30",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-dim": "#cbdbf5",
+                    "inverse-primary": "#b4c5ff",
+                    "on-background": "#0b1c30",
+                    "surface-container-low": "#eff4ff",
+                    "error": "#ba1a1a",
+                    "surface-bright": "#f8f9ff",
+                    "on-primary-container": "#b3c4ff",
+                    "on-surface-variant": "#434653",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#d3e4fe",
+                    "primary": "#00348f",
+                    "surface-tint": "#2f58be",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "secondary": "#006c49",
+                    "outline-variant": "#c4c6d5",
+                    "on-tertiary-container": "#ffb95f",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-primary-fixed": "#00174b",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#dbe1ff",
+                    "surface-container-high": "#dce9ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-secondary-fixed-variant": "#005236"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "1.5rem",
+                    "base": "4px",
+                    "margin-mobile": "1rem",
+                    "xs": "0.25rem",
+                    "md": "1rem",
+                    "xl": "2.5rem",
+                    "sm": "0.5rem",
+                    "margin-desktop": "2rem",
+                    "lg": "1.5rem"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "body-sm": ["Hanken Grotesk"],
+                    "label-sm": ["Geist"],
+                    "body-md": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "label-md": ["Geist"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-xl": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            scrollbar-width: none;
+        }
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-20">
+<!-- TopAppBar (Based on TopNavBar Shared Component Logic for Mobile) -->
+<header class="sticky top-0 z-50 bg-surface dark:bg-surface-dim px-4 h-16 flex items-center justify-between shadow-sm border-b border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">MadaLogistics</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Close-up professional portrait of a Malagasy business executive wearing a tailored navy suit, looking confident and approachable, shot in a high-key office environment with soft natural lighting and a clean, minimalist aesthetic that aligns with a corporate professional dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdMwBmeGEcgzkys0CMHiXkrvC4fJo7iB-e9VlyAGcKjqz78r-9XBDvJy3jx0U7le9KZ0WtHvO6vkM8_KbqCxl_mLtwoEjC9sbSoXY00R3_Cqvd7dL0toV9Gujo5ihTxt2ksft6Sghb1RgIhAVfVIg8qXEGPHMwLErpYlyO-qbkdlDuY5MP2E-_NFjA0Vgx_AG1fVUDgsMYIqjcmM9cDnNzNI0Z7IWpC6Oi-kfLNLHZcuDglVutbgNv8Q"/>
+</div>
+</div>
+</header>
+<!-- Horizontal Tabs -->
+<nav class="bg-surface sticky top-16 z-40 overflow-x-auto no-scrollbar border-b border-outline-variant px-4 py-2 flex items-center gap-6 whitespace-nowrap">
+<button class="font-label-md text-label-md text-on-surface-variant opacity-60">Vue d'ensemble</button>
+<button class="font-label-md text-label-md text-on-surface-variant opacity-60">Chiffre d'affaires</button>
+<button class="font-label-md text-label-md text-on-surface-variant opacity-60">Performance</button>
+<!-- ACTIVE TAB: Optimization -->
+<button class="font-label-md text-label-md text-primary font-bold border-b-2 border-primary pb-2 -mb-2">Décisions &amp; Optimisation</button>
+<button class="font-label-md text-label-md text-on-surface-variant opacity-60">Équipe</button>
+<button class="font-label-md text-label-md text-on-surface-variant opacity-60">Audit</button>
+</nav>
+<!-- Filters Row -->
+<div class="px-4 py-4 flex gap-2 overflow-x-auto no-scrollbar bg-surface-container-low">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline text-label-md font-label-md bg-white hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+            Période
+            <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline text-label-md font-label-md bg-white hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">hub</span>
+            Hub Filters
+            <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+<!-- Main Content Canvas -->
+<main class="p-4 space-y-6">
+<!-- High-Impact KPI Card -->
+<section class="relative overflow-hidden rounded-xl bg-primary text-on-primary p-6 shadow-lg">
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+<div class="relative z-10 flex flex-col items-center">
+<span class="font-label-md text-label-md uppercase tracking-widest opacity-80 mb-2">Économies Totales (Période)</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl">3.8M</span>
+<span class="font-headline-md text-headline-md opacity-90">Ar</span>
+</div>
+<div class="mt-4 flex items-center gap-2 px-3 py-1 bg-secondary-container/20 rounded-full text-secondary-fixed text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                    +14.2% vs période précédente
+                </div>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-white/20">
+<div class="h-full bg-secondary-fixed-dim w-[72%] transition-all duration-1000 ease-out"></div>
+</div>
+</section>
+<!-- Section Title -->
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-on-surface">Dernières Optimisations</h2>
+<button class="text-primary font-label-md text-label-md">Tout voir</button>
+</div>
+<!-- Optimization Cards List -->
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 transition-transform active:scale-[0.98] cursor-pointer shadow-sm">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">route</span>
+</div>
+<div>
+<h3 class="font-body-md font-bold text-on-surface">VRP - Antananarivo Hub</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">12 Octobre • Algorithme de routage</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-secondary font-bold text-body-md">+1.2M Ar</span>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-secondary-container/10 text-on-secondary-container">Économie</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-3 border-t border-outline-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Validé par <span class="font-bold">Rakoto J.</span></span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 transition-transform active:scale-[0.98] cursor-pointer shadow-sm">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+</div>
+<div>
+<h3 class="font-body-md font-bold text-on-surface">Bin Packing - Camion #402</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">11 Octobre • Optimisation chargement</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-secondary font-bold text-body-md">+0.8M Ar</span>
+<span class="text-label-sm font-label-sm px-2 py-0.5 rounded bg-secondary-container/10 text-on-secondary-container">Économie</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-3 border-t border-outline-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Validé par <span class="font-bold">Lala M.</span></span>
+</div>
+</div>
+<!-- Insight Section: Modern Bento Hint -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-tertiary-fixed text-on-tertiary-fixed-variant p-4 rounded-xl flex flex-col justify-between aspect-square">
+<span class="material-symbols-outlined text-[32px]">bolt</span>
+<div>
+<p class="text-headline-md font-bold">98%</p>
+<p class="text-label-sm font-label-sm">Efficacité Moyenne</p>
+</div>
+</div>
+<div class="bg-secondary-container text-on-secondary-fixed-variant p-4 rounded-xl flex flex-col justify-between aspect-square">
+<span class="material-symbols-outlined text-[32px]">group_work</span>
+<div>
+<p class="text-headline-md font-bold">12</p>
+<p class="text-label-sm font-label-sm">Hubs Optimisés</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Shared Component Logic for Mobile View) -->
+<nav class="fixed bottom-0 left-0 right-0 h-16 bg-surface dark:bg-surface-dim border-t border-outline-variant flex items-center justify-around px-2 shadow-lg z-50">
+<button class="flex flex-col items-center justify-center flex-1 gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">dashboard</span>
+<span class="text-[10px] font-label-sm font-medium uppercase tracking-tight">Tableau</span>
+</button>
+<button class="flex flex-col items-center justify-center flex-1 gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">local_shipping</span>
+<span class="text-[10px] font-label-sm font-medium uppercase tracking-tight">Flotte</span>
+</button>
+<button class="flex flex-col items-center justify-center flex-1 gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">package_2</span>
+<span class="text-[10px] font-label-sm font-medium uppercase tracking-tight">Expéditions</span>
+</button>
+<!-- ACTIVE TAB -->
+<button class="flex flex-col items-center justify-center flex-1 gap-1 text-primary">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="text-[10px] font-label-sm font-bold uppercase tracking-tight">Analytique</span>
+<div class="absolute bottom-1 w-1 h-1 bg-primary rounded-full"></div>
+</button>
+</nav>
+<script>
+        // Micro-interaction for cards
+        document.querySelectorAll('.cursor-pointer').forEach(card => {
+            card.addEventListener('touchstart', () => card.classList.add('scale-[0.98]'));
+            card.addEventListener('touchend', () => card.classList.remove('scale-[0.98]'));
+        });
+    </script>
+</body></html>

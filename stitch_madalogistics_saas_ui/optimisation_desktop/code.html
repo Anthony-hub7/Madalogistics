@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MadaLogistics - Optimisation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#006c49",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#eaf1ff",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#2a1700",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-primary-container": "#b3c4ff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "tertiary-container": "#754900",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-container-high": "#dce9ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-secondary-fixed-variant": "#005236",
+                    "outline-variant": "#c4c6d5",
+                    "tertiary": "#563400",
+                    "secondary-container": "#6cf8bb",
+                    "primary": "#00348f",
+                    "on-primary-fixed-variant": "#063ea5",
+                    "surface-container-low": "#eff4ff",
+                    "inverse-surface": "#213145",
+                    "surface-variant": "#d3e4fe",
+                    "primary-fixed": "#dbe1ff",
+                    "surface-dim": "#cbdbf5",
+                    "on-tertiary-container": "#ffb95f",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-surface-variant": "#434653",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed": "#002113",
+                    "on-secondary-container": "#00714d",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f8f9ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-container": "#e5eeff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "background": "#f8f9ff",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#0b1c30",
+                    "on-background": "#0b1c30",
+                    "surface-tint": "#2f58be",
+                    "surface-container-highest": "#d3e4fe",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "outline": "#747684",
+                    "on-primary-fixed": "#00174b",
+                    "primary-container": "#1e4bb1",
+                    "surface": "#f8f9ff",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "2rem",
+                    "gutter": "1.5rem",
+                    "base": "4px",
+                    "xs": "0.25rem",
+                    "xl": "2.5rem",
+                    "margin-mobile": "1rem",
+                    "md": "1rem",
+                    "sm": "0.5rem",
+                    "lg": "1.5rem"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-xl": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "label-md": ["Geist"],
+                    "label-sm": ["Geist"],
+                    "body-sm": ["Hanken Grotesk"],
+                    "body-md": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .gauge-svg {
+            transform: rotate(-90deg);
+        }
+        .gauge-path {
+            stroke-dasharray: 100, 100;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface border-r border-outline-variant flex flex-col py-lg px-md z-50">
+<div class="mb-xl px-sm">
+<h1 class="text-headline-md font-headline-md font-bold text-primary">MadaLogistics</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Supply Chain Manager</p>
+</div>
+<nav class="flex-1 space-y-xs">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">shopping_cart</span>
+<span class="text-body-md font-body-md">Orders</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">event_note</span>
+<span class="text-body-md font-body-md">Planning</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">local_shipping</span>
+<span class="text-body-md font-body-md">Fleet</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary bg-surface-container-high font-bold border-r-4 border-primary transition-all duration-200 scale-[0.98x]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">insights</span>
+<span class="text-body-md font-body-md">Optimization</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">map</span>
+<span class="text-body-md font-body-md">Map</span>
+</a>
+</nav>
+<div class="mt-auto pt-lg border-t border-outline-variant space-y-xs">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-md font-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-label-md font-label-md">Support</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-[280px] h-16 bg-surface-bright border-b border-outline-variant flex justify-between items-center px-lg z-40">
+<div class="flex items-center gap-md w-1/3">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-sm pl-xl pr-md text-body-md focus:ring-2 focus:ring-primary focus:ring-opacity-50" placeholder="Rechercher une simulation..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors focus:outline-none ring-primary ring-opacity-50 p-sm rounded-full">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors focus:outline-none ring-primary ring-opacity-50 p-sm rounded-full">help</button>
+</div>
+<div class="flex items-center gap-sm border-l border-outline-variant pl-lg">
+<div class="text-right">
+<p class="text-label-md font-label-md text-on-surface">Admin Logistic</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Superviseur</p>
+</div>
+<img class="w-10 h-10 rounded-full border border-outline-variant" data-alt="Un portrait professionnel de haut niveau d'un superviseur logistique malgache dans un bureau moderne et minimaliste. L'éclairage est doux et naturel, provenant d'une grande fenêtre latérale, créant une esthétique SaaS B2B haut de gamme. Le sujet porte une chemise blanche impeccable, dégageant autorité et confiance. L'arrière-plan présente des tons neutres de gris et de bleu profond, restant flou pour mettre l'accent sur le professionnalisme du sujet." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqdVEvinW9LzGqihJSK_eRmu0w_PXxiqtprikPSDv_TogJ-W4ay_27BVSieomB8tjEBwRoBBAWHdWwE-mIIVIuRXmdZhrd0payyujt6B4wUlphdMls4WWGPWDj1hfEKFhXhyo-c1ehb3TlJ3twUAXDZzkbRzVQthGBzFuOH-Y5oIvB3ZoHInNaXPDD8QWwrEYiUvXTSvr-0sOIULRqiw5rMNwZs6IVhjdZ62RtqLGNfyBmuRSZakSi0g"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] pt-16 p-xl">
+<div class="max-w-7xl mx-auto">
+<!-- Header Section -->
+<header class="mb-xl flex justify-between items-end">
+<div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Optimisation du Chargement</h2>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-2xl">Paramétrez votre simulation pour générer l'affectation la plus rentable de votre flotte aux commandes en attente.</p>
+</div>
+<div class="flex gap-md">
+<button class="flex items-center gap-sm px-lg py-sm rounded-lg border border-primary text-primary font-label-md hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined">history</span>
+                        Historique
+                    </button>
+</div>
+</header>
+<div class="grid grid-cols-12 gap-lg items-start">
+<!-- Section Paramètres de Simulation (Bento Grid Style) -->
+<section class="col-span-7 bg-surface-container-lowest rounded-xl border border-outline-variant p-xl shadow-sm">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">settings_suggest</span>
+<h3 class="text-headline-md font-headline-md text-on-surface">Paramètres de Simulation</h3>
+</div>
+<form class="space-y-lg">
+<div class="grid grid-cols-2 gap-lg">
+<div class="space-y-xs">
+<label class="text-label-md font-label-md text-on-surface-variant block">Nombre de colis</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="number" value="35"/>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">inventory_2</span>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="text-label-md font-label-md text-on-surface-variant block">Poids total (kg)</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="number" value="1250"/>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">weight</span>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="text-label-md font-label-md text-on-surface-variant block">Volume total (m³)</label>
+<div class="relative">
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" step="0.1" type="number" value="18.5"/>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">view_in_ar</span>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="text-label-md font-label-md text-on-surface-variant block">Véhicules disponibles</label>
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all appearance-none">
+<option>Flotte Antananarivo (12)</option>
+<option>Flotte Tamatave (8)</option>
+<option>Tous les véhicules (20)</option>
+</select>
+</div>
+<div class="space-y-xs col-span-2">
+<label class="text-label-md font-label-md text-on-surface-variant block">Distance moyenne estimée (km)</label>
+<div class="flex items-center gap-md">
+<input class="flex-1 accent-primary h-1.5 bg-surface-container rounded-full appearance-none" max="500" min="10" type="range" value="42"/>
+<span class="text-body-md font-bold text-primary w-12 text-right">42 km</span>
+</div>
+</div>
+</div>
+<div class="pt-md border-t border-outline-variant flex justify-between items-center">
+<div class="flex items-center gap-xs text-tertiary">
+<span class="material-symbols-outlined text-[18px]">info</span>
+<span class="text-label-sm font-label-sm">Données synchronisées il y a 5 min</span>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary px-xl py-md rounded-lg font-label-md flex items-center gap-md transition-all active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined">calculate</span>
+                                Calculer l'optimisation
+                            </button>
+</div>
+</form>
+</section>
+<!-- Section Résultats de l'Optimisation -->
+<section class="col-span-5 space-y-lg">
+<!-- Solution Optimale Card -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-sm">
+<div class="bg-secondary bg-opacity-5 px-xl py-md border-b border-outline-variant flex justify-between items-center">
+<h3 class="text-label-md font-label-md text-secondary uppercase tracking-widest">Résultat Optimal</h3>
+<span class="flex items-center gap-xs bg-secondary text-on-secondary px-sm py-xs rounded text-[10px] font-bold">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                FIABLE
+                            </span>
+</div>
+<div class="p-xl space-y-xl">
+<div class="flex items-start justify-between">
+<div>
+<h4 class="text-headline-md font-headline-md text-on-surface">Solution optimale trouvée</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">L'algorithme a identifié le meilleur ratio coût/capacité.</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg">
+<span class="material-symbols-outlined text-primary text-[32px]">auto_awesome</span>
+</div>
+</div>
+<!-- Visualization: Fill Rate -->
+<div class="flex items-center gap-xl bg-surface-container-low p-lg rounded-xl">
+<div class="relative w-24 h-24">
+<svg class="w-24 h-24 gauge-svg" viewbox="0 0 36 36">
+<path class="stroke-surface-container-high" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+<path class="gauge-path stroke-secondary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-dasharray="87, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-headline-md font-headline-md text-secondary leading-none">87%</span>
+</div>
+</div>
+<div class="flex-1">
+<p class="text-label-md font-label-md text-on-surface-variant">Taux de remplissage</p>
+<p class="text-body-md font-body-md text-on-surface font-semibold">Excellente utilisation</p>
+<div class="mt-xs w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[87%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Solution Details -->
+<div class="grid grid-cols-2 gap-md">
+<div class="border border-outline-variant rounded-lg p-md">
+<p class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">local_shipping</span>
+                                        Véhicule
+                                    </p>
+<p class="text-body-md font-body-md font-bold text-on-surface">Camion A (7T)</p>
+</div>
+<div class="border border-outline-variant rounded-lg p-md">
+<p class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">package_2</span>
+                                        Colis affectés
+                                    </p>
+<p class="text-body-md font-body-md font-bold text-on-surface">35 unités</p>
+</div>
+<div class="border border-outline-variant rounded-lg p-md">
+<p class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">route</span>
+                                        Distance
+                                    </p>
+<p class="text-body-md font-body-md font-bold text-on-surface">42 km</p>
+</div>
+<div class="border border-outline-variant rounded-lg p-md">
+<p class="text-label-sm font-label-sm text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">payments</span>
+                                        Coût
+                                    </p>
+<p class="text-body-md font-body-md font-bold text-primary">150 000 Ar</p>
+</div>
+</div>
+<button class="w-full bg-surface-container-high text-on-surface-variant hover:bg-primary hover:text-on-primary py-md rounded-lg font-label-md transition-all flex items-center justify-center gap-md">
+                                Confirmer cette affectation
+                                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Alerts/Insights -->
+<div class="bg-tertiary-fixed text-on-tertiary-fixed p-lg rounded-xl flex gap-md items-start">
+<span class="material-symbols-outlined text-tertiary">warning</span>
+<div>
+<h5 class="text-label-md font-bold text-tertiary">Alerte de capacité</h5>
+<p class="text-body-sm">3 colis sont restés en attente car le volume total excède de 1.2m³ la capacité maximale du véhicule sélectionné.</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Visualization Section -->
+<div class="mt-lg grid grid-cols-12 gap-lg">
+<div class="col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg h-64 relative overflow-hidden group">
+<div class="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 transition-opacity">
+
+</div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface">Visualisation de la Charge</h3>
+<p class="text-body-sm text-on-surface-variant">Vue 3D simulée du compartiment de chargement du Camion A</p>
+</div>
+<div class="flex justify-center items-center h-full">
+<div class="flex items-center gap-lg">
+<div class="flex flex-col items-center">
+<div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-on-secondary mb-xs">
+<span class="material-symbols-outlined">view_in_ar</span>
+</div>
+<span class="text-label-sm">Optimal</span>
+</div>
+<div class="w-32 h-[1px] bg-outline-variant"></div>
+<div class="flex flex-col items-center">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center text-on-surface-variant mb-xs">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<span class="text-label-sm">Livraison</span>
+</div>
+<div class="w-32 h-[1px] bg-outline-variant"></div>
+<div class="flex flex-col items-center">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center text-on-surface-variant mb-xs">
+<span class="material-symbols-outlined">done_all</span>
+</div>
+<span class="text-label-sm">Terminé</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interactions and simulation logic
+        const calcBtn = document.querySelector('button[type="button"]');
+        calcBtn.addEventListener('click', () => {
+            calcBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Calcul en cours...';
+            calcBtn.disabled = true;
+            
+            setTimeout(() => {
+                calcBtn.innerHTML = '<span class="material-symbols-outlined">calculate</span> Calculer l\'optimisation';
+                calcBtn.disabled = false;
+                
+                // Add a subtle bounce to the results card to show it updated
+                const resultCard = document.querySelector('.col-span-5');
+                resultCard.style.transform = 'translateY(-4px)';
+                setTimeout(() => resultCard.style.transform = 'translateY(0)', 200);
+            }, 1500);
+        });
+
+        // Hover effect on navigation
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                if(!link.classList.contains('text-primary')) {
+                    link.style.transform = 'translateX(4px)';
+                }
+            });
+            link.addEventListener('mouseleave', () => {
+                link.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
+</body></html>
