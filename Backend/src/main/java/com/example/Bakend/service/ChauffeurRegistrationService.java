@@ -72,6 +72,16 @@ public class ChauffeurRegistrationService {
             throw new BusinessException("Un compte existe deja avec le CIN : " + cin);
         }
 
+        // Freelance DOIT declarer son vehicule
+        if ("FREELANCE".equals(typeChauffeur)) {
+            if (!Boolean.TRUE.equals(aVehiculeAssigne)
+                    || immatriculation == null || immatriculation.isBlank()
+                    || typeVehicule == null || typeVehicule.isBlank()) {
+                throw new BusinessException(
+                        "Un chauffeur freelance doit declarer son vehicule : immatriculation et type sont obligatoires");
+            }
+        }
+
         // Determiner le tenant : agence cible si rattaché, plateforme si freelance
         PMECliente tenant = null;
         if ("RATTACHE".equals(typeChauffeur) && agenceId != null) {
@@ -79,9 +89,7 @@ public class ChauffeurRegistrationService {
                     .orElseThrow(() -> new ResourceNotFoundException("Agence introuvable : " + agenceId));
         } else {
             // Freelance → tenant plateforme
-            tenant = pmeClienteRepository.findAllOrderByCreatedAtDesc().stream()
-                    .filter(t -> "PLATEFORME MADALOGISTIX".equals(t.getNomEntreprise()))
-                    .findFirst()
+            tenant = pmeClienteRepository.findByNomEntreprise("PLATEFORME MADALOGISTIX")
                     .orElseThrow(() -> new ResourceNotFoundException("Tenant plateforme introuvable"));
         }
 
@@ -93,11 +101,15 @@ public class ChauffeurRegistrationService {
         utilisateur.setMotDePasseHash(passwordEncoder.encode(motDePasse));
         utilisateur.setRole(Role.CHAUFFEUR);
         utilisateur.setHabiliteValeur(false);
-        utilisateur.setCin(cin);
+        utilisateur.setCin(cin != null ? cin.trim().replaceAll("\\s+", "") : cin);
         if (dateNaissance != null && !dateNaissance.isBlank()) {
-            utilisateur.setDateNaissance(LocalDate.parse(dateNaissance));
+            try {
+                utilisateur.setDateNaissance(LocalDate.parse(dateNaissance));
+            } catch (java.time.format.DateTimeParseException e) {
+                throw new BusinessException("Format de date de naissance invalide (attendu YYYY-MM-DD) : " + dateNaissance);
+            }
         }
-        utilisateur.setSexe(sexe);
+        utilisateur.setSexe(sexe != null ? sexe.trim().toUpperCase() : sexe);
         utilisateur.setAdresse(adresse);
 
         Utilisateur savedUser = utilisateurRepository.save(utilisateur);
@@ -108,15 +120,19 @@ public class ChauffeurRegistrationService {
         chauffeur.setUtilisateur(savedUser);
         chauffeur.setTelephone(telephone);
         chauffeur.setDisponible(true);
-        chauffeur.setPermisNumero(permisNumero);
-        chauffeur.setPermisCategorie(permisCategorie);
+        chauffeur.setPermisNumero(permisNumero != null ? permisNumero.trim() : permisNumero);
+        chauffeur.setPermisCategorie(permisCategorie != null ? permisCategorie.trim().toUpperCase() : permisCategorie);
         chauffeur.setPermisCategories(permisCategories);
         if (permisExpiration != null && !permisExpiration.isBlank()) {
-            chauffeur.setPermisExpiration(LocalDate.parse(permisExpiration));
+            try {
+                chauffeur.setPermisExpiration(LocalDate.parse(permisExpiration));
+            } catch (java.time.format.DateTimeParseException e) {
+                throw new BusinessException("Format de date d'expiration du permis invalide (attendu YYYY-MM-DD) : " + permisExpiration);
+            }
         }
         chauffeur.setPermisScan(permisScan);
         chauffeur.setExperienceAnnees(experienceAnnees);
-        chauffeur.setTypeChauffeur(typeChauffeur);
+        chauffeur.setTypeChauffeur(typeChauffeur != null ? typeChauffeur.trim().toUpperCase() : typeChauffeur);
         chauffeur.setStatutDossier("EN_ATTENTE");
 
         if ("RATTACHE".equals(typeChauffeur) && agenceId != null) {
@@ -127,21 +143,29 @@ public class ChauffeurRegistrationService {
         if (Boolean.TRUE.equals(aVehiculeAssigne) && immatriculation != null && !immatriculation.isBlank()) {
             Vehicule vehicule = new Vehicule();
             vehicule.setPmeCliente(tenant);
-            // Freelance sans hub → hub null (V6允许)
             if ("RATTACHE".equals(typeChauffeur)) {
-                // Pour un chauffeur rattache, on lie le premier hub de l'agence si disponible
                 if (!tenant.getHubs().isEmpty()) {
                     vehicule.setHub(tenant.getHubs().get(0));
                 }
             }
-            vehicule.setImmatriculation(immatriculation);
-            vehicule.setCapaciteVolumeM3(capaciteVolumeM3 != null ? new BigDecimal(capaciteVolumeM3) : BigDecimal.ZERO);
+            vehicule.setImmatriculation(immatriculation.trim().toUpperCase());
+            try {
+                vehicule.setCapaciteVolumeM3(capaciteVolumeM3 != null ? new BigDecimal(capaciteVolumeM3.trim().replace(',', '.')) : BigDecimal.ZERO);
+            } catch (NumberFormatException e) {
+                throw new BusinessException("Capacite volume invalide : " + capaciteVolumeM3);
+            }
             vehicule.setCapacitePoidsKg(BigDecimal.ZERO);
             vehicule.setStatut(VehiculeStatut.DISPONIBLE);
             vehicule.setMarqueModele(marqueModele);
             vehicule.setTypeVehicule(typeVehicule);
             vehicule.setAnnee(annee);
-            vehicule.setPtacTonnes(ptacTonnes != null ? new BigDecimal(ptacTonnes) : null);
+            if (ptacTonnes != null && !ptacTonnes.isBlank()) {
+                try {
+                    vehicule.setPtacTonnes(new BigDecimal(ptacTonnes.trim().replace(',', '.')));
+                } catch (NumberFormatException e) {
+                    throw new BusinessException("PTAC invalide : " + ptacTonnes);
+                }
+            }
 
             Vehicule savedVehicule = vehiculeRepository.save(vehicule);
             chauffeur.setVehicule(savedVehicule);

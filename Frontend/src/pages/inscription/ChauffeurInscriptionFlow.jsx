@@ -1,15 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { chauffeursService } from '../../services/chauffeursService'
 
 // ─── Static data ──────────────────────────────────────────────────────────────
-const AGENCES_DISPONIBLES = [
-  { id: 'agc-001', nom: 'TRANS MADA SARL', hub: 'Antananarivo', chauffeurs: 12, statut: 'Actif' },
-  { id: 'agc-002', nom: 'RN7 EXPRESS FRET', hub: 'Antsirabe', chauffeurs: 8, statut: 'Actif' },
-  { id: 'agc-003', nom: 'TANA-TSIRABE CARGO', hub: 'Ambatolampy', chauffeurs: 5, statut: 'Actif' },
-  { id: 'agc-004', nom: 'CORRIDOR SUD TRANSPORT', hub: 'Antsirabe', chauffeurs: 15, statut: 'Actif' },
-  { id: 'agc-005', nom: 'HAUTS PLATEAUX LOGISTIX', hub: 'Antananarivo', chauffeurs: 9, statut: 'Actif' },
-]
+const BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 const CATEGORIES_PERMIS = ['B', 'C', 'C+E', 'D', 'D+E', 'BE']
 const TYPES_VEHICULE = [
@@ -268,102 +262,117 @@ function Step2({ data, onChange, onNext, onBack }) {
   )
 }
 
-// ─── STEP 3 : Véhicule ────────────────────────────────────────────────────
-function Step3({ data, onChange, onNext, onBack }) {
+// ─── STEP 4 : Véhicule ────────────────────────────────────────────────────
+function Step3({ data, onChange, onNext, onSubmit, onBack, submitting }) {
+  const isFreelance = data.typeChauffeur === 'freelance'
   const hasVehicule = data.aVehiculeAssigne === true
   const noVehicule = data.aVehiculeAssigne === false
-  const valid = noVehicule || (hasVehicule && data.immatriculation && data.typeVehicule)
+
+  // Freelance → forcer aVehiculeAssigne = true à l'entrée de cette étape
+  useEffect(() => {
+    if (isFreelance && data.aVehiculeAssigne !== true) {
+      onChange('aVehiculeAssigne', true)
+    }
+  }, [isFreelance, data.aVehiculeAssigne, onChange])
+
+  const valid = isFreelance
+    ? (hasVehicule && data.immatriculation && data.typeVehicule)
+    : (noVehicule || (hasVehicule && data.immatriculation && data.typeVehicule))
 
   return (
     <div className="space-y-5">
       <div>
         <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-[#1A1A1E]">Véhicule assigné</h2>
-        <p className="font-body text-sm text-[#8A8A92] mt-1">Renseignez les caractéristiques de votre véhicule principal.</p>
-      </div>
-
-      {/* ── Gate : avez-vous un véhicule ? ── */}
-      <div className="space-y-1.5" role="radiogroup" aria-label="Possédez-vous un véhicule assigné ?">
-        <p className="font-display text-[11px] uppercase tracking-wider font-bold text-[#1A1A1E]">
-          Possédez-vous ou avez-vous un véhicule assigné ?
+        <p className="font-body text-sm text-[#8A8A92] mt-1">
+          {isFreelance
+            ? "En tant que freelance, vous devez renseigner votre véhicule."
+            : "Renseignez les caractéristiques de votre véhicule principal."}
         </p>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            role="radio"
-            aria-checked={hasVehicule}
-            onClick={() => {
-              onChange('aVehiculeAssigne', true)
-            }}
-            className={`flex items-center gap-3 rounded-lg border-2 p-4 transition-all text-left ${
-              hasVehicule
-                ? 'border-[#E8433D] bg-[#E8433D]/5 ring-2 ring-[#E8433D]/20'
-                : 'border-[#ECECEC] bg-white hover:border-[#1A1A1E]'
-            }`}
-          >
-            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-              hasVehicule ? 'bg-[#E8433D] text-white' : 'bg-[#F7F7F8] text-[#1A1A1E]'
-            }`}>
-              <span className="material-symbols-outlined text-[20px]">local_shipping</span>
-            </div>
-            <div>
-              <p className={`font-display text-sm font-bold uppercase tracking-wide ${hasVehicule ? 'text-[#E8433D]' : 'text-[#1A1A1E]'}`}>
-                Oui
-              </p>
-              <p className="font-body text-[11px] text-[#8A8A92]">J'ai un véhicule</p>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            role="radio"
-            aria-checked={noVehicule}
-            onClick={() => {
-              onChange('aVehiculeAssigne', false)
-              onChange('immatriculation', '')
-              onChange('typeVehicule', '')
-              onChange('marque', '')
-              onChange('annee', '')
-              onChange('ptac', '')
-              onChange('capacite', '')
-            }}
-            className={`flex items-center gap-3 rounded-lg border-2 p-4 transition-all text-left ${
-              noVehicule
-                ? 'border-[#E8433D] bg-[#E8433D]/5 ring-2 ring-[#E8433D]/20'
-                : 'border-[#ECECEC] bg-white hover:border-[#1A1A1E]'
-            }`}
-          >
-            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-              noVehicule ? 'bg-[#E8433D] text-white' : 'bg-[#F7F7F8] text-[#1A1A1E]'
-            }`}>
-              <span className="material-symbols-outlined text-[20px]">do_not_disturb_on</span>
-            </div>
-            <div>
-              <p className={`font-display text-sm font-bold uppercase tracking-wide ${noVehicule ? 'text-[#E8433D]' : 'text-[#1A1A1E]'}`}>
-                Non
-              </p>
-              <p className="font-body text-[11px] text-[#8A8A92]">Pas encore</p>
-            </div>
-          </button>
-        </div>
       </div>
 
-      {/* ── Pas encore de véhicule → message ── */}
-      {noVehicule && (
+      {/* ── Gate : avez-vous un véhicule ? (uniquement rattaché) ── */}
+      {!isFreelance && (
+        <div className="space-y-1.5" role="radiogroup" aria-label="Possédez-vous un véhicule assigné ?">
+          <p className="font-display text-[11px] uppercase tracking-wider font-bold text-[#1A1A1E]">
+            Possédez-vous ou avez-vous un véhicule assigné ?
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={hasVehicule}
+              onClick={() => {
+                onChange('aVehiculeAssigne', true)
+              }}
+              className={`flex items-center gap-3 rounded-lg border-2 p-4 transition-all text-left ${
+                hasVehicule
+                  ? 'border-[#E8433D] bg-[#E8433D]/5 ring-2 ring-[#E8433D]/20'
+                  : 'border-[#ECECEC] bg-white hover:border-[#1A1A1E]'
+              }`}
+            >
+              <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                hasVehicule ? 'bg-[#E8433D] text-white' : 'bg-[#F7F7F8] text-[#1A1A1E]'
+              }`}>
+                <span className="material-symbols-outlined text-[20px]">local_shipping</span>
+              </div>
+              <div>
+                <p className={`font-display text-sm font-bold uppercase tracking-wide ${hasVehicule ? 'text-[#E8433D]' : 'text-[#1A1A1E]'}`}>
+                  Oui
+                </p>
+                <p className="font-body text-[11px] text-[#8A8A92]">J'ai un véhicule</p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              role="radio"
+              aria-checked={noVehicule}
+              onClick={() => {
+                onChange('aVehiculeAssigne', false)
+                onChange('immatriculation', '')
+                onChange('typeVehicule', '')
+                onChange('marque', '')
+                onChange('annee', '')
+                onChange('ptac', '')
+                onChange('capacite', '')
+              }}
+              className={`flex items-center gap-3 rounded-lg border-2 p-4 transition-all text-left ${
+                noVehicule
+                  ? 'border-[#E8433D] bg-[#E8433D]/5 ring-2 ring-[#E8433D]/20'
+                  : 'border-[#ECECEC] bg-white hover:border-[#1A1A1E]'
+              }`}
+            >
+              <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                noVehicule ? 'bg-[#E8433D] text-white' : 'bg-[#F7F7F8] text-[#1A1A1E]'
+              }`}>
+                <span className="material-symbols-outlined text-[20px]">do_not_disturb_on</span>
+              </div>
+              <div>
+                <p className={`font-display text-sm font-bold uppercase tracking-wide ${noVehicule ? 'text-[#E8433D]' : 'text-[#1A1A1E]'}`}>
+                  Non
+                </p>
+                <p className="font-body text-[11px] text-[#8A8A92]">Pas encore</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Pas encore de véhicule (rattaché uniquement) → message ── */}
+      {!isFreelance && noVehicule && (
         <div className="rounded-lg border-2 border-[#E8433D]/20 bg-[#E8433D]/5 p-4 flex items-start gap-3">
           <span className="material-symbols-outlined text-[20px] text-[#E8433D] mt-0.5">info</span>
           <div>
             <p className="font-display text-[11px] uppercase tracking-wider font-bold text-[#E8433D] mb-1">Aucun véhicule pour le moment</p>
             <p className="font-body text-xs text-[#1A1A1E]">
-              {data.typeChauffeur === 'rattaché'
-                ? "Pas de souci — votre agence vous assignera un véhicule après validation de votre candidature."
-                : "Vous pourrez renseigner votre véhicule ultérieurement depuis votre espace chauffeur."}
+              Pas de souci — votre agence vous assignera un véhicule après validation de votre candidature.
             </p>
           </div>
         </div>
       )}
 
-      {/* ── Formulaire véhicule (visible uniquement si Oui) ── */}
-      {hasVehicule && (
+      {/* ── Formulaire véhicule (visible si Oui OU si freelance) ── */}
+      {(hasVehicule || isFreelance) && (
         <>
           {/* Plate preview */}
           <div className="flex items-center gap-4 rounded-lg bg-[#F7F7F8] border border-[#ECECEC] p-4">
@@ -407,16 +416,23 @@ function Step3({ data, onChange, onNext, onBack }) {
         <button onClick={onBack} className="flex items-center gap-2 rounded border-2 border-[#ECECEC] px-5 py-2.5 font-display text-sm font-bold uppercase tracking-wider text-[#1A1A1E] hover:border-[#1A1A1E] transition-all">
           <span className="material-symbols-outlined text-[18px]">arrow_back</span> Retour
         </button>
-        <button onClick={onNext} disabled={!valid} className="flex items-center gap-2 rounded bg-[#E8433D] px-6 py-2.5 font-display text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-[#B82823] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
-          Suivant <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-        </button>
+        {isFreelance ? (
+          <button onClick={onSubmit} disabled={!valid || submitting} className="flex items-center gap-2 rounded bg-[#E8433D] px-6 py-2.5 font-display text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-[#B82823] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+            <span className="material-symbols-outlined text-[18px]">send</span>
+            Soumettre ma candidature
+          </button>
+        ) : (
+          <button onClick={onNext} disabled={!valid} className="flex items-center gap-2 rounded bg-[#E8433D] px-6 py-2.5 font-display text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-[#B82823] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+            Suivant <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+          </button>
+        )}
       </div>
     </div>
   )
 }
 
-// ─── STEP 4 : Choix du Statut ──────────────────────────────────────────────
-function Step4({ data, onChange, onNext, onSubmit, onBack, submitting }) {
+// ─── STEP 3 : Choix du Statut ──────────────────────────────────────────────
+function Step4({ data, onChange, onNext, onBack }) {
   const valid = data.typeChauffeur
 
   return (
@@ -511,16 +527,9 @@ function Step4({ data, onChange, onNext, onSubmit, onBack, submitting }) {
         <button onClick={onBack} className="flex items-center gap-2 rounded border-2 border-[#ECECEC] px-5 py-2.5 font-display text-sm font-bold uppercase tracking-wider text-[#1A1A1E] hover:border-[#1A1A1E] transition-all">
           <span className="material-symbols-outlined text-[18px]">arrow_back</span> Retour
         </button>
-        {data.typeChauffeur === 'freelance' ? (
-          <button onClick={onSubmit} disabled={!valid || submitting} className="flex items-center gap-2 rounded bg-[#E8433D] px-6 py-2.5 font-display text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-[#B82823] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
-            <span className="material-symbols-outlined text-[18px]">send</span>
-            Soumettre ma candidature
-          </button>
-        ) : (
-          <button onClick={onNext} disabled={!valid} className="flex items-center gap-2 rounded bg-[#E8433D] px-6 py-2.5 font-display text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-[#B82823] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
-            Suivant <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-          </button>
-        )}
+        <button onClick={onNext} disabled={!valid} className="flex items-center gap-2 rounded bg-[#E8433D] px-6 py-2.5 font-display text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-[#B82823] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+          Suivant <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+        </button>
       </div>
     </div>
   )
@@ -529,10 +538,27 @@ function Step4({ data, onChange, onNext, onSubmit, onBack, submitting }) {
 // ─── STEP 5 : Sélection de l'agence ──────────────────────────────────────
 function Step5({ data, onChange, onSubmit, onBack, submitting }) {
   const [search, setSearch] = useState('')
-  const filtered = AGENCES_DISPONIBLES.filter(a =>
-    a.nom.toLowerCase().includes(search.toLowerCase()) || a.hub.toLowerCase().includes(search.toLowerCase())
+  const [agences, setAgences] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    setLoading(true)
+    setError('')
+    fetch(`${BASE_URL}/auth/public/agences`)
+      .then(r => {
+        if (!r.ok) throw new Error(`Erreur ${r.status}`)
+        return r.json()
+      })
+      .then(data => setAgences(data))
+      .catch(e => setError(e.message || 'Impossible de charger les agences'))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const filtered = agences.filter(a =>
+    a.nom.toLowerCase().includes(search.toLowerCase()) || (a.adresse || '').toLowerCase().includes(search.toLowerCase())
   )
-  const selected = AGENCES_DISPONIBLES.find(a => a.id === data.agenceId)
+  const selected = agences.find(a => a.tenantId === data.agenceId)
 
   return (
     <div className="space-y-5">
@@ -546,51 +572,66 @@ function Step5({ data, onChange, onSubmit, onBack, submitting }) {
       {/* Search */}
       <div className="relative">
         <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-xl text-[#8A8A92]">search</span>
-        <input type="text" placeholder="Rechercher une agence par nom ou hub..."
+        <input type="text" placeholder="Rechercher une agence par nom..."
           className="h-11 w-full rounded border-2 border-[#ECECEC] bg-white py-2.5 pl-11 pr-4 font-body text-sm text-[#1A1A1E] outline-none transition-all placeholder:text-[#8A8A92] focus:border-[#E8433D]"
           value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
+      {/* Loading */}
+      {loading && (
+        <div className="py-8 text-center">
+          <div className="w-8 h-8 border-4 border-[#E8433D]/20 border-t-[#E8433D] rounded-full animate-spin mx-auto" />
+          <p className="font-body text-sm text-[#8A8A92] mt-3">Chargement des agences...</p>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className="rounded-lg border-2 border-[#E8433D]/30 bg-[#E8433D]/5 p-4 flex items-start gap-3">
+          <span className="material-symbols-outlined text-[20px] text-[#E8433D] mt-0.5">error</span>
+          <p className="font-body text-xs text-[#1A1A1E]">{error}</p>
+        </div>
+      )}
+
       {/* Agency list */}
-      <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-        {filtered.map(agc => {
-          const isSel = data.agenceId === agc.id
-          return (
-            <button key={agc.id} type="button" onClick={() => onChange('agenceId', agc.id)}
-              className={`w-full text-left rounded-lg border-2 p-4 transition-all
-                ${isSel ? 'border-[#E8433D] bg-[#E8433D]/5' : 'border-[#ECECEC] bg-white hover:border-[#1A1A1E]'}`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg font-stamp text-sm font-bold
-                    ${isSel ? 'bg-[#E8433D] text-white' : 'bg-[#F7F7F8] border border-[#ECECEC] text-[#8A8A92]'}`}>
-                    {agc.nom.substring(0, 2)}
-                  </div>
-                  <div>
-                    <p className={`font-display text-sm font-bold uppercase tracking-wide ${isSel ? 'text-[#E8433D]' : 'text-[#1A1A1E]'}`}>{agc.nom}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="material-symbols-outlined text-[13px] text-[#8A8A92]">location_on</span>
-                      <span className="font-body text-xs text-[#8A8A92]">{agc.hub}</span>
-                      <span className="text-[#ECECEC]">·</span>
-                      <span className="font-body text-xs text-[#8A8A92]">{agc.chauffeurs} chauffeurs</span>
+      {!loading && !error && (
+        <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+          {filtered.map(agc => {
+            const isSel = data.agenceId === agc.tenantId
+            return (
+              <button key={agc.tenantId} type="button" onClick={() => { onChange('agenceId', agc.tenantId); onChange('agenceNom', agc.nom) }}
+                className={`w-full text-left rounded-lg border-2 p-4 transition-all
+                  ${isSel ? 'border-[#E8433D] bg-[#E8433D]/5' : 'border-[#ECECEC] bg-white hover:border-[#1A1A1E]'}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg font-stamp text-sm font-bold
+                      ${isSel ? 'bg-[#E8433D] text-white' : 'bg-[#F7F7F8] border border-[#ECECEC] text-[#8A8A92]'}`}>
+                      {agc.nom.substring(0, 2)}
+                    </div>
+                    <div>
+                      <p className={`font-display text-sm font-bold uppercase tracking-wide ${isSel ? 'text-[#E8433D]' : 'text-[#1A1A1E]'}`}>{agc.nom}</p>
+                      {agc.telephone && (
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="material-symbols-outlined text-[13px] text-[#8A8A92]">phone</span>
+                          <span className="font-body text-xs text-[#8A8A92]">{agc.telephone}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
+                  <div className="flex flex-col items-end gap-1.5">
+                    {isSel && <span className="material-symbols-outlined text-[20px] text-[#E8433D]">check_circle</span>}
+                  </div>
                 </div>
-                <div className="flex flex-col items-end gap-1.5">
-                  <span className="font-stamp text-[10px] font-bold uppercase tracking-wider text-[#1A1A1E] bg-[#F7F7F8] border border-[#ECECEC] px-2 py-0.5 rounded">
-                    {agc.statut}
-                  </span>
-                  {isSel && <span className="material-symbols-outlined text-[20px] text-[#E8433D]">check_circle</span>}
-                </div>
-              </div>
-            </button>
-          )
-        })}
-        {filtered.length === 0 && (
-          <div className="py-8 text-center text-[#8A8A92] font-body text-sm">
-            Aucune agence trouvée pour "{search}"
-          </div>
-        )}
-      </div>
+              </button>
+            )
+          })}
+          {filtered.length === 0 && (
+            <div className="py-8 text-center text-[#8A8A92] font-body text-sm">
+              Aucune agence trouvée pour "{search}"
+            </div>
+          )}
+        </div>
+      )}
 
       {selected && (
         <div className="rounded-lg border-2 border-[#1A1A1E] bg-[#F7F7F8] p-3 flex items-center gap-3">
@@ -617,7 +658,7 @@ function Step5({ data, onChange, onSubmit, onBack, submitting }) {
 
 // ─── ATTENTE DE VALIDATION ────────────────────────────────────────────────
 function AttenteValidation({ data, onSimulateAccept, onSimulateRefuse, onBack }) {
-  const agence = AGENCES_DISPONIBLES.find(a => a.id === data.agenceId)
+  const agenceName = data.agenceNom || 'votre agence'
   const ref = `#CHF-2026-${Math.floor(1000 + Math.random() * 9000)}`
   const isFreelance = data.typeChauffeur === 'freelance'
 
@@ -643,7 +684,7 @@ function AttenteValidation({ data, onSimulateAccept, onSimulateRefuse, onBack })
             {isFreelance ? (
               <>Votre dossier a été envoyé à la <strong className="text-[#1A1A1E]">Plateforme MadaLogistix</strong>. Nos administrateurs vont examiner votre profil freelance.</>
             ) : (
-              <>Votre dossier a été envoyé à <strong className="text-[#1A1A1E]">{agence?.nom}</strong>. L'administrateur de l'agence va examiner votre candidature.</>
+              <>Votre dossier a été envoyé à <strong className="text-[#1A1A1E]">{agenceName}</strong>. L'administrateur de l'agence va examiner votre candidature.</>
             )}
           </p>
           <div className="flex items-center justify-center gap-3">
@@ -651,7 +692,7 @@ function AttenteValidation({ data, onSimulateAccept, onSimulateRefuse, onBack })
               <span className="font-display text-[11px] uppercase tracking-wider text-[#8A8A92] font-bold">Réf.</span>
               <span className="font-stamp text-sm font-bold text-[#E8433D]">{ref}</span>
             </div>
-            {agence && <span className="license-plate-tag text-xs">{agence.hub.toUpperCase()}</span>}
+            {agenceName && <span className="license-plate-tag text-xs">{agenceName.toUpperCase()}</span>}
           </div>
         </div>
 
@@ -660,7 +701,7 @@ function AttenteValidation({ data, onSimulateAccept, onSimulateRefuse, onBack })
           <p className="font-display text-[11px] uppercase tracking-wider font-bold text-[#8A8A92]">Étapes de validation</p>
           {[
             { icon: 'check_circle', label: `Candidature reçue par ${isFreelance ? 'la plateforme' : "l'agence"}`, done: true },
-            { icon: 'manage_search', label: `Examen par ${isFreelance ? 'la plateforme' : agence?.nom || "l'agence"}`, done: false, active: true },
+            { icon: 'manage_search', label: `Examen par ${isFreelance ? 'la plateforme' : agenceName || "l'agence"}`, done: false, active: true },
             { icon: 'mark_email_read', label: 'Notification de décision', done: false },
             { icon: 'directions_car', label: 'Activation & premières missions', done: false },
           ].map((step, i) => (
@@ -703,7 +744,7 @@ function AttenteValidation({ data, onSimulateAccept, onSimulateRefuse, onBack })
 // ─── NOTIFICATION ACCEPTÉ / REFUSÉ ────────────────────────────────────────
 function NotificationResult({ status, data, onWelcome, onRetry, onBack }) {
   const accepted = status === 'accepted'
-  const agence = AGENCES_DISPONIBLES.find(a => a.id === data.agenceId)
+  const agenceName = data.agenceNom || 'votre agence'
   const isFreelance = data.typeChauffeur === 'freelance'
 
   return (
@@ -733,7 +774,7 @@ function NotificationResult({ status, data, onWelcome, onRetry, onBack }) {
               {isFreelance ? (
                 <>La <strong className="text-[#1A1A1E]">Plateforme MadaLogistix</strong> a validé votre profil Freelance. Bienvenue !</>
               ) : (
-                <>L'agence <strong className="text-[#1A1A1E]">{agence?.nom}</strong> a accepté votre candidature. Bienvenue dans l'équipe !</>
+                <>L'agence <strong className="text-[#1A1A1E]">{agenceName}</strong> a accepté votre candidature. Bienvenue dans l'équipe !</>
               )}
             </p>
             <button onClick={onWelcome}
@@ -749,7 +790,7 @@ function NotificationResult({ status, data, onWelcome, onRetry, onBack }) {
               {isFreelance ? (
                 <>La <strong className="text-[#1A1A1E]">Plateforme</strong> n'a pas validé votre profil Freelance pour le moment.</>
               ) : (
-                <>L'agence <strong className="text-[#1A1A1E]">{agence?.nom}</strong> n'a pas retenu votre profil pour le moment.</>
+                <>L'agence <strong className="text-[#1A1A1E]">{agenceName}</strong> n'a pas retenu votre profil pour le moment.</>
               )}
             </p>
             <div className="rounded-lg border-2 border-[#E8433D]/30 bg-[#E8433D]/5 p-4 text-left">
@@ -790,7 +831,7 @@ function NotificationResult({ status, data, onWelcome, onRetry, onBack }) {
 
 // ─── BIENVENUE — COMPTE ACTIVÉ ────────────────────────────────────────────
 function BienvenueScreen({ data, onAccess, onBack }) {
-  const agence = AGENCES_DISPONIBLES.find(a => a.id === data.agenceId)
+  const agenceName = data.agenceNom || 'votre agence'
   const isFreelance = data.typeChauffeur === 'freelance'
 
   return (
@@ -819,7 +860,7 @@ function BienvenueScreen({ data, onAccess, onBack }) {
             {isFreelance ? (
               <>Vous êtes maintenant <strong className="text-[#1A1A1E]">Chauffeur Freelance</strong>.<br />Consultez les missions proposées par les agences de la plateforme.</>
             ) : (
-              <>Vous êtes maintenant chauffeur enregistré chez <strong className="text-[#1A1A1E]">{agence?.nom}</strong>.<br />Vos premières missions seront assignées par l'agence.</>
+              <>Vous êtes maintenant chauffeur enregistré chez <strong className="text-[#1A1A1E]">{agenceName}</strong>.<br />Vos premières missions seront assignées par l'agence.</>
             )}
           </p>
         </div>
@@ -840,8 +881,8 @@ function BienvenueScreen({ data, onAccess, onBack }) {
           ) : (
             <div className="flex items-center gap-3 py-2 border-b border-[#ECECEC]">
               <span className="material-symbols-outlined text-[20px] text-[#8A8A92]">business</span>
-              <span className="font-body text-sm font-medium text-[#1A1A1E]">{agence?.nom}</span>
-              <span className="ml-auto font-stamp text-[10px] text-[#8A8A92]">{agence?.hub}</span>
+              <span className="font-body text-sm font-medium text-[#1A1A1E]">{agenceName}</span>
+              <span className="ml-auto font-stamp text-[10px] text-[#8A8A92]">AGENCE</span>
             </div>
           )}
           {data.aVehiculeAssigne === false ? (
@@ -896,9 +937,9 @@ function ChauffeurInscriptionFlow() {
   })
 
   const isFreelance = data.typeChauffeur === 'freelance'
-  const stepLabels = isFreelance 
-    ? ['Identité', 'Permis', 'Véhicule', 'Statut'] 
-    : ['Identité', 'Permis', 'Véhicule', 'Statut', 'Agence']
+  const stepLabels = isFreelance
+    ? ['Identité', 'Permis', 'Statut', 'Véhicule']
+    : ['Identité', 'Permis', 'Statut', 'Véhicule', 'Agence']
   const totalSteps = stepLabels.length
 
   const handleChange = (key, val) => setData(prev => ({ ...prev, [key]: val }))
@@ -963,8 +1004,8 @@ function ChauffeurInscriptionFlow() {
   )
 
   if (screen === 'attente') return <AttenteValidation data={data} onSimulateAccept={() => setScreen('accepted')} onSimulateRefuse={() => setScreen('refused')} onBack={goBack} />
-  if (screen === 'accepted') return <NotificationResult status="accepted" data={data} onWelcome={() => setScreen('bienvenue')} onRetry={() => { setScreen('form'); setStep(4) }} onBack={goBack} />
-  if (screen === 'refused') return <NotificationResult status="refused" data={data} onRetry={() => { setScreen('form'); setStep(4) }} onBack={goBack} />
+  if (screen === 'accepted') return <NotificationResult status="accepted" data={data} onWelcome={() => setScreen('bienvenue')} onRetry={() => { setScreen('form'); setStep(3) }} onBack={goBack} />
+  if (screen === 'refused') return <NotificationResult status="refused" data={data} onRetry={() => { setScreen('form'); setStep(3) }} onBack={goBack} />
   if (screen === 'bienvenue') return <BienvenueScreen data={data} onAccess={() => goLogin()} onBack={goBack} />
 
   return (
@@ -983,8 +1024,8 @@ function ChauffeurInscriptionFlow() {
         <StepBar current={step} total={totalSteps} labels={stepLabels} />
         {step === 1 && <Step1 data={data} onChange={handleChange} onNext={nextStep} onBack={goBack} />}
         {step === 2 && <Step2 data={data} onChange={handleChange} onNext={nextStep} onBack={prevStep} />}
-        {step === 3 && <Step3 data={data} onChange={handleChange} onNext={nextStep} onBack={prevStep} />}
-        {step === 4 && <Step4 data={data} onChange={handleChange} onNext={nextStep} onSubmit={handleSubmitDossier} onBack={prevStep} submitting={submitting} />}
+        {step === 3 && <Step4 data={data} onChange={handleChange} onNext={nextStep} onBack={prevStep} />}
+        {step === 4 && <Step3 data={data} onChange={handleChange} onNext={nextStep} onSubmit={handleSubmitDossier} onBack={prevStep} submitting={submitting} />}
         {step === 5 && !isFreelance && <Step5 data={data} onChange={handleChange} onSubmit={handleSubmitDossier} onBack={prevStep} submitting={submitting} />}
       </WaybillCard>
     </PageBg>

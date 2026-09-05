@@ -29,7 +29,19 @@ export const chauffeursService = {
 
     if (!response.ok) {
       const body = await response.json().catch(() => ({}))
-      throw new Error(body.message || `Erreur API: ${response.status}`)
+      const parts = []
+      if (body.message) parts.push(body.message)
+      if (body.errors) {
+        for (const [field, msgs] of Object.entries(body.errors)) {
+          parts.push(`${field} : ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+        }
+      }
+      if (body.fieldErrors) {
+        for (const [field, msgs] of Object.entries(body.fieldErrors)) {
+          parts.push(`${field} : ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+        }
+      }
+      throw new Error(parts.length > 0 ? parts.join(' — ') : `Erreur API: ${response.status}`)
     }
 
     return response.json()

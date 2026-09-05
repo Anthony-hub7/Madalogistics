@@ -7,7 +7,9 @@ import com.example.Bakend.dto.request.FinalisationAgenceRequest;
 import com.example.Bakend.dto.request.InscriptionRequest;
 import com.example.Bakend.dto.request.LoginRequest;
 import com.example.Bakend.dto.response.AuthResponse;
+import com.example.Bakend.entity.PMECliente;
 import com.example.Bakend.entity.Utilisateur;
+import com.example.Bakend.repository.PMEClienteRepository;
 import com.example.Bakend.repository.UtilisateurRepository;
 import com.example.Bakend.security.CustomUserDetails;
 import com.example.Bakend.security.JwtService;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -50,6 +53,7 @@ public class AuthController {
     private final AgenceRegistrationService agenceRegistrationService;
     private final ChauffeurRegistrationService chauffeurRegistrationService;
     private final RoleRedirectMapper roleRedirectMapper;
+    private final PMEClienteRepository pmeClienteRepository;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtService jwtService,
@@ -58,7 +62,8 @@ public class AuthController {
                           ClientRegistrationService clientRegistrationService,
                           AgenceRegistrationService agenceRegistrationService,
                           ChauffeurRegistrationService chauffeurRegistrationService,
-                          RoleRedirectMapper roleRedirectMapper) {
+                          RoleRedirectMapper roleRedirectMapper,
+                          PMEClienteRepository pmeClienteRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
@@ -67,6 +72,25 @@ public class AuthController {
         this.agenceRegistrationService = agenceRegistrationService;
         this.chauffeurRegistrationService = chauffeurRegistrationService;
         this.roleRedirectMapper = roleRedirectMapper;
+        this.pmeClienteRepository = pmeClienteRepository;
+    }
+
+    /**
+     * Liste publique des agences validées (pour inscription chauffeur rattaché).
+     * Pas d'authentification requise.
+     */
+    @GetMapping("/public/agences")
+    public ResponseEntity<List<Map<String, Object>>> listerAgences() {
+        List<PMECliente> agences = pmeClienteRepository.findByStatutDossierAndNotPlateforme("VALIDEE");
+        List<Map<String, Object>> result = agences.stream().map(a -> {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("tenantId", a.getTenantId());
+            map.put("nom", a.getNomEntreprise());
+            map.put("telephone", a.getTelephone());
+            map.put("adresse", a.getAdresse());
+            return map;
+        }).toList();
+        return ResponseEntity.ok(result);
     }
 
     /**

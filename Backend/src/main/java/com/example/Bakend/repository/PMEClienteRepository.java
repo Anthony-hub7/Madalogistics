@@ -32,4 +32,7 @@ public interface PMEClienteRepository extends JpaRepository<PMECliente, UUID> {
 
     @Query("SELECT p FROM PMECliente p ORDER BY p.createdAt DESC")
     List<PMECliente> findAllOrderByCreatedAtDesc();
+
+    @Query("SELECT p FROM PMECliente p WHERE p.statutDossier = :statut AND p.nomEntreprise <> 'PLATEFORME MADALOGISTIX' ORDER BY p.nomEntreprise")
+    List<PMECliente> findByStatutDossierAndNotPlateforme(@Param("statut") String statut);
 }

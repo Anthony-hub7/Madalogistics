@@ -22,6 +22,7 @@ public record ChauffeurDossierRequest(
 
         String dateNaissance,
 
+        @Pattern(regexp = "M|F", message = "Sexe doit etre M ou F", flags = jakarta.validation.constraints.Pattern.Flag.CASE_INSENSITIVE)
         String sexe,
 
         @NotBlank(message = "Le telephone est obligatoire")
@@ -53,6 +54,7 @@ public record ChauffeurDossierRequest(
 
         // ── Type ──
         @NotBlank(message = "Le type de chauffeur est obligatoire")
+        @jakarta.validation.constraints.Pattern(regexp = "RATTACHE|FREELANCE", message = "Type de chauffeur doit etre RATTACHE ou FREELANCE")
         String typeChauffeur,
 
         // ── Agence cible (si rattaché) ──
