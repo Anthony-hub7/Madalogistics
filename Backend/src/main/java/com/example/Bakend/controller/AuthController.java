@@ -94,6 +94,23 @@ public class AuthController {
     }
 
     /**
+     * Statut public d'un dossier d'inscription agence (pour suivi sans authentification).
+     * Retourne uniquement les informations non sensibles.
+     */
+    @GetMapping("/public/agences/dossier/{tenantId}")
+    public ResponseEntity<Map<String, Object>> statutDossier(@PathVariable java.util.UUID tenantId) {
+        PMECliente tenant = pmeClienteRepository.findByTenantId(tenantId)
+                .orElseThrow(() -> new com.example.Bakend.exception.ResourceNotFoundException("Dossier introuvable"));
+
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("tenantId", tenant.getTenantId());
+        result.put("nomEntreprise", tenant.getNomEntreprise());
+        result.put("statutDossier", tenant.getStatutDossier());
+        result.put("motifRefus", tenant.getMotifRefus());
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * Authentification : email + password → JWT access token + refresh cookie.
      */
     @PostMapping("/login")

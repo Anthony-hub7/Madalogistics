@@ -7,5 +7,6 @@ package com.example.Bakend.entity.enums;
 public enum StatutDossierChauffeur {
     EN_ATTENTE,
     VALIDEE,
-    REFUSEE
+    REFUSEE,
+    DESACTIVEE
 }

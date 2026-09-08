@@ -190,6 +190,17 @@ public class ChauffeurRegistrationService {
     }
 
     /**
+     * Liste les dossiers de chauffeurs freelance de la plateforme (admin SAAS).
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<Chauffeur> listerDossiersPlateforme(String statut) {
+        if (statut == null) {
+            return chauffeurRepository.findFreelancesPlateforme();
+        }
+        return chauffeurRepository.findFreelancesPlateformeByStatut(statut);
+    }
+
+    /**
      * Detail d'un dossier chauffeur.
      */
     @Transactional(readOnly = true)
@@ -227,6 +238,53 @@ public class ChauffeurRegistrationService {
 
         chauffeur.setStatutDossier("REFUSEE");
         chauffeur.setMotifRefus(motif);
+        chauffeurRepository.save(chauffeur);
+    }
+
+    /**
+     * Desactive un chauffeur freelance (admin SAAS).
+     * Le statut passe a DESACTIVEE.
+     */
+    public void desactiverDossier(UUID chauffeurId, String motif) {
+        Chauffeur chauffeur = chauffeurRepository.findById(chauffeurId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chauffeur introuvable : " + chauffeurId));
+
+        if (!"VALIDEE".equals(chauffeur.getStatutDossier())) {
+            throw new BusinessException("Seuls les chauffeurs valides peuvent etre desactives");
+        }
+
+        chauffeur.setStatutDossier("DESACTIVEE");
+        chauffeur.setMotifRefus(motif);
+        chauffeurRepository.save(chauffeur);
+    }
+
+    /**
+     * Supprime (desactive definitivement) un chauffeur freelance (admin SAAS).
+     * Soft delete : statut passe a DESACTIVEE avec motif.
+     */
+    public void supprimerDossier(UUID chauffeurId, String motif) {
+        Chauffeur chauffeur = chauffeurRepository.findById(chauffeurId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chauffeur introuvable : " + chauffeurId));
+
+        chauffeur.setStatutDossier("DESACTIVEE");
+        chauffeur.setMotifRefus(motif != null ? motif : "Supprime par l'administrateur");
+        chauffeurRepository.save(chauffeur);
+    }
+
+    /**
+     * Reactiver un chauffeur freelance desactive (admin SAAS).
+     * Le statut repasse a VALIDEE.
+     */
+    public void reactiverDossier(UUID chauffeurId) {
+        Chauffeur chauffeur = chauffeurRepository.findById(chauffeurId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chauffeur introuvable : " + chauffeurId));
+
+        if (!"DESACTIVEE".equals(chauffeur.getStatutDossier())) {
+            throw new BusinessException("Seuls les chauffeurs desactives peuvent etre reactives");
+        }
+
+        chauffeur.setStatutDossier("VALIDEE");
+        chauffeur.setMotifRefus(null);
         chauffeurRepository.save(chauffeur);
     }
 }

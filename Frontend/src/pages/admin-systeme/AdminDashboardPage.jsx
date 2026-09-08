@@ -1,28 +1,56 @@
-const stats = [
-  { label: 'Agences actives', value: '5', icon: 'apartment', trend: '+2 ce mois' },
-  { label: 'Freelances actifs', value: '12', icon: 'hail', trend: '+3 ce mois' },
-  { label: 'Demandes en attente', value: '6', icon: 'pending_actions', trend: '3 agences, 3 freelances' },
-  { label: 'Missions ce mois', value: '284', icon: 'local_shipping', trend: '+18% vs mois dernier' },
-]
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { adminService } from '../../services/adminService'
 
-const recentActivity = [
-  { date: '28 Août 2026', action: 'Demande d\'agence reçue', detail: 'Transports Ramanantsoa — RN7 Tana→Antsirabe', icon: 'apartment' },
-  { date: '28 Août 2026', action: 'Chauffeur freelance approuvé', detail: 'Tsiresy Andriamihaja — Toyota Hilux', icon: 'hail' },
-  { date: '27 Août 2026', action: 'Agence suspendue', detail: 'Transports Andriba — Documents expirés', icon: 'block' },
-  { date: '27 Août 2026', action: 'Demande freelance reçue', detail: 'Rojo Andrianarison — Nissan NP300', icon: 'badge' },
-  { date: '25 Août 2026', action: 'Nouvelle agence inscrite', detail: 'Fret du Centre — RN7 Ambatolampy→Antsirabe', icon: 'apartment' },
-]
+export default function AdminDashboardPage() {
+  const navigate = useNavigate()
+  const onNavigate = (key) => navigate(`/admin/${key}`)
+  const [stats, setStats] = useState({ agences: 0, freelances: 0, total: 0 })
+  const [demandesAgences, setDemandesAgences] = useState([])
+  const [demandesFreelances, setDemandesFreelances] = useState([])
+  const [loading, setLoading] = useState(true)
 
-const pendingDemandes = [
-  { type: 'agence', nom: 'Transports Ramanantsoa', date: '28 Août', icon: 'apartment' },
-  { type: 'agence', nom: 'Logistique Mamy & Fils', date: '27 Août', icon: 'apartment' },
-  { type: 'agence', nom: 'Fret du Centre', date: '25 Août', icon: 'apartment' },
-  { type: 'freelance', nom: 'Tsiresy Andriamihaja', date: '28 Août', icon: 'hail' },
-  { type: 'freelance', nom: 'Rojo Andrianarison', date: '27 Août', icon: 'hail' },
-  { type: 'freelance', nom: 'Miora Andriamampianina', date: '26 Août', icon: 'hail' },
-]
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const [agences, freelances] = await Promise.all([
+          adminService.listAgences('EN_ATTENTE'),
+          adminService.listFreelances('EN_ATTENTE'),
+        ])
+        setDemandesAgences(agences)
+        setDemandesFreelances(freelances)
+        setStats({
+          agences: agences.length,
+          freelances: freelances.length,
+          total: agences.length + freelances.length,
+        })
+      } catch {
+        // Silencieux — dashboard se remplit avec 0
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
-export default function AdminDashboardPage({ onNavigate }) {
+  const allPending = [
+    ...demandesAgences.map(a => ({
+      type: 'agence',
+      id: a.tenantId,
+      nom: a.nomEntreprise,
+      date: a.createdAt ? new Date(a.createdAt).toLocaleDateString('fr-FR') : '—',
+      icon: 'apartment',
+    })),
+    ...demandesFreelances.map(f => ({
+      type: 'freelance',
+      id: f.chauffeurId,
+      nom: f.nom || 'Inconnu',
+      date: f.createdAt ? new Date(f.createdAt).toLocaleDateString('fr-FR') : '—',
+      icon: 'hail',
+    })),
+  ]
+
   return (
     <div className="space-y-6">
       <div>
@@ -30,39 +58,76 @@ export default function AdminDashboardPage({ onNavigate }) {
           Vue d'ensemble
         </h1>
         <p className="font-body text-body-md mt-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>
-          Tableau de bord de la plateforme MadaLogistix — RN7 Tana–Ambatolampy–Antsirabe
+          Tableau de bord de la plateforme MadaLogistix
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-xl border p-5" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: '#F7F7F8' }}>
-                <span className="material-symbols-outlined" style={{ color: '#E8433D' }}>{s.icon}</span>
-              </div>
-              <span className="text-[12px] font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>{s.trend}</span>
+      {/* KPIs */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="rounded-xl border p-5" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: '#F7F7F8' }}>
+              <span className="material-symbols-outlined" style={{ color: '#E8433D' }}>pending_actions</span>
             </div>
-            <p className="font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>{s.label}</p>
-            <p className="font-display text-headline-lg mt-1" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>{s.value}</p>
           </div>
-        ))}
+          <p className="font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Demandes en attente</p>
+          <p className="font-display text-headline-lg mt-1" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>
+            {loading ? '—' : stats.total}
+          </p>
+        </div>
+        <div className="rounded-xl border p-5" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: '#F7F7F8' }}>
+              <span className="material-symbols-outlined" style={{ color: '#1A1A1E' }}>apartment</span>
+            </div>
+          </div>
+          <p className="font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Agences en attente</p>
+          <p className="font-display text-headline-lg mt-1" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>
+            {loading ? '—' : stats.agences}
+          </p>
+        </div>
+        <div className="rounded-xl border p-5" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: '#F7F7F8' }}>
+              <span className="material-symbols-outlined" style={{ color: '#1A1A1E' }}>hail</span>
+            </div>
+          </div>
+          <p className="font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Freelances en attente</p>
+          <p className="font-display text-headline-lg mt-1" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>
+            {loading ? '—' : stats.freelances}
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border p-6" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-headline-md" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 600 }}>
-              Demandes en attente
-            </h2>
+      {/* Demandes en attente */}
+      <div className="rounded-xl border p-6" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-display text-headline-md" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 600 }}>
+            Demandes en attente
+          </h2>
+          {!loading && allPending.length > 0 && (
             <span className="flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif", backgroundColor: '#E8433D' }}>
-              {pendingDemandes.length}
+              {allPending.length}
             </span>
+          )}
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="w-8 h-8 border-4 border-[#E8433D]/20 border-t-[#E8433D] rounded-full animate-spin" />
           </div>
+        ) : allPending.length === 0 ? (
+          <div className="py-8 text-center">
+            <span className="material-symbols-outlined text-[32px]" style={{ color: '#ECECEC' }}>check_circle</span>
+            <p className="font-body text-body-sm mt-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>
+              Aucune demande en attente
+            </p>
+          </div>
+        ) : (
           <div className="space-y-2">
-            {pendingDemandes.map((d, i) => (
+            {allPending.map((d) => (
               <button
-                key={i}
+                key={d.id}
                 onClick={() => onNavigate(d.type === 'agence' ? 'agences_demandes' : 'freelances_demandes')}
                 className="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-all hover:opacity-80"
                 style={{ backgroundColor: '#F7F7F8' }}
@@ -78,25 +143,37 @@ export default function AdminDashboardPage({ onNavigate }) {
               </button>
             ))}
           </div>
-        </div>
+        )}
+      </div>
 
-        <div className="rounded-xl border p-6" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
-          <h2 className="font-display text-headline-md mb-4" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 600 }}>
-            Activité récente
-          </h2>
-          <div className="space-y-3">
-            {recentActivity.map((a, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-lg p-3" style={{ backgroundColor: '#F7F7F8' }}>
-                <span className="material-symbols-outlined text-[20px]" style={{ color: a.icon === 'block' ? '#E8433D' : '#8A8A92' }}>{a.icon}</span>
-                <div className="flex-1">
-                  <p className="font-body text-body-sm font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A1E' }}>{a.action}</p>
-                  <p className="font-body text-body-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>{a.detail}</p>
-                </div>
-                <span className="font-body text-body-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>{a.date}</span>
-              </div>
-            ))}
+      {/* Navigation rapide */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <button
+          onClick={() => onNavigate('agences_liste')}
+          className="flex items-center gap-4 rounded-xl border p-5 text-left transition-all hover:shadow-sm"
+          style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg" style={{ backgroundColor: '#F7F7F8' }}>
+            <span className="material-symbols-outlined text-[24px]" style={{ color: '#E8433D' }}>apartment</span>
           </div>
-        </div>
+          <div>
+            <p className="font-display text-body-lg font-bold" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E' }}>Agences actives</p>
+            <p className="font-body text-body-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>Voir le répertoire</p>
+          </div>
+        </button>
+        <button
+          onClick={() => onNavigate('freelances_liste')}
+          className="flex items-center gap-4 rounded-xl border p-5 text-left transition-all hover:shadow-sm"
+          style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg" style={{ backgroundColor: '#F7F7F8' }}>
+            <span className="material-symbols-outlined text-[24px]" style={{ color: '#1A1A1E' }}>hail</span>
+          </div>
+          <div>
+            <p className="font-display text-body-lg font-bold" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E' }}>Freelances actifs</p>
+            <p className="font-body text-body-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>Voir le répertoire</p>
+          </div>
+        </button>
       </div>
     </div>
   )

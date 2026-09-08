@@ -17,7 +17,17 @@ export default function AdminSaaSLayout() {
   const location = useLocation()
   const { logout, user } = useAuth()
 
-  const activeKey = location.pathname.split('/').pop() || 'dashboard'
+  const activeKey = (() => {
+    const segments = location.pathname.split('/')
+    const last = segments.pop() || segments.pop() || ''
+    const knownKeys = navItems.map(i => i.key)
+    if (knownKeys.includes(last)) return last
+    if (last === 'agence_detail' || (segments.includes('admin') && last !== 'admin')) {
+      return 'agences_demandes'
+    }
+    if (last === 'freelance_detail') return 'freelances_demandes'
+    return 'dashboard'
+  })()
 
   const userInfo = user ? {
     name: user.name || 'Utilisateur',

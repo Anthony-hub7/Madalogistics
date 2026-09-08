@@ -137,6 +137,53 @@ public class AgenceRegistrationService {
     }
 
     /**
+     * Desactive un compte d'agence (admin SAAS).
+     * Le statut passe a DESACTIVEE.
+     */
+    public void desactiverDossier(UUID tenantId, String motif) {
+        PMECliente tenant = pmeClienteRepository.findByTenantId(tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant introuvable : " + tenantId));
+
+        if (!"VALIDEE".equals(tenant.getStatutDossier())) {
+            throw new BusinessException("Seules les agences activees peuvent etre desactivees");
+        }
+
+        tenant.setStatutDossier("DESACTIVEE");
+        tenant.setMotifRefus(motif);
+        pmeClienteRepository.save(tenant);
+    }
+
+    /**
+     * Supprime (desactive definitivement) un dossier d'agence (admin SAAS).
+     * Soft delete : statut passe a DESACTIVEE avec motif.
+     */
+    public void supprimerDossier(UUID tenantId, String motif) {
+        PMECliente tenant = pmeClienteRepository.findByTenantId(tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant introuvable : " + tenantId));
+
+        tenant.setStatutDossier("DESACTIVEE");
+        tenant.setMotifRefus(motif != null ? motif : "Supprime par l'administrateur");
+        pmeClienteRepository.save(tenant);
+    }
+
+    /**
+     * Reactiver un compte d'agence desactivee (admin SAAS).
+     * Le statut repasse a VALIDEE.
+     */
+    public void reactiverDossier(UUID tenantId) {
+        PMECliente tenant = pmeClienteRepository.findByTenantId(tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant introuvable : " + tenantId));
+
+        if (!"DESACTIVEE".equals(tenant.getStatutDossier())) {
+            throw new BusinessException("Seules les agences desactivees peuvent etre reactivees");
+        }
+
+        tenant.setStatutDossier("VALIDEE");
+        tenant.setMotifRefus(null);
+        pmeClienteRepository.save(tenant);
+    }
+
+    /**
      * Finalise le compte administrateur apres validation du dossier.
      * Le tenant doit etre en statut VALIDEE.
      * @return AuthResponse avec JWT + infos utilisateur (role DIRECTION)
@@ -146,15 +193,8 @@ public class AgenceRegistrationService {
         PMECliente tenant = pmeClienteRepository.findByTenantId(tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tenant introuvable : " + tenantId));
 
-        if (!"VALIDEE".equals(tenant.getStatutDossier()) && !"EN_ATTENTE".equals(tenant.getStatutDossier())) {
-            throw new BusinessException("Le dossier agence est refuse ou dans un etat invalide");
-        }
-
-        // Auto-validation si EN_ATTENTE (flow demo : pas besoin d'admin avant finalisation)
-        if ("EN_ATTENTE".equals(tenant.getStatutDossier())) {
-            tenant.setStatutDossier("VALIDEE");
-            tenant.setMotifRefus(null);
-            pmeClienteRepository.save(tenant);
+        if (!"VALIDEE".equals(tenant.getStatutDossier())) {
+            throw new BusinessException("Le dossier agence doit etre valide par l'administrateur avant la finalisation du compte");
         }
 
         if (utilisateurRepository.existsByEmail(emailAdmin)) {

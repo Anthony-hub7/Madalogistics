@@ -30,4 +30,10 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur, UUID> {
 
     @Query("SELECT COUNT(c) FROM Chauffeur c WHERE c.pmeCliente.tenantId = :tenantId")
     long compterParTenant(@Param("tenantId") UUID tenantId);
+
+    @Query("SELECT c FROM Chauffeur c WHERE c.typeChauffeur = 'FREELANCE' ORDER BY c.createdAt DESC")
+    List<Chauffeur> findFreelancesPlateforme();
+
+    @Query("SELECT c FROM Chauffeur c WHERE c.typeChauffeur = 'FREELANCE' AND c.statutDossier = :statut ORDER BY c.createdAt DESC")
+    List<Chauffeur> findFreelancesPlateformeByStatut(@Param("statut") String statut);
 }

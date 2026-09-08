@@ -657,7 +657,7 @@ function Step5({ data, onChange, onSubmit, onBack, submitting }) {
 }
 
 // ─── ATTENTE DE VALIDATION ────────────────────────────────────────────────
-function AttenteValidation({ data, onSimulateAccept, onSimulateRefuse, onBack }) {
+function AttenteValidation({ data, onBack }) {
   const agenceName = data.agenceNom || 'votre agence'
   const ref = `#CHF-2026-${Math.floor(1000 + Math.random() * 9000)}`
   const isFreelance = data.typeChauffeur === 'freelance'
@@ -716,21 +716,18 @@ function AttenteValidation({ data, onSimulateAccept, onSimulateRefuse, onBack })
           ))}
         </div>
 
-        {/* Demo toggles */}
+        {/* Info attente réelle */}
         <div className="w-full max-w-md rounded-lg bg-[#F7F7F8] border border-[#ECECEC] p-4 text-left">
-          <p className="font-stamp text-[10px] uppercase tracking-wider text-[#8A8A92] font-bold mb-3">
-            ◆ SIMULATION — Décision de {isFreelance ? 'la plateforme' : "l'agence"}
+          <p className="font-stamp text-[10px] uppercase tracking-wider text-[#8A8A92] font-bold mb-2">
+            <span className="material-symbols-outlined text-[12px] align-middle mr-1">info</span>
+            Information
           </p>
-          <div className="flex gap-3">
-            <button onClick={onSimulateAccept}
-              className="flex-1 flex items-center justify-center gap-2 rounded border-2 border-[#1A1A1E] bg-[#1A1A1E] px-4 py-2.5 font-display text-xs font-bold uppercase tracking-wider text-white hover:bg-[#333] transition-all">
-              <span className="material-symbols-outlined text-[16px]">check_circle</span> Accepté
-            </button>
-            <button onClick={onSimulateRefuse}
-              className="flex-1 flex items-center justify-center gap-2 rounded border-2 border-[#E8433D] px-4 py-2.5 font-display text-xs font-bold uppercase tracking-wider text-[#E8433D] hover:bg-[#E8433D]/10 transition-all">
-              <span className="material-symbols-outlined text-[16px]">cancel</span> Refusé
-            </button>
-          </div>
+          <p className="font-body text-xs text-[#8A8A92]">
+            {isFreelance
+              ? "La plateforme MadaLogistix examinera votre profil sous 2 à 5 jours ouvrés."
+              : `L'agence ${agenceName} examinera votre candidature sous 2 à 5 jours ouvrés.`}
+            {' '}Vous recevrez une notification par email.
+          </p>
         </div>
 
         <button onClick={onBack} className="font-display text-sm font-bold uppercase tracking-wider text-[#8A8A92] hover:text-[#1A1A1E] transition-colors underline underline-offset-4">
@@ -1003,7 +1000,7 @@ function ChauffeurInscriptionFlow() {
     </div>
   )
 
-  if (screen === 'attente') return <AttenteValidation data={data} onSimulateAccept={() => setScreen('accepted')} onSimulateRefuse={() => setScreen('refused')} onBack={goBack} />
+  if (screen === 'attente') return <AttenteValidation data={data} onBack={goBack} />
   if (screen === 'accepted') return <NotificationResult status="accepted" data={data} onWelcome={() => setScreen('bienvenue')} onRetry={() => { setScreen('form'); setStep(3) }} onBack={goBack} />
   if (screen === 'refused') return <NotificationResult status="refused" data={data} onRetry={() => { setScreen('form'); setStep(3) }} onBack={goBack} />
   if (screen === 'bienvenue') return <BienvenueScreen data={data} onAccess={() => goLogin()} onBack={goBack} />

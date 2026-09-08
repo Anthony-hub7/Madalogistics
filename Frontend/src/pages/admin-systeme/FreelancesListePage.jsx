@@ -1,103 +1,163 @@
-const freelances = [
-  {
-    id: 'FR-001',
-    nom: 'Tsiresy Andriamihaja',
-    permis: 'B',
-    vehicule: 'Toyota Hilux 2020',
-    plaque: 'T-7890-F',
-    statut: 'actif',
-    missions: 34,
-    note: 4.8,
-    zone: 'Antananarivo — Antsirabe',
-    dateInscription: '10 Jan 2026',
-    disponibilite: 'disponible',
-  },
-  {
-    id: 'FR-002',
-    nom: 'Jean Razafindrabe',
-    permis: 'C',
-    vehicule: 'Nissan NP300 2019',
-    plaque: 'T-5678-E',
-    statut: 'actif',
-    missions: 52,
-    note: 4.5,
-    zone: 'Antananarivo — Ambatolampy',
-    dateInscription: '5 Fév 2026',
-    disponibilite: 'en_mission',
-  },
-  {
-    id: 'FR-003',
-    nom: 'Harena Andrianjafy',
-    permis: 'B',
-    vehicule: 'Mitsubishi L200 2021',
-    plaque: 'T-9012-K',
-    statut: 'actif',
-    missions: 18,
-    note: 4.9,
-    zone: 'Ambatolampy — Antsirabe',
-    dateInscription: '20 Mar 2026',
-    disponibilite: 'disponible',
-  },
-  {
-    id: 'FR-004',
-    nom: 'Njaka Raharison',
-    permis: 'B',
-    vehicule: 'Toyota Hilux 2018',
-    plaque: 'T-3456-L',
-    statut: 'actif',
-    missions: 41,
-    note: 4.3,
-    zone: 'Antananarivo',
-    dateInscription: '12 Avr 2026',
-    disponibilite: 'indisponible',
-  },
-  {
-    id: 'FR-005',
-    nom: 'Faneva Ratsimbazafy',
-    permis: 'C',
-    vehicule: 'Renault Duster 2022',
-    plaque: 'T-6789-M',
-    statut: 'suspendu',
-    missions: 27,
-    note: 4.1,
-    zone: 'Antsirabe',
-    dateInscription: '8 Mai 2026',
-    disponibilite: 'indisponible',
-  },
-]
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { adminService } from '../../services/adminService'
 
-const statutConfig = {
-  actif: { label: 'ACTIF', bg: '#F7F7F8', color: '#1A1A1E', border: '#ECECEC' },
-  suspendu: { label: 'SUSPENDU', bg: '#FDE8E6', color: '#E8433D', border: '#E8433D' },
-}
+export default function FreelancesListePage() {
+  const navigate = useNavigate()
+  const onNavigate = (key, data) => navigate(`/admin/${key}`, { state: data })
+  const [freelances, setFreelances] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [search, setSearch] = useState('')
+  const [onglet, setOnglet] = useState('active')
+  const [selectedFreelance, setSelectedFreelance] = useState(null)
+  const [modalAction, setModalAction] = useState(null)
+  const [motif, setMotif] = useState('')
+  const [actionLoading, setActionLoading] = useState(false)
 
-const dispoConfig = {
-  disponible: { label: 'Disponible', color: '#1A1A1E' },
-  en_mission: { label: 'En mission', color: '#E8433D' },
-  indisponible: { label: 'Indisponible', color: '#8A8A92' },
-}
+  const fetchFreelances = async (statut = 'VALIDEE') => {
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await adminService.listFreelances(statut)
+      setFreelances(data)
+    } catch (err) {
+      setError(err.message || 'Erreur lors du chargement des freelances')
+    } finally {
+      setLoading(false)
+    }
+  }
 
-export default function FreelancesListePage({ onNavigate }) {
-  const actifs = freelances.filter(f => f.statut === 'actif').length
-  const totalMissions = freelances.reduce((sum, f) => sum + f.missions, 0)
+  useEffect(() => {
+    fetchFreelances(onglet === 'active' ? 'VALIDEE' : 'DESACTIVEE')
+  }, [onglet])
+
+  const filtered = freelances.filter(f => {
+    if (!search.trim()) return true
+    const q = search.toLowerCase()
+    return (
+      (f.nom && f.nom.toLowerCase().includes(q)) ||
+      (f.cin && f.cin.toLowerCase().includes(q)) ||
+      (f.telephone && f.telephone.toLowerCase().includes(q)) ||
+      (f.immatriculation && f.immatriculation.toLowerCase().includes(q))
+    )
+  })
+
+  const disponibles = freelances.filter(f => f.disponible).length
+  const avecVehicule = freelances.filter(f => f.immatriculation).length
+
+  const openModal = (freelance, action) => {
+    setSelectedFreelance(freelance)
+    setModalAction(action)
+    setMotif('')
+  }
+
+  const closeModal = () => {
+    setSelectedFreelance(null)
+    setModalAction(null)
+    setMotif('')
+    setActionLoading(false)
+  }
+
+  const handleAction = async () => {
+    if (!selectedFreelance || !modalAction) return
+    setActionLoading(true)
+    try {
+      if (modalAction === 'desactiver') {
+        await adminService.desactiverFreelance(selectedFreelance.chauffeurId, motif || 'Desactive par l\'administrateur')
+      } else if (modalAction === 'supprimer') {
+        await adminService.supprimerFreelance(selectedFreelance.chauffeurId, motif || 'Supprime par l\'administrateur')
+      } else if (modalAction === 'reactiver') {
+        await adminService.reactiverFreelance(selectedFreelance.chauffeurId)
+      }
+      setFreelances(prev => prev.filter(f => f.chauffeurId !== selectedFreelance.chauffeurId))
+      closeModal()
+    } catch (err) {
+      alert(err.message || 'Erreur lors de l\'action')
+      setActionLoading(false)
+    }
+  }
+
+  const tabStyle = (active) => ({
+    fontFamily: "'Barlow Condensed', sans-serif",
+    fontWeight: 700,
+    fontSize: '13px',
+    letterSpacing: '0.5px',
+    padding: '8px 16px',
+    borderRadius: '8px',
+    border: `2px solid ${active ? '#E8433D' : '#ECECEC'}`,
+    backgroundColor: active ? '#E8433D' : 'transparent',
+    color: active ? '#FFFFFF' : '#8A8A92',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    textTransform: 'uppercase',
+  })
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="font-display text-display-md" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>
+            Chauffeurs freelance
+          </h1>
+        </div>
+        <div className="flex items-center justify-center py-20">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-4 border-[#E8433D]/20 border-t-[#E8433D] rounded-full animate-spin" />
+            <p className="font-body text-body-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>
+              Chargement des freelances...
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="font-display text-display-md" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>
+            Chauffeurs freelance
+          </h1>
+        </div>
+        <div className="rounded-xl border p-8 text-center" style={{ borderColor: '#E8433D', backgroundColor: '#FDE8E6' }}>
+          <span className="material-symbols-outlined text-[40px]" style={{ color: '#E8433D' }}>error</span>
+          <p className="font-body text-body-md mt-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#E8433D' }}>
+            {error}
+          </p>
+          <button
+            onClick={() => fetchFreelances(onglet === 'active' ? 'VALIDEE' : 'DESACTIVEE')}
+            className="mt-4 rounded-lg px-4 py-2 text-[13px] font-bold transition-all hover:opacity-80"
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", backgroundColor: '#E8433D', color: '#FFFFFF' }}
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h1 className="font-display text-display-md" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>
-            Chauffeurs freelance actifs
+            Chauffeurs freelance
           </h1>
           <p className="font-body text-body-md mt-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>
-            {actifs} freelance{actifs > 1 ? 's' : ''} actif{actifs > 1 ? 's' : ''} — {totalMissions} missions effectuées
+            {freelances.length} freelance{freelances.length > 1 ? 's' : ''} {onglet === 'active' ? 'actif(s)' : 'désactivé(s)'}
           </p>
         </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 rounded-lg border px-4 py-2 font-label text-label-md transition-colors hover:opacity-80" style={{ fontFamily: "'Barlow Condensed', sans-serif", borderColor: '#ECECEC', color: '#8A8A92' }}>
-            <span className="material-symbols-outlined text-[20px]">download</span>
-            Exporter
-          </button>
-        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button onClick={() => { setOnglet('active'); setSearch('') }} style={tabStyle(onglet === 'active')}>
+          Actifs
+        </button>
+        <button onClick={() => { setOnglet('desactive'); setSearch('') }} style={tabStyle(onglet === 'desactive')}>
+          Désactivés
+        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -107,109 +167,197 @@ export default function FreelancesListePage({ onNavigate }) {
               <span className="material-symbols-outlined" style={{ color: '#E8433D' }}>hail</span>
             </div>
           </div>
-          <p className="font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Total freelances</p>
+          <p className="font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>
+            {onglet === 'active' ? 'Total actifs' : 'Total désactivés'}
+          </p>
           <p className="font-display text-headline-lg mt-1" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>{freelances.length}</p>
         </div>
-        <div className="rounded-xl border p-5" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: '#F7F7F8' }}>
-              <span className="material-symbols-outlined" style={{ color: '#1A1A1E' }}>local_shipping</span>
+        {onglet === 'active' && (
+          <>
+            <div className="rounded-xl border p-5" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: '#F7F7F8' }}>
+                  <span className="material-symbols-outlined" style={{ color: '#1A1A1E' }}>event_available</span>
+                </div>
+              </div>
+              <p className="font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Disponibles</p>
+              <p className="font-display text-headline-lg mt-1" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>{disponibles}</p>
             </div>
-          </div>
-          <p className="font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Missions totales</p>
-          <p className="font-display text-headline-lg mt-1" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>{totalMissions}</p>
-        </div>
-        <div className="rounded-xl border p-5" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: '#F7F7F8' }}>
-              <span className="material-symbols-outlined" style={{ color: '#8A8A92' }}>star</span>
+            <div className="rounded-xl border p-5" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: '#F7F7F8' }}>
+                  <span className="material-symbols-outlined" style={{ color: '#8A8A92' }}>local_shipping</span>
+                </div>
+              </div>
+              <p className="font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Avec véhicule</p>
+              <p className="font-display text-headline-lg mt-1" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>{avecVehicule}</p>
             </div>
-          </div>
-          <p className="font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Note moyenne</p>
-          <p className="font-display text-headline-lg mt-1" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 700 }}>4.5/5</p>
-        </div>
+          </>
+        )}
       </div>
 
       <div className="overflow-hidden rounded-xl border" style={{ borderColor: '#ECECEC', backgroundColor: '#FFFFFF' }}>
         <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: '#ECECEC' }}>
-          <h2 className="font-display text-headline-md" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 600 }}>Répertoire freelances</h2>
+          <h2 className="font-display text-headline-md" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 600 }}>
+            {onglet === 'active' ? 'Répertoire freelances' : 'Freelances désactivés'}
+          </h2>
           <div className="relative">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px]" style={{ color: '#8A8A92' }}>search</span>
             <input
               type="text"
               placeholder="Rechercher..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="rounded-lg border py-2 pl-10 pr-4 text-[13px] outline-none"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", borderColor: '#ECECEC', backgroundColor: '#F7F7F8', color: '#1A1A1E' }}
             />
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-left">
-            <thead>
-              <tr className="border-b" style={{ borderColor: '#ECECEC', backgroundColor: '#F7F7F8' }}>
-                <th className="px-6 py-3 font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Chauffeur</th>
-                <th className="hidden px-6 py-3 font-label text-label-sm uppercase md:table-cell" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Véhicule</th>
-                <th className="hidden px-6 py-3 font-label text-label-sm uppercase md:table-cell" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Plaque</th>
-                <th className="hidden px-6 py-3 font-label text-label-sm uppercase md:table-cell" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Zone</th>
-                <th className="px-6 py-3 font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Missions</th>
-                <th className="hidden px-6 py-3 font-label text-label-sm uppercase md:table-cell" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Note</th>
-                <th className="px-6 py-3 font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Dispo.</th>
-                <th className="px-6 py-3 font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Statut</th>
-                <th className="px-6 py-3 font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {freelances.map((fr) => (
-                <tr key={fr.id} className="border-b transition-colors hover:opacity-90" style={{ borderColor: '#ECECEC' }}>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-bold" style={{ backgroundColor: '#F7F7F8', color: '#8A8A92' }}>
-                        {fr.nom.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <div>
-                        <p className="font-body text-body-sm font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A1E' }}>{fr.nom}</p>
-                        <p className="font-body text-body-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>{fr.id}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="hidden px-6 py-4 font-body text-body-sm md:table-cell" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>{fr.vehicule}</td>
-                  <td className="hidden px-6 py-4 md:table-cell">
-                    <span className="inline-block rounded px-2 py-0.5 font-stamp text-[12px] font-bold tracking-wider" style={{ fontFamily: "'Chakra Petch', sans-serif", backgroundColor: '#1A1A1E', color: '#FFFFFF' }}>
-                      {fr.plaque}
-                    </span>
-                  </td>
-                  <td className="hidden px-6 py-4 font-body text-body-sm md:table-cell" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>{fr.zone}</td>
-                  <td className="px-6 py-4 font-body text-body-sm font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A1E' }}>{fr.missions}</td>
-                  <td className="hidden px-6 py-4 md:table-cell">
-                    <span className="font-body text-body-sm font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A1E' }}>{fr.note}</span>
-                    <span className="material-symbols-outlined text-[14px] align-middle" style={{ color: '#E8433D' }}>star</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="flex items-center gap-1.5 text-[12px] font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: dispoConfig[fr.disponibilite].color }}>
-                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: dispoConfig[fr.disponibilite].color }} />
-                      {dispoConfig[fr.disponibilite].label}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", backgroundColor: statutConfig[fr.statut].bg, color: statutConfig[fr.statut].color, border: `1px solid ${statutConfig[fr.statut].border}` }}>
-                      {statutConfig[fr.statut].label}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <button
-                      onClick={() => onNavigate('freelance_detail', { freelance: fr })}
-                      className="rounded-lg px-3 py-1.5 text-[13px] font-bold transition-all hover:opacity-80"
-                      style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#E8433D' }}
-                    >
-                      Voir fiche
-                    </button>
-                  </td>
+        {filtered.length === 0 ? (
+          <div className="p-12 text-center">
+            <span className="material-symbols-outlined text-[48px]" style={{ color: '#ECECEC' }}>search_off</span>
+            <p className="font-body text-body-md mt-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>
+              {onglet === 'active' ? 'Aucun freelance actif' : 'Aucun freelance désactivé'}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
+              <thead>
+                <tr className="border-b" style={{ borderColor: '#ECECEC', backgroundColor: '#F7F7F8' }}>
+                  <th className="px-6 py-3 font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Chauffeur</th>
+                  <th className="hidden px-6 py-3 font-label text-label-sm uppercase md:table-cell" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Contact</th>
+                  <th className="hidden px-6 py-3 font-label text-label-sm uppercase md:table-cell" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Permis</th>
+                  <th className="hidden px-6 py-3 font-label text-label-sm uppercase md:table-cell" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Véhicule</th>
+                  <th className="px-6 py-3 font-label text-label-sm uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#8A8A92' }}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {filtered.map((f) => (
+                  <tr key={f.chauffeurId} className="border-b transition-colors hover:opacity-90" style={{ borderColor: '#ECECEC' }}>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-bold" style={{ backgroundColor: '#F7F7F8', color: '#8A8A92' }}>
+                          {f.nom?.split(' ').map(n => n[0]).join('').slice(0, 2) || '??'}
+                        </div>
+                        <div>
+                          <p className="font-body text-body-md font-bold" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A1E' }}>{f.nom || 'Inconnu'}</p>
+                          <p className="font-body text-body-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>CIN: {f.cin || '—'}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="hidden px-6 py-4 font-body text-body-sm md:table-cell" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>
+                      {f.telephone || '—'}
+                    </td>
+                    <td className="hidden px-6 py-4 md:table-cell">
+                      <span className="font-body text-body-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#1A1A1E' }}>
+                        {f.permisCategorie || '—'}
+                      </span>
+                      {f.permisNumero && (
+                        <span className="ml-2 text-[11px]" style={{ color: '#8A8A92' }}>n° {f.permisNumero}</span>
+                      )}
+                    </td>
+                    <td className="hidden px-6 py-4 md:table-cell">
+                      {f.immatriculation ? (
+                        <span className="inline-block rounded px-2 py-0.5 font-stamp text-[12px] font-bold tracking-wider" style={{ fontFamily: "'Chakra Petch', sans-serif", backgroundColor: '#1A1A1E', color: '#FFFFFF' }}>
+                          {f.immatriculation}
+                        </span>
+                      ) : (
+                        <span className="text-[12px]" style={{ color: '#8A8A92' }}>—</span>
+                      )}
+                      {f.marqueModele && (
+                        <p className="font-body text-body-sm mt-1" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>{f.marqueModele}</p>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => onNavigate('freelance_detail', { chauffeurId: f.chauffeurId })}
+                          className="rounded-lg px-3 py-1.5 text-[12px] font-bold transition-all hover:opacity-80"
+                          style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#E8433D', border: '1px solid #ECECEC' }}
+                        >
+                          Voir fiche
+                        </button>
+                        {onglet === 'active' ? (
+                          <>
+                            <button
+                              onClick={() => openModal(f, 'desactiver')}
+                              title="Désactiver ce chauffeur"
+                              className="rounded-lg p-1.5 transition-all hover:bg-[#F7F7F8]"
+                              style={{ color: '#E8433D' }}
+                            >
+                              <span className="material-symbols-outlined text-[18px]">block</span>
+                            </button>
+                            <button
+                              onClick={() => openModal(f, 'supprimer')}
+                              title="Supprimer ce chauffeur"
+                              className="rounded-lg p-1.5 transition-all hover:bg-[#FDE8E6]"
+                              style={{ color: '#B82823' }}
+                            >
+                              <span className="material-symbols-outlined text-[18px]">delete_forever</span>
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => openModal(f, 'reactiver')}
+                            title="Réactiver ce chauffeur"
+                            className="rounded-lg px-3 py-1.5 text-[12px] font-bold transition-all hover:opacity-80"
+                            style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', backgroundColor: '#E8F5E9' }}
+                          >
+                            Réactiver
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      {modalAction && selectedFreelance && (
+        <>
+          <div className="fixed inset-0 z-50 bg-black/40" onClick={closeModal} />
+          <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl p-6 pb-10 shadow-xl" style={{ backgroundColor: '#FFFFFF' }}>
+            <div className="mx-auto mb-6 h-1 w-10 rounded-full" style={{ backgroundColor: '#ECECEC' }} />
+            <h3 className="font-display text-headline-md mb-2" style={{ fontFamily: "'Barlow Condensed', sans-serif", color: '#1A1A1E', fontWeight: 600 }}>
+              {modalAction === 'desactiver' ? 'Désactiver le chauffeur' : modalAction === 'supprimer' ? 'Supprimer le chauffeur' : 'Réactiver le chauffeur'}
+            </h3>
+            <p className="font-body text-body-sm mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: '#8A8A92' }}>
+              {selectedFreelance.nom || 'Ce chauffeur'} — {modalAction === 'desactiver' ? 'Le compte sera désactivé et le chauffeur ne pourra plus se connecter.' : modalAction === 'supprimer' ? 'Cette action est irréversible. Le compte sera définitivement supprimé.' : 'Le compte sera réactivé et le chauffeur retrouvera l\'accès.'}
+            </p>
+            {modalAction !== 'reactiver' && (
+              <textarea
+                value={motif}
+                onChange={(e) => setMotif(e.target.value)}
+                className="mb-4 w-full rounded-xl border p-4 font-body text-body-md outline-none focus:ring-2 focus:ring-red-500/20"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", borderColor: '#ECECEC', backgroundColor: '#F7F7F8', color: '#1A1A1E' }}
+                placeholder={modalAction === 'desactiver' ? 'Raison de la désactivation...' : 'Raison de la suppression...'}
+                rows={3}
+              />
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={closeModal}
+                className="flex-1 rounded-lg border py-3 text-[13px] font-bold transition-all hover:opacity-80"
+                style={{ fontFamily: "'Barlow Condensed', sans-serif", borderColor: '#ECECEC', color: '#8A8A92' }}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleAction}
+                disabled={actionLoading}
+                className="flex-1 rounded-lg py-3 text-[13px] font-bold text-white transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ fontFamily: "'Barlow Condensed', sans-serif", backgroundColor: modalAction === 'reactiver' ? '#1A1A1E' : modalAction === 'supprimer' ? '#B82823' : '#E8433D' }}
+              >
+                {actionLoading ? 'En cours...' : modalAction === 'desactiver' ? 'Confirmer la désactivation' : modalAction === 'supprimer' ? 'Confirmer la suppression' : 'Confirmer la réactivation'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -1,9 +1,11 @@
 package com.example.Bakend.controller;
 
+import com.example.Bakend.dto.response.AgenceDossierDTO;
 import com.example.Bakend.entity.PMECliente;
 import com.example.Bakend.service.AgenceRegistrationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,16 +31,21 @@ public class AdminAgenceController {
      * Liste les dossiers d'agences, optionnellement filtres par statut.
      */
     @GetMapping
-    public List<PMECliente> listerDossiers(@RequestParam(required = false) String statut) {
-        return agenceRegistrationService.listerDossiers(statut);
+    @Transactional(readOnly = true)
+    public List<AgenceDossierDTO> listerDossiers(@RequestParam(required = false) String statut) {
+        return agenceRegistrationService.listerDossiers(statut).stream()
+                .map(AgenceDossierDTO::new)
+                .toList();
     }
 
     /**
      * Detail d'un dossier.
      */
     @GetMapping("/{tenantId}")
-    public PMECliente obtenirDossier(@PathVariable UUID tenantId) {
-        return agenceRegistrationService.obtenirDossier(tenantId);
+    @Transactional(readOnly = true)
+    public AgenceDossierDTO obtenirDossier(@PathVariable UUID tenantId) {
+        PMECliente entity = agenceRegistrationService.obtenirDossier(tenantId);
+        return new AgenceDossierDTO(entity);
     }
 
     /**
@@ -59,5 +66,36 @@ public class AdminAgenceController {
         String motif = body.getOrDefault("motif", "Dossier non conforme");
         agenceRegistrationService.refuserDossier(tenantId, motif);
         return ResponseEntity.ok(Map.of("message", "Dossier refuse"));
+    }
+
+    /**
+     * Desactive un compte d'agence activee.
+     */
+    @PostMapping("/{tenantId}/desactiver")
+    public ResponseEntity<Map<String, String>> desactiverDossier(@PathVariable UUID tenantId,
+                                                                 @RequestBody Map<String, String> body) {
+        String motif = body.getOrDefault("motif", "Desactive par l'administrateur");
+        agenceRegistrationService.desactiverDossier(tenantId, motif);
+        return ResponseEntity.ok(Map.of("message", "Agence desactivee avec succes"));
+    }
+
+    /**
+     * Supprime un compte d'agence (soft delete).
+     */
+    @PostMapping("/{tenantId}/supprimer")
+    public ResponseEntity<Map<String, String>> supprimerDossier(@PathVariable UUID tenantId,
+                                                                 @RequestBody Map<String, String> body) {
+        String motif = body.getOrDefault("motif", "Supprime par l'administrateur");
+        agenceRegistrationService.supprimerDossier(tenantId, motif);
+        return ResponseEntity.ok(Map.of("message", "Agence supprimee avec succes"));
+    }
+
+    /**
+     * Reactive un compte d'agence desactivee.
+     */
+    @PostMapping("/{tenantId}/reactiver")
+    public ResponseEntity<Map<String, String>> reactiverDossier(@PathVariable UUID tenantId) {
+        agenceRegistrationService.reactiverDossier(tenantId);
+        return ResponseEntity.ok(Map.of("message", "Agence reactivée avec succes"));
     }
 }

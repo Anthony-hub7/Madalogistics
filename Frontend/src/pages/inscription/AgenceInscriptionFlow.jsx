@@ -314,7 +314,25 @@ function Step3({ data, onSubmit, onBack }) {
 }
 
 // ─── ATTENTE DE VALIDATION ────────────────────────────────────────────────
-function AttenteValidation({ data, reference, onSimulateAccept, onSimulateRefuse, onBack }) {
+function AttenteValidation({ data, reference, onBack, onCheckStatus }) {
+  const [checking, setChecking] = useState(false)
+  const [statusResult, setStatusResult] = useState(null)
+  const [checkError, setCheckError] = useState(null)
+
+  const handleCheck = async () => {
+    if (!reference) return
+    setChecking(true)
+    setCheckError(null)
+    try {
+      const result = await onCheckStatus()
+      setStatusResult(result)
+    } catch (err) {
+      setCheckError(err.message || 'Impossible de vérifier le statut')
+    } finally {
+      setChecking(false)
+    }
+  }
+
   return (
     <PageBg>
       <div className="flex flex-col items-center gap-8 text-center">
@@ -362,33 +380,47 @@ function AttenteValidation({ data, reference, onSimulateAccept, onSimulateRefuse
           ))}
         </div>
 
-        {/* Demo toggles */}
-        <div className="w-full max-w-md rounded-lg bg-[#F7F7F8] border border-[#ECECEC] p-4 text-left">
-          <p className="font-stamp text-[10px] uppercase tracking-wider text-[#8A8A92] font-bold mb-3">
-            ◆ SIMULATION — Réponse administrateur
-          </p>
-          <div className="flex gap-3">
-            <button onClick={onSimulateAccept}
-              className="flex-1 flex items-center justify-center gap-2 rounded border-2 border-[#1A1A1E] bg-[#1A1A1E] px-4 py-2.5 font-display text-xs font-bold uppercase tracking-wider text-white hover:bg-[#333] transition-all">
-              <span className="material-symbols-outlined text-[16px]">check_circle</span> Accepté
-            </button>
-            <button onClick={onSimulateRefuse}
-              className="flex-1 flex items-center justify-center gap-2 rounded border-2 border-[#E8433D] px-4 py-2.5 font-display text-xs font-bold uppercase tracking-wider text-[#E8433D] hover:bg-[#E8433D]/10 transition-all">
-              <span className="material-symbols-outlined text-[16px]">cancel</span> Refusé
-            </button>
+        {/* Check status result */}
+        {statusResult && (
+          <div className="w-full max-w-md rounded-lg border-2 border-[#1A1A1E]/20 bg-white p-4 text-left">
+            <p className="font-display text-[11px] uppercase tracking-wider font-bold text-[#8A8A92] mb-2">
+              <span className="material-symbols-outlined text-[14px] align-middle mr-1">info</span>
+              Statut actuel
+            </p>
+            <p className="font-body text-sm font-bold" style={{ color: statusResult.statutDossier === 'VALIDEE' ? '#1A1A1E' : statusResult.statutDossier === 'REFUSEE' ? '#E8433D' : '#8A8A92' }}>
+              {statusResult.statutDossier === 'VALIDEE' ? 'Dossier validé — vous pouvez créer votre compte' : statusResult.statutDossier === 'REFUSEE' ? 'Dossier refusé — voir les détails' : 'En cours d\'examen'}
+            </p>
           </div>
-        </div>
+        )}
 
-        <button onClick={onBack} className="font-display text-sm font-bold uppercase tracking-wider text-[#8A8A92] hover:text-[#1A1A1E] transition-colors underline underline-offset-4">
-          ← Retour à l'accueil
-        </button>
+        {checkError && (
+          <div className="w-full max-w-md rounded-lg border-2 border-[#E8433D]/30 bg-[#E8433D]/5 p-3">
+            <p className="font-body text-sm text-[#E8433D]">{checkError}</p>
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="flex flex-col gap-2 w-full max-w-md">
+          <button onClick={handleCheck} disabled={checking}
+            className="flex items-center justify-center gap-2 rounded-lg border-2 border-[#E8433D] px-6 py-3 font-display text-sm font-bold uppercase tracking-wider text-[#E8433D] transition-all hover:bg-[#E8433D]/5 disabled:opacity-50">
+            {checking ? (
+              <span className="animate-spin material-symbols-outlined text-[18px]">hourglass_empty</span>
+            ) : (
+              <span className="material-symbols-outlined text-[18px]">refresh</span>
+            )}
+            Vérifier mon statut
+          </button>
+          <button onClick={onBack} className="font-display text-sm font-bold uppercase tracking-wider text-[#8A8A92] hover:text-[#1A1A1E] transition-colors underline underline-offset-4">
+            ← Retour à l'accueil
+          </button>
+        </div>
       </div>
     </PageBg>
   )
 }
 
 // ─── NOTIFICATION ACCEPTÉ / REFUSÉ ────────────────────────────────────────
-function NotificationResult({ status, data, onFinalize, onRetry, onBack }) {
+function NotificationResult({ status, data, motifRefus, onFinalize, onRetry, onBack }) {
   const accepted = status === 'accepted'
   return (
     <PageBg>
@@ -439,8 +471,7 @@ function NotificationResult({ status, data, onFinalize, onRetry, onBack }) {
                 Motif de refus
               </p>
               <p className="font-body text-sm text-[#1A1A1E]">
-                Le document d'attestation de transport (MTPM) fourni est incomplet ou illisible.
-                Veuillez joindre une copie certifiée conforme en cours de validité.
+                {motifRefus || 'Le dossier ne répond pas aux critères de validation. Veuillez corriger et resoumettre.'}
               </p>
             </div>
             <div className="flex flex-col gap-3 pt-2">
@@ -636,6 +667,85 @@ function CompteActive({ raisonSociale, adminName, onAccess }) {
   )
 }
 
+// ─── REPRISE DOSSIER ──────────────────────────────────────────────────────
+function ReprendreDossier({ initialTenantId, onComplete }) {
+  const [tenantId, setTenantId] = useState(initialTenantId || '')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const stored = agencesService.recupererDossierEnCours()
+
+  const handleCheck = async () => {
+    if (!tenantId.trim()) return
+    setLoading(true)
+    setError(null)
+    try {
+      const result = await agencesService.statutDossier(tenantId.trim())
+      onComplete(result)
+    } catch (err) {
+      setError(err.message || 'Dossier introuvable. Vérifiez votre identifiant.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <PageBg>
+      <div className="flex flex-col items-center gap-8 w-full max-w-md">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#ECECEC] px-4 py-1.5">
+            <span className="material-symbols-outlined text-[18px] text-[#8A8A92]">find_in_page</span>
+            <span className="font-stamp text-xs font-bold uppercase tracking-widest text-[#8A8A92]">SUIVI DE DOSSIER</span>
+          </div>
+          <h1 className="font-display text-2xl font-bold uppercase tracking-tight text-[#1A1A1E]">
+            Reprendre mon dossier
+          </h1>
+          <p className="font-body text-sm text-[#8A8A92]">
+            Saisissez votre identifiant de dossier pour vérifier son statut et finaliser votre inscription.
+          </p>
+        </div>
+
+        <div className="w-full rounded-xl border-2 border-[#ECECEC] bg-white shadow-xl overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#E8433D]" />
+          <div className="p-6 space-y-4">
+            <FormInput
+              label="Identifiant du dossier (UUID) *"
+              id="tenantId"
+              icon="badge"
+              placeholder="ex : 550e8400-e29b-41d4-a716-446655440000"
+              value={tenantId}
+              onChange={e => setTenantId(e.target.value)}
+            />
+            {stored && (
+              <div className="rounded-lg bg-[#F7F7F8] border border-[#ECECEC] p-3 text-left">
+                <p className="font-display text-[10px] uppercase tracking-wider text-[#8A8A92] font-bold mb-1">Dossier sauvegardé</p>
+                <p className="font-body text-sm font-medium text-[#1A1A1E]">{stored.raisonSociale || '—'}</p>
+                <p className="font-body text-xs text-[#8A8A92] mt-0.5">Réf: {stored.reference}</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="rounded-lg border-2 border-[#E8433D]/30 bg-[#E8433D]/5 p-3">
+                <p className="font-body text-sm text-[#E8433D]">{error}</p>
+              </div>
+            )}
+
+            <button onClick={handleCheck} disabled={!tenantId.trim() || loading}
+              className="flex h-12 w-full items-center justify-center gap-3 rounded bg-[#E8433D] font-display text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-[#B82823] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+              {loading ? (
+                <span className="animate-spin material-symbols-outlined text-[20px]">hourglass_empty</span>
+              ) : (
+                <span className="material-symbols-outlined text-[20px]">search</span>
+              )}
+              Vérifier le statut
+            </button>
+          </div>
+        </div>
+      </div>
+    </PageBg>
+  )
+}
+
 // ─── ROOT FLOW ORCHESTRATOR ───────────────────────────────────────────────
 const STEP_LABELS = ['Identité', 'Documents', 'Récapitulatif']
 const TOTAL_STEPS = 3
@@ -644,17 +754,27 @@ function AgenceInscriptionFlow() {
   const navigate = useNavigate()
   const { login } = useAuth()
   const goBack = () => navigate('/')
-  const goLogin = () => navigate('/')
-  const [screen, setScreen] = useState('form') // form | attente | accepted | refused | finalisation | done
+
+  // Récupérer tenantId depuis URL params (deep link) ou localStorage
+  const urlParams = new URLSearchParams(window.location.search)
+  const deepLinkTenantId = urlParams.get('tenantId')
+  const storedDossier = agencesService.recupererDossierEnCours()
+
+  const initialScreen = deepLinkTenantId
+    ? 'reprendre'
+    : (storedDossier ? 'reprendre' : 'form')
+
+  const [screen, setScreen] = useState(initialScreen) // form | attente | accepted | refused | reprendre | finalisation | done
   const [step, setStep] = useState(1)
   const [data, setData] = useState({
     raisonSociale: '', nif: '', stat: '', email: '', telephone: '', site: '',
     adresse: '',
     kbis: null, attestation: null, assurance: null,
   })
-  const [tenantId, setTenantId] = useState(null)
-  const [reference, setReference] = useState('')
+  const [tenantId, setTenantId] = useState(deepLinkTenantId || storedDossier?.tenantId || null)
+  const [reference, setReference] = useState(storedDossier?.reference || '')
   const [adminName, setAdminName] = useState('')
+  const [motifRefus, setMotifRefus] = useState('')
 
   const handleChange = (key, val) => setData(prev => ({ ...prev, [key]: val }))
   const nextStep = () => setStep(s => Math.min(s + 1, TOTAL_STEPS))
@@ -683,18 +803,50 @@ function AgenceInscriptionFlow() {
     setScreen('attente')
   }
 
+  // Vérification du statut depuis l'écran attente
+  const handleCheckStatus = async () => {
+    if (!tenantId) throw new Error('Identifiant dossier non disponible')
+    const result = await agencesService.statutDossier(tenantId)
+    if (result.statutDossier === 'VALIDEE') {
+      setScreen('accepted')
+    } else if (result.statutDossier === 'REFUSEE') {
+      setMotifRefus(result.motifRefus || '')
+      setScreen('refused')
+    }
+    // Si EN_ATTENTE, reste sur l'écran attente
+    return result
+  }
+
+  // Reprendre dossier depuis l'écran ReprendreDossier
+  const handleReprendreComplete = (result) => {
+    setTenantId(result.tenantId)
+    setReference(`#AGC-${result.tenantId?.toString().substring(0, 8)?.toUpperCase() || '????????'}`)
+    if (result.statutDossier === 'VALIDEE') {
+      setData(prev => ({ ...prev, raisonSociale: result.nomEntreprise || prev.raisonSociale }))
+      setScreen('accepted')
+    } else if (result.statutDossier === 'REFUSEE') {
+      setData(prev => ({ ...prev, raisonSociale: result.nomEntreprise || prev.raisonSociale }))
+      setMotifRefus(result.motifRefus || '')
+      setScreen('refused')
+    } else {
+      setData(prev => ({ ...prev, raisonSociale: result.nomEntreprise || prev.raisonSociale }))
+      setScreen('attente')
+    }
+  }
+
   // Finalisation du compte admin (appel API + auto-login via AuthContext)
   const handleFinalizeCompte = async (admin) => {
-    const result = await agencesService.finaliserCompte({
+    await agencesService.finaliserCompte({
       tenantId,
       prenom: admin.prenom,
       nom: admin.nom,
       emailAdmin: admin.emailAdmin,
       password: admin.password,
     })
-    // Auto-login : appeler login() du contexte Auth pour proper state management
+    // Auto-login
     await login(admin.emailAdmin, admin.password)
     setAdminName(`${admin.prenom} ${admin.nom}`)
+    agencesService.effacerDossierEnCours()
     setScreen('done')
   }
 
@@ -715,9 +867,10 @@ function AgenceInscriptionFlow() {
     </div>
   )
 
-  if (screen === 'attente') return <AttenteValidation data={data} reference={reference} onSimulateAccept={() => setScreen('accepted')} onSimulateRefuse={() => setScreen('refused')} onBack={goBack} />
+  if (screen === 'reprendre') return <ReprendreDossier initialTenantId={deepLinkTenantId || storedDossier?.tenantId} onComplete={handleReprendreComplete} />
+  if (screen === 'attente') return <AttenteValidation data={data} reference={reference} onBack={goBack} onCheckStatus={handleCheckStatus} />
   if (screen === 'accepted') return <NotificationResult status="accepted" data={data} onFinalize={() => setScreen('finalisation')} onRetry={() => { setScreen('form'); setStep(1) }} onBack={goBack} />
-  if (screen === 'refused') return <NotificationResult status="refused" data={data} onRetry={() => { setScreen('form'); setStep(1) }} onBack={goBack} />
+  if (screen === 'refused') return <NotificationResult status="refused" data={data} motifRefus={motifRefus} onRetry={() => { setScreen('form'); setStep(1) }} onBack={goBack} />
   if (screen === 'finalisation') return <FinalisationCompte data={data} onComplete={handleFinalizeCompte} onBack={() => setScreen('accepted')} />
   if (screen === 'done') return <CompteActive raisonSociale={data.raisonSociale} adminName={adminName} onAccess={() => navigate('/direction', { replace: true })} />
 

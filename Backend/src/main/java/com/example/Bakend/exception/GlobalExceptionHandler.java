@@ -8,6 +8,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -92,6 +94,16 @@ public class GlobalExceptionHandler {
         }
         log.error("Erreur d'intégrité des données", ex);
         return build(HttpStatus.CONFLICT, "Violation d'intégrité des données");
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
+        if (ex instanceof BadCredentialsException) {
+            log.warn("Identifiants incorrects : {}", ex.getMessage());
+        } else {
+            log.warn("Échec d'authentification : {}", ex.getMessage());
+        }
+        return build(HttpStatus.UNAUTHORIZED, "Email ou mot de passe incorrect");
     }
 
     @ExceptionHandler(Exception.class)
