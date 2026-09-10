@@ -14,7 +14,7 @@ function getRolePath(role) {
 }
 
 export function ProtectedRoute({ allowedRoles, children }) {
-  const { user, isTokenExpired, getRoleFromToken } = useAuth()
+  const { user, isTokenExpired } = useAuth()
 
   if (!user) {
     return <Navigate to="/" replace />
@@ -24,8 +24,7 @@ export function ProtectedRoute({ allowedRoles, children }) {
     return <Navigate to="/" replace />
   }
 
-  const roleFromToken = getRoleFromToken()
-  const rolePath = getRolePath(roleFromToken)
+  const rolePath = getRolePath(user.role)
 
   if (allowedRoles && !allowedRoles.includes(rolePath)) {
     return (

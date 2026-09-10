@@ -1,133 +1,314 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { seuilService } from '../../services/seuilService'
+import { tarifsService } from '../../services/tarifsService'
 
-const initialGrilles = [
-  { id: 1, nom: 'Standard', tarifBase: 15000, tarifKm: 800, tarifKg: 250, actif: true },
-  { id: 2, nom: 'Express', tarifBase: 25000, tarifKm: 1200, tarifKg: 400, actif: true },
-  { id: 3, nom: 'Fragile-Valeur', tarifBase: 35000, tarifKm: 1500, tarifKg: 600, actif: true },
-]
+function JaugeSeuil({ value }) {
+  const color = value < 50 ? '#DC3545' : value < 80 ? '#FFC107' : '#198754'
+  const label = value < 50 ? 'Faible' : value < 80 ? 'Moyen' : 'Élevé'
 
-const initialHistorique = [
-  { date: '20 Août 2026', action: 'Modification tarif Km Standard', auteur: 'Direction', details: '800 → 900 Ar/km' },
-  { date: '15 Août 2026', action: 'Création grille Fragile-Valeur', auteur: 'Direction', details: 'Nouvelle grille ajoutée' },
-  { date: '10 Août 2026', action: 'Modification seuil remplissage', auteur: 'Direction', details: '60% → 70%' },
-]
+  return (
+    <div className="flex items-center gap-4">
+      <div className="flex-1">
+        <div className="h-3 rounded-full bg-surface-container-high overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${value}%`, backgroundColor: color }}
+          />
+        </div>
+      </div>
+      <div className="flex items-center gap-2 min-w-[120px]">
+        <span className="font-headline-md text-headline-md" style={{ color }}>{value}%</span>
+        <span className="font-label-sm text-label-sm text-on-surface-variant">{label}</span>
+      </div>
+    </div>
+  )
+}
+
+const emptyGrille = { libelle: '', prixParKg: '', prixParM3: '', prixMinimum: '' }
 
 export default function ParametresTarifairesTab() {
-  const [grilles, setGrilles] = useState(initialGrilles)
-  const [seuilRemplissage, setSeuilRemplissage] = useState(70)
-  const [editingId, setEditingId] = useState(null)
-  const [editValues, setEditValues] = useState({})
+  const [seuil, setSeuil] = useState(0)
+  const [seuilLoading, setSeuilLoading] = useState(true)
+  const [seuilSaving, setSeuilSaving] = useState(false)
 
-  const handleEdit = (grille) => {
-    setEditingId(grille.id)
-    setEditValues({ tarifBase: grille.tarifBase, tarifKm: grille.tarifKm, tarifKg: grille.tarifKg })
+  const [grilles, setGrilles] = useState([])
+  const [grillesLoading, setGrillesLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [form, setForm] = useState(emptyGrille)
+  const [saving, setSaving] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(null)
+
+  useEffect(() => {
+    seuilService.obtenir()
+      .then(data => setSeuil(data.seuil))
+      .catch(() => {})
+      .finally(() => setSeuilLoading(false))
+
+    tarifsService.lister()
+      .then(data => setGrilles(data))
+      .catch(() => {})
+      .finally(() => setGrillesLoading(false))
+  }, [])
+
+  const handleSaveSeuil = async () => {
+    setSeuilSaving(true)
+    try {
+      const data = await seuilService.mettreAJour(seuil)
+      setSeuil(data.seuil)
+    } catch {
+    } finally {
+      setSeuilSaving(false)
+    }
   }
 
-  const handleSave = (id) => {
-    setGrilles(prev => prev.map(g => g.id === id ? { ...g, ...editValues } : g))
+  const handleAddGrille = () => {
+    setForm(emptyGrille)
     setEditingId(null)
+    setShowForm(true)
+  }
+
+  const handleEditGrille = (g) => {
+    setForm({
+      libelle: g.libelle,
+      prixParKg: g.prixParKg ?? '',
+      prixParM3: g.prixParM3 ?? '',
+      prixMinimum: g.prixMinimum ?? '',
+    })
+    setEditingId(g.grilleId)
+    setShowForm(true)
+  }
+
+  const handleSaveGrille = async () => {
+    if (!form.libelle.trim()) return
+    setSaving(true)
+    try {
+      const payload = {
+        libelle: form.libelle,
+        prixParKg: form.prixParKg !== '' ? Number(form.prixParKg) : null,
+        prixParM3: form.prixParM3 !== '' ? Number(form.prixParM3) : null,
+        prixMinimum: form.prixMinimum !== '' ? Number(form.prixMinimum) : null,
+      }
+      if (editingId) {
+        const updated = await tarifsService.modifier(editingId, payload)
+        setGrilles(prev => prev.map(g => g.grilleId === editingId ? updated : g))
+      } else {
+        const created = await tarifsService.creer(payload)
+        setGrilles(prev => [...prev, created])
+      }
+      setShowForm(false)
+      setEditingId(null)
+    } catch {
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeleteGrille = async (grilleId) => {
+    await tarifsService.supprimer(grilleId)
+    setGrilles(prev => prev.filter(g => g.grilleId !== grilleId))
+    setConfirmDelete(null)
+  }
+
+  const handleToggleGrille = async (grilleId) => {
+    const updated = await tarifsService.toggleActif(grilleId)
+    setGrilles(prev => prev.map(g => g.grilleId === grilleId ? updated : g))
   }
 
   return (
     <div className="space-y-6">
+      {/* Seuil de remplissage */}
       <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
-        <h3 className="font-headline-md text-headline-md mb-4">Seuil de remplissage minimum</h3>
+        <h3 className="font-headline-md text-headline-md mb-2">Seuil de remplissage minimum</h3>
         <p className="font-body-sm text-body-sm text-on-surface-variant mb-4">
           Pourcentage minimum de remplissage requis pour valider un chargement.
         </p>
-        <div className="flex items-center gap-4">
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={seuilRemplissage}
-            onChange={(e) => setSeuilRemplissage(Number(e.target.value))}
-            className="flex-1"
-          />
-          <span className="font-headline-md text-headline-md text-primary w-16 text-right">{seuilRemplissage}%</span>
-        </div>
+        {seuilLoading ? (
+          <div className="flex items-center gap-2 text-on-surface-variant">
+            <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+            Chargement...
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <JaugeSeuil value={seuil} />
+            <div className="flex items-center gap-3">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={seuil}
+                onChange={(e) => {
+                  const v = Math.min(100, Math.max(0, Number(e.target.value)))
+                  setSeuil(v)
+                }}
+                className="w-24 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 font-label-md text-label-md text-center focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              <span className="font-label-md text-label-md text-on-surface-variant">%</span>
+              <button
+                onClick={handleSaveSeuil}
+                disabled={seuilSaving}
+                className="rounded-lg bg-primary px-4 py-2 font-label-md text-label-md text-on-primary hover:bg-primary/90 disabled:opacity-50"
+              >
+                {seuilSaving ? 'Enregistrement...' : 'Enregistrer'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Grilles tarifaires */}
       <div className="rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-outline-variant">
+        <div className="flex items-center justify-between p-5 border-b border-outline-variant">
           <h3 className="font-headline-md text-headline-md">Grilles tarifaires</h3>
+          <button
+            onClick={handleAddGrille}
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-label-md text-label-md text-on-primary shadow-sm transition-all hover:bg-primary/90"
+          >
+            <span className="material-symbols-outlined text-[18px]">add</span>
+            Ajouter
+          </button>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-left">
-            <thead className="bg-surface-container-low">
-              <tr>
-                <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Nom</th>
-                <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Tarif Base (Ar)</th>
-                <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Tarif/Km (Ar)</th>
-                <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Tarif/Kg (Ar)</th>
-                <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Statut</th>
-                <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-outline-variant">
-              {grilles.map((g) => (
-                <tr key={g.id} className="hover:bg-surface-container-low/50">
-                  <td className="px-5 py-4 font-label-md text-label-md font-bold">{g.nom}</td>
-                  {editingId === g.id ? (
-                    <>
-                      <td className="px-5 py-4">
-                        <input type="number" value={editValues.tarifBase} onChange={(e) => setEditValues({ ...editValues, tarifBase: Number(e.target.value) })} className="w-28 rounded border border-outline-variant px-2 py-1 font-label-md text-label-md" />
-                      </td>
-                      <td className="px-5 py-4">
-                        <input type="number" value={editValues.tarifKm} onChange={(e) => setEditValues({ ...editValues, tarifKm: Number(e.target.value) })} className="w-28 rounded border border-outline-variant px-2 py-1 font-label-md text-label-md" />
-                      </td>
-                      <td className="px-5 py-4">
-                        <input type="number" value={editValues.tarifKg} onChange={(e) => setEditValues({ ...editValues, tarifKg: Number(e.target.value) })} className="w-28 rounded border border-outline-variant px-2 py-1 font-label-md text-label-md" />
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className="px-5 py-4 font-body-sm text-body-sm">{g.tarifBase.toLocaleString()}</td>
-                      <td className="px-5 py-4 font-body-sm text-body-sm">{g.tarifKm.toLocaleString()}</td>
-                      <td className="px-5 py-4 font-body-sm text-body-sm">{g.tarifKg.toLocaleString()}</td>
-                    </>
-                  )}
-                  <td className="px-5 py-4">
-                    <span className={`px-2 py-1 rounded-full font-label-sm text-label-sm font-bold ${g.actif ? 'bg-secondary/10 text-secondary' : 'bg-surface-container-high text-outline'}`}>
-                      {g.actif ? 'Actif' : 'Inactif'}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    {editingId === g.id ? (
-                      <div className="flex gap-2">
-                        <button onClick={() => handleSave(g.id)} className="text-secondary font-label-sm text-label-sm font-bold">Sauver</button>
-                        <button onClick={() => setEditingId(null)} className="text-outline font-label-sm text-label-sm">Annuler</button>
-                      </div>
-                    ) : (
-                      <button onClick={() => handleEdit(g)} className="text-primary font-label-sm text-label-sm font-bold hover:underline">Modifier</button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      <div className="rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-outline-variant">
-          <h3 className="font-headline-md text-headline-md">Historique des modifications</h3>
-        </div>
-        <div className="divide-y divide-outline-variant">
-          {initialHistorique.map((h, i) => (
-            <div key={i} className="px-5 py-4 flex items-center justify-between">
+        {showForm && (
+          <div className="p-5 border-b border-outline-variant bg-surface-container-low/30 space-y-3">
+            <h4 className="font-label-md text-label-md font-bold">{editingId ? 'Modifier la grille' : 'Nouvelle grille'}</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
-                <p className="font-label-md text-label-md font-bold">{h.action}</p>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">{h.details}</p>
+                <label className="font-label-sm text-label-sm text-on-surface-variant block mb-1">Libellé *</label>
+                <input
+                  type="text"
+                  value={form.libelle}
+                  onChange={(e) => setForm({ ...form, libelle: e.target.value })}
+                  placeholder="Ex: Standard"
+                  className="w-full rounded-lg border border-outline-variant px-3 py-2 font-label-md text-label-md"
+                />
               </div>
-              <div className="text-right">
-                <p className="font-label-sm text-label-sm text-on-surface-variant">{h.date}</p>
-                <p className="font-label-sm text-label-sm text-outline">par {h.auteur}</p>
+              <div>
+                <label className="font-label-sm text-label-sm text-on-surface-variant block mb-1">Prix/kg (Ar)</label>
+                <input
+                  type="number"
+                  value={form.prixParKg}
+                  onChange={(e) => setForm({ ...form, prixParKg: e.target.value })}
+                  placeholder="250"
+                  className="w-full rounded-lg border border-outline-variant px-3 py-2 font-label-md text-label-md"
+                />
+              </div>
+              <div>
+                <label className="font-label-sm text-label-sm text-on-surface-variant block mb-1">Prix/m3 (Ar)</label>
+                <input
+                  type="number"
+                  value={form.prixParM3}
+                  onChange={(e) => setForm({ ...form, prixParM3: e.target.value })}
+                  placeholder="15000"
+                  className="w-full rounded-lg border border-outline-variant px-3 py-2 font-label-md text-label-md"
+                />
+              </div>
+              <div>
+                <label className="font-label-sm text-label-sm text-on-surface-variant block mb-1">Prix minimum (Ar)</label>
+                <input
+                  type="number"
+                  value={form.prixMinimum}
+                  onChange={(e) => setForm({ ...form, prixMinimum: e.target.value })}
+                  placeholder="10000"
+                  className="w-full rounded-lg border border-outline-variant px-3 py-2 font-label-md text-label-md"
+                />
               </div>
             </div>
-          ))}
-        </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleSaveGrille}
+                disabled={saving || !form.libelle.trim()}
+                className="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md font-bold disabled:opacity-50"
+              >
+                {saving ? 'Enregistrement...' : editingId ? 'Sauvegarder' : 'Créer'}
+              </button>
+              <button
+                onClick={() => { setShowForm(false); setEditingId(null) }}
+                className="px-4 py-2 rounded-lg border border-outline-variant font-label-md text-label-md hover:bg-surface-container-low"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        )}
+
+        {grillesLoading ? (
+          <div className="flex justify-center py-8">
+            <span className="material-symbols-outlined text-4xl animate-spin text-primary">progress_activity</span>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
+              <thead className="bg-surface-container-low">
+                <tr>
+                  <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Libellé</th>
+                  <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Prix/kg (Ar)</th>
+                  <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Prix/m3 (Ar)</th>
+                  <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Prix minimum (Ar)</th>
+                  <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Statut</th>
+                  <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant">
+                {grilles.map((g) => (
+                  <tr key={g.grilleId} className="hover:bg-surface-container-low/50">
+                    <td className="px-5 py-4 font-label-md text-label-md font-bold">{g.libelle}</td>
+                    <td className="px-5 py-4 font-body-sm text-body-sm">{g.prixParKg != null ? Number(g.prixParKg).toLocaleString() : '-'}</td>
+                    <td className="px-5 py-4 font-body-sm text-body-sm">{g.prixParM3 != null ? Number(g.prixParM3).toLocaleString() : '-'}</td>
+                    <td className="px-5 py-4 font-body-sm text-body-sm">{g.prixMinimum != null ? Number(g.prixMinimum).toLocaleString() : '-'}</td>
+                    <td className="px-5 py-4">
+                      <button
+                        onClick={() => handleToggleGrille(g.grilleId)}
+                        className={`px-2 py-1 rounded-full font-label-sm text-label-sm font-bold cursor-pointer transition-colors ${g.actif ? 'bg-secondary/10 text-secondary hover:bg-secondary/20' : 'bg-surface-container-high text-outline hover:bg-surface-container-highest'}`}
+                      >
+                        {g.actif ? 'Actif' : 'Inactif'}
+                      </button>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex gap-2">
+                        <button onClick={() => handleEditGrille(g)} className="text-primary font-label-sm text-label-sm font-bold hover:underline">Modifier</button>
+                        <button onClick={() => setConfirmDelete(g.grilleId)} className="text-error font-label-sm text-label-sm font-bold hover:underline">Supprimer</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {!grillesLoading && grilles.length === 0 && (
+          <div className="text-center py-8 text-on-surface-variant">
+            <span className="material-symbols-outlined text-5xl opacity-30">receipt_long</span>
+            <p className="font-body-md text-body-md mt-2">Aucune grille tarifaire configurée</p>
+          </div>
+        )}
       </div>
+
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="rounded-xl bg-surface-container-lowest p-6 shadow-xl max-w-sm w-full space-y-4">
+            <h3 className="font-headline-md text-headline-md text-on-surface">Confirmer la suppression</h3>
+            <p className="font-body-md text-body-md text-on-surface-variant">
+              Voulez-vous vraiment supprimer cette grille tarifaire ?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleDeleteGrille(confirmDelete)}
+                className="flex-1 bg-error text-on-error py-2.5 rounded-xl font-label-md font-bold"
+              >
+                Supprimer
+              </button>
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="px-6 py-2.5 rounded-xl border border-outline-variant font-label-md text-label-md hover:bg-surface-container-low"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -34,6 +34,7 @@ const CarteHubsPage = lazy(() => import('../pages/carte/CarteHubsPage'))
 const CarteOptimisationPage = lazy(() => import('../pages/carte/CarteOptimisationPage'))
 const CarteMissionsPage = lazy(() => import('../pages/carte/CarteMissionsPage'))
 const DemoPreviewPage = lazy(() => import('../pages/DemoPreviewPage'))
+const CompteNonActivePage = lazy(() => import('../pages/chauffeur/CompteNonActivePage'))
 
 export const ROLE_CONFIG = {
   admin: {
@@ -100,6 +101,7 @@ export const ROLE_CONFIG = {
     Layout: ChauffeurLayout,
     defaultPage: 'missions_proposees',
     pages: {
+      en_attente: { component: CompteNonActivePage },
       missions_proposees: { component: MissionsProposeesPage },
       missions: { component: MesMissionsPage },
       detail_livraison: { component: DetailLivraisonPage },

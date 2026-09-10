@@ -18,12 +18,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.Bakend.entity.enums.Role;
+
 import java.util.List;
 import java.util.UUID;
 
 /**
  * Couche service de gestion des utilisateurs (CRUD), isolée par tenant.
  * Transactions gérées par Spring via @Transactional.
+ *
+ * Règles d'habilitation (appelées depuis les contrôleurs) :
+ *  - DIRECTION peut créer uniquement des GESTIONNAIRE.
+ *  - GESTIONNAIRE ne peut pas créer d'utilisateur.
+ *  - DIRECTION et ADMIN_SAAS ne sont ni désactivables ni supprimables par un DIRECTION.
  */
 @Service
 @Transactional
@@ -45,8 +52,20 @@ public class UtilisateurService {
 
     /**
      * Crée un utilisateur dans le tenant courant (transaction écriture).
+     * @param callerRole rôle de l'utilisateur qui effectue l'appel
      */
-    public UserResponse createUtilisateur(UUID tenantId, CreateUserRequest request) {
+    public UserResponse createUtilisateur(UUID tenantId, CreateUserRequest request, Role callerRole) {
+        // Seul DIRECTION peut créer des comptes dans l'équipe
+        if (callerRole != Role.DIRECTION) {
+            throw new BusinessException("Vous n'avez pas les droits pour créer un utilisateur", 403);
+        }
+
+        // DIRECTION ne peut créer que des GESTIONNAIRE
+        if (request.role() != Role.GESTIONNAIRE) {
+            throw new BusinessException(
+                    "La direction ne peut créer que des responsables logistiques (GESTIONNAIRE)", 403);
+        }
+
         if (utilisateurRepository.existsByEmail(request.email())) {
             throw new BusinessException("Un compte existe déjà avec l'email : " + request.email());
         }
@@ -57,7 +76,7 @@ public class UtilisateurService {
         utilisateur.setNom(request.nom());
         utilisateur.setEmail(request.email());
         utilisateur.setMotDePasseHash(passwordEncoder.encode(request.password()));
-        utilisateur.setRole(request.role());
+        utilisateur.setRole(Role.GESTIONNAIRE);
         utilisateur.setHabiliteValeur(true);
 
         return UtilisateurMapper.toResponse(utilisateurRepository.save(utilisateur));
@@ -93,9 +112,19 @@ public class UtilisateurService {
 
     /**
      * Mise à jour partielle d'un utilisateur du tenant courant (transaction écriture).
+     * @param callerRole rôle de l'utilisateur qui effectue l'appel
+     * @param callerUserId ID de l'utilisateur qui effectue l'appel
      */
-    public UserResponse mettreAJour(UUID tenantId, UUID utilisateurId, UpdateUserRequest request) {
+    public UserResponse mettreAJour(UUID tenantId, UUID utilisateurId, UpdateUserRequest request,
+                                     Role callerRole, UUID callerUserId) {
         Utilisateur utilisateur = trouverUtilisateur(tenantId, utilisateurId);
+
+        // DIRECTION ne peut pas modifier un compte DIRECTION ou ADMIN_SAAS (sauf soi-même déjà géré en controller)
+        if (callerRole == Role.DIRECTION
+                && (utilisateur.getRole() == Role.DIRECTION || utilisateur.getRole() == Role.ADMIN_SAAS)
+                && !utilisateurId.equals(callerUserId)) {
+            throw new BusinessException("Vous ne pouvez pas modifier ce compte", 403);
+        }
 
         if (request.nom() != null) {
             utilisateur.setNom(request.nom());
@@ -110,6 +139,13 @@ public class UtilisateurService {
             utilisateur.setMotDePasseHash(passwordEncoder.encode(request.password()));
         }
         if (request.role() != null) {
+            // Empêcher le changement de rôle vers/depuis DIRECTION/ADMIN_SAAS
+            if (request.role() == Role.DIRECTION || request.role() == Role.ADMIN_SAAS) {
+                throw new BusinessException("Vous ne pouvez pas attribuer ce rôle", 403);
+            }
+            if (utilisateur.getRole() == Role.DIRECTION || utilisateur.getRole() == Role.ADMIN_SAAS) {
+                throw new BusinessException("Vous ne pouvez pas modifier le rôle de ce compte", 403);
+            }
             utilisateur.setRole(request.role());
         }
         if (request.habiliteValeur() != null) {
@@ -121,9 +157,17 @@ public class UtilisateurService {
 
     /**
      * Supprime un utilisateur du tenant courant, après vérification du scope (transaction écriture).
+     * @param callerRole rôle de l'utilisateur qui effectue l'appel
      */
-    public void supprimer(UUID tenantId, UUID utilisateurId) {
+    public void supprimer(UUID tenantId, UUID utilisateurId, Role callerRole) {
         Utilisateur utilisateur = trouverUtilisateur(tenantId, utilisateurId);
+
+        // DIRECTION ne peut pas supprimer un compte DIRECTION ou ADMIN_SAAS
+        if (callerRole == Role.DIRECTION
+                && (utilisateur.getRole() == Role.DIRECTION || utilisateur.getRole() == Role.ADMIN_SAAS)) {
+            throw new BusinessException("Vous ne pouvez pas supprimer ce compte", 403);
+        }
+
         utilisateurRepository.delete(utilisateur);
     }
 

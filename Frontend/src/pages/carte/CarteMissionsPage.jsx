@@ -1,7 +1,8 @@
-import { MapContainer, Marker, Popup, Polyline } from 'react-leaflet'
+import { Marker, Popup, Polyline } from 'react-leaflet'
 import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import CachedTiles from '../../map/CachedTiles'
+import MapView from '../../map/MapView'
+import { getMeta } from '../../map/mapCache'
+import { useState, useEffect, useMemo } from 'react'
 
 const HUB_KEY = 'madalogistix_hubs'
 const DEFAULT_CENTER = [-18.914, 47.541]
@@ -25,37 +26,59 @@ const statusLabels = {
 }
 
 function makeIcon(color, label) {
-  return L.divIcon({
-    className: '',
-    html: `<div style="position:relative"><div style="background:${color};width:30px;height:30px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:bold">${label}</div></div>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-    popupAnchor: [0, -15],
-  })
+  const key = `${color}:${label}`
+  if (!makeIcon._cache) makeIcon._cache = {}
+  if (!makeIcon._cache[key]) {
+    makeIcon._cache[key] = L.divIcon({
+      className: '',
+      html: `<div style="position:relative"><div style="background:${color};width:30px;height:30px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:bold">${label}</div></div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      popupAnchor: [0, -15],
+    })
+  }
+  return makeIcon._cache[key]
 }
 
 function CarteMissionsPage() {
-  let hubs = []
-  try {
-    const stored = localStorage.getItem(HUB_KEY)
-    hubs = stored ? JSON.parse(stored) : []
-  } catch { hubs = [] }
+  const [hub, setHub] = useState(null)
 
-  const activeHubs = hubs.filter(h => h.statut === 'actif' && typeof h.lat === 'number' && typeof h.lng === 'number')
-  const hub = activeHubs.length > 0 ? activeHubs[0] : null
-  const center = hub ? [hub.lat, hub.lng] : DEFAULT_CENTER
+  useEffect(() => {
+    async function load() {
+      try {
+        const stored = localStorage.getItem(HUB_KEY)
+        if (stored) {
+          const hubs = JSON.parse(stored)
+          const active = hubs.find(h => h.statut === 'actif' && typeof h.lat === 'number' && typeof h.lng === 'number')
+          if (active) { setHub(active); return }
+        }
+      } catch { /* fallback */ }
+      try {
+        const cached = await getMeta('hubs_list')
+        if (cached && Array.isArray(cached)) {
+          const active = cached.find(h => h.statut === 'actif' && typeof h.lat === 'number' && typeof h.lng === 'number')
+          if (active) { setHub(active); return }
+        }
+      } catch { /* noop */ }
+      setHub(null)
+    }
+    load()
+  }, [])
 
-  const hubIcon = L.divIcon({
+  const center = useMemo(() => hub ? [hub.lat, hub.lng] : DEFAULT_CENTER, [hub])
+
+  const hubIcon = useMemo(() => L.divIcon({
     className: '',
     html: `<div style="background:#E8433D;width:32px;height:32px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center"><span class="material-symbols-outlined" style="color:white;font-size:18px">home</span></div>`,
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [0, -32],
-  })
+  }), [])
 
-  const route = hub
+  const route = useMemo(() => hub
     ? [[hub.lat, hub.lng], ...mockMissionStops.map(s => [s.lat, s.lng]), [hub.lat, hub.lng]]
-    : mockMissionStops.map(s => [s.lat, s.lng])
+    : mockMissionStops.map(s => [s.lat, s.lng]),
+  [hub])
 
   return (
     <div className="space-y-4">
@@ -67,9 +90,7 @@ function CarteMissionsPage() {
       </div>
 
       <div className="rounded-xl overflow-hidden border border-outline-variant shadow-sm" style={{ height: '400px' }}>
-        <MapContainer center={center} zoom={14} style={{ height: '100%', width: '100%' }}>
-          <CachedTiles attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
+        <MapView center={center} zoom={14} style={{ height: '100%', width: '100%' }} routePoints={route}>
           {hub && (
             <Marker position={[hub.lat, hub.lng]} icon={hubIcon}>
               <Popup><strong>Départ : {hub.nom}</strong><br/>{hub.adresse}</Popup>
@@ -90,10 +111,10 @@ function CarteMissionsPage() {
           {route.length > 1 && (
             <Polyline
               positions={route}
-              pathOptions={{ color: '#2563EB', weight: 4 }}
+              pathOptions={{ color: '#2563EB', weight: 4, smoothFactor: 1 }}
             />
           )}
-        </MapContainer>
+        </MapView>
       </div>
 
       <div className="flex flex-wrap gap-4">

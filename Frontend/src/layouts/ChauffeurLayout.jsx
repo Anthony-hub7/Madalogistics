@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { useNavigate, useLocation, Outlet } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 import Logo from '../components/Logo'
 import ThemeScope from '../components/ThemeScope'
 
@@ -11,8 +13,22 @@ const navItems = [
 export default function ChauffeurLayout() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { user } = useAuth()
 
   const activeKey = location.pathname.split('/').pop() || 'missions_proposees'
+
+  // Gate : si chauffeur non active, rediriger vers en_attente
+  useEffect(() => {
+    if (user?.statutDossier && user.statutDossier !== 'VALIDEE'
+        && location.pathname !== '/driver/en_attente') {
+      navigate('/driver/en_attente', { replace: true })
+    }
+  }, [user, location.pathname, navigate])
+
+  // Si on est sur la page en_attente, pas de layout avec nav
+  if (location.pathname === '/driver/en_attente') {
+    return <Outlet />
+  }
 
   return (
     <ThemeScope theme="light" className="min-h-screen bg-page text-on-surface">

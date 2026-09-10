@@ -17,6 +17,14 @@ function LoginPage() {
     setError('')
     try {
       const userData = await login(form.email, form.password)
+      // CHAUFFEUR non active (rattaché ou freelance) → toujours écran en attente
+      if (userData.role === 'CHAUFFEUR') {
+        const statut = userData.statutDossier
+        if (!statut || statut !== 'VALIDEE') {
+          navigate('/driver/en_attente', { replace: true })
+          return
+        }
+      }
       navigate(userData.redirectPath, { replace: true })
     } catch (err) {
       setError(err.message || 'Email ou mot de passe incorrect')

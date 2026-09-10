@@ -70,10 +70,12 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, password) => {
     const res = await apiClient.post('/auth/login', { email, password })
     const rawToken = res.token || res.accessToken
-    const { utilisateurId, tenantId, email: userEmail, fullName, redirectPath } = res
+    const { utilisateurId, tenantId, email: userEmail, fullName, redirectPath,
+            statutDossier, motifRefus, typeChauffeur, agenceNom } = res
     tokenRef.current = rawToken
     const role = extractRoleFromToken(rawToken)
-    const userData = { utilisateurId, tenantId, email: userEmail, name: fullName, role, redirectPath }
+    const userData = { utilisateurId, tenantId, email: userEmail, name: fullName, role, redirectPath,
+                       statutDossier, motifRefus, typeChauffeur, agenceNom }
     setUser(userData)
     forceUpdate((n) => n + 1)
     saveAuthToStorage(rawToken, userData)
@@ -109,6 +111,23 @@ export function AuthProvider({ children }) {
       // Refresh failed — user must re-login
     }
     return null
+  }, [user])
+
+  const refreshMonStatut = useCallback(async () => {
+    try {
+      const { chauffeursService } = await import('../services/chauffeursService')
+      const data = await chauffeursService.monStatutDossier()
+      if (user) {
+        const updated = { ...user, statutDossier: data.statutDossier, motifRefus: data.motifRefus || '' }
+        setUser(updated)
+        forceUpdate((n) => n + 1)
+        const token = tokenRef.current
+        if (token) saveAuthToStorage(token, updated)
+      }
+      return data
+    } catch {
+      return null
+    }
   }, [user])
 
   const logout = useCallback(async () => {
@@ -151,9 +170,10 @@ export function AuthProvider({ children }) {
     register,
     logout,
     refreshAccessToken,
+    refreshMonStatut,
     isTokenExpired,
     isAuthenticated: !!user,
-  }), [user, getAccessToken, getRoleFromToken, login, register, logout, refreshAccessToken, isTokenExpired])
+  }), [user, getAccessToken, getRoleFromToken, login, register, logout, refreshAccessToken, refreshMonStatut, isTokenExpired])
 
   return (
     <AuthContext.Provider value={value}>

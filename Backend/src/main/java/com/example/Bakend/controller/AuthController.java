@@ -29,6 +29,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,6 +55,7 @@ public class AuthController {
     private final ChauffeurRegistrationService chauffeurRegistrationService;
     private final RoleRedirectMapper roleRedirectMapper;
     private final PMEClienteRepository pmeClienteRepository;
+    private final com.example.Bakend.repository.ChauffeurRepository chauffeurRepository;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtService jwtService,
@@ -63,7 +65,8 @@ public class AuthController {
                           AgenceRegistrationService agenceRegistrationService,
                           ChauffeurRegistrationService chauffeurRegistrationService,
                           RoleRedirectMapper roleRedirectMapper,
-                          PMEClienteRepository pmeClienteRepository) {
+                          PMEClienteRepository pmeClienteRepository,
+                          com.example.Bakend.repository.ChauffeurRepository chauffeurRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
@@ -73,6 +76,7 @@ public class AuthController {
         this.chauffeurRegistrationService = chauffeurRegistrationService;
         this.roleRedirectMapper = roleRedirectMapper;
         this.pmeClienteRepository = pmeClienteRepository;
+        this.chauffeurRepository = chauffeurRepository;
     }
 
     /**
@@ -112,8 +116,10 @@ public class AuthController {
 
     /**
      * Authentification : email + password → JWT access token + refresh cookie.
+     * Pour les chauffeurs : inclut statutDossier, motifRefus, typeChauffeur, agenceNom.
      */
     @PostMapping("/login")
+    @Transactional(readOnly = true)
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
                                               HttpServletResponse response) {
         Authentication auth = authenticationManager.authenticate(
@@ -129,13 +135,36 @@ public class AuthController {
 
         addRefreshCookie(response, refreshToken);
 
+        // Enrichir la reponse pour les chauffeurs
+        String statutDossier = null;
+        String motifRefus = null;
+        String typeChauffeur = null;
+        String agenceNom = null;
+        if (user.getRole() == com.example.Bakend.entity.enums.Role.CHAUFFEUR) {
+            var chauffeurOpt = chauffeurRepository.findByUtilisateurId(user.getUtilisateurId());
+            if (chauffeurOpt.isPresent()) {
+                var chauffeur = chauffeurOpt.get();
+                statutDossier = chauffeur.getStatutDossier();
+                motifRefus = chauffeur.getMotifRefus();
+                typeChauffeur = chauffeur.getTypeChauffeur();
+                // agenceCible est LAZY — initialisation dans la tx courante (@Transactional)
+                if (chauffeur.getAgenceCible() != null) {
+                    agenceNom = chauffeur.getAgenceCible().getNomEntreprise();
+                }
+            }
+        }
+
         return ResponseEntity.ok(new AuthResponse(
                 accessToken,
                 user.getUtilisateurId(),
                 userDetails.getTenantId(),
                 user.getEmail(),
                 user.getNom(),
-                roleRedirectMapper.getRedirectPath(user.getRole())
+                roleRedirectMapper.getRedirectPath(user.getRole()),
+                statutDossier,
+                motifRefus,
+                typeChauffeur,
+                agenceNom
         ));
     }
 
@@ -249,6 +278,7 @@ public class AuthController {
      * Valide le refresh token, rotation, retourne un nouveau access token.
      */
     @PostMapping("/refresh")
+    @Transactional(readOnly = true)
     public ResponseEntity<Map<String, String>> refresh(@CookieValue(value = "refresh_token", defaultValue = "")
                                                        String refreshToken,
                                                        HttpServletResponse response) {

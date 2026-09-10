@@ -106,6 +106,18 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, "Email ou mot de passe incorrect");
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("Argument invalide : {}", ex.getMessage());
+        return build(HttpStatus.BAD_REQUEST, "Requête invalide : " + ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
+        log.error("État illégal : {}", ex.getMessage(), ex);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur interne du serveur");
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
         log.error("Erreur inattendue", ex);

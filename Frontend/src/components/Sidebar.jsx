@@ -26,6 +26,11 @@ export default function Sidebar({ navItems, activePage, onNavigate, branding }) 
                   {item.icon}
                 </span>
                 <span>{item.label}</span>
+                {item.badge > 0 && (
+                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[#E8433D] px-1.5 font-display text-[10px] font-bold text-white">
+                    {item.badge}
+                  </span>
+                )}
               </button>
             )
           })}
@@ -51,7 +56,7 @@ export default function Sidebar({ navItems, activePage, onNavigate, branding }) 
             <button
               key={item.key}
               onClick={() => onNavigate(item.key)}
-              className={`flex flex-col items-center justify-center px-3 py-1.5 rounded transition-all duration-150 active:scale-95 ${
+              className={`flex flex-col items-center justify-center px-3 py-1.5 rounded transition-all duration-150 active:scale-95 relative ${
                 isActive
                   ? 'bg-primary text-white font-bold'
                   : 'text-on-surface-variant hover:bg-surface-light'
@@ -61,6 +66,11 @@ export default function Sidebar({ navItems, activePage, onNavigate, branding }) 
                 {item.icon}
               </span>
               <span className="font-display text-xs tracking-wider">{item.label}</span>
+              {item.badge > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#E8433D] px-1 text-[9px] font-bold text-white">
+                  {item.badge}
+                </span>
+              )}
             </button>
           )
         })}

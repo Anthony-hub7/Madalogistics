@@ -83,6 +83,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                         .requestMatchers("/api/auth/public/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
+                        // Maps: authentifié JWT (rate-limit par tenant via MapsRateLimitFilter)
+                        .requestMatchers("/api/maps/**").authenticated()
                         // Le reste est authentifié ; le contrôle en détail par rôle se fait via @PreAuthorize
                         .anyRequest().authenticated()
                 )

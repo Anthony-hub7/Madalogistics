@@ -36,4 +36,21 @@ public interface ChauffeurRepository extends JpaRepository<Chauffeur, UUID> {
 
     @Query("SELECT c FROM Chauffeur c WHERE c.typeChauffeur = 'FREELANCE' AND c.statutDossier = :statut ORDER BY c.createdAt DESC")
     List<Chauffeur> findFreelancesPlateformeByStatut(@Param("statut") String statut);
+
+    // ── Scope agence : chauffeurs rattachés ──
+
+    @Query("SELECT c FROM Chauffeur c WHERE c.agenceCible.tenantId = :tenantId ORDER BY c.createdAt DESC")
+    List<Chauffeur> findByAgenceCibleTenantId(@Param("tenantId") UUID tenantId);
+
+    @Query("SELECT c FROM Chauffeur c WHERE c.agenceCible.tenantId = :tenantId AND c.statutDossier = :statut ORDER BY c.createdAt DESC")
+    List<Chauffeur> findByAgenceCibleTenantIdAndStatutDossier(@Param("tenantId") UUID tenantId, @Param("statut") String statut);
+
+    @Query("SELECT c FROM Chauffeur c WHERE c.chauffeurId = :chauffeurId AND c.agenceCible.tenantId = :tenantId")
+    Optional<Chauffeur> findByChauffeurIdAndAgenceCibleTenantId(@Param("chauffeurId") UUID chauffeurId, @Param("tenantId") UUID tenantId);
+
+    @Query("SELECT c FROM Chauffeur c WHERE c.utilisateur.utilisateurId = :utilisateurId")
+    Optional<Chauffeur> findByUtilisateurId(@Param("utilisateurId") UUID utilisateurId);
+
+    @Query("SELECT c FROM Chauffeur c WHERE c.utilisateur.utilisateurId = :utilisateurId AND c.statutDossier != :statutExclude")
+    Optional<Chauffeur> findActiveByUtilisateurId(@Param("utilisateurId") UUID utilisateurId, @Param("statutExclude") String statutExclude);
 }

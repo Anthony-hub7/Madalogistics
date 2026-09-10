@@ -23,6 +23,9 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, UUID> 
 
     Optional<Utilisateur> findByEmail(String email);
 
+    @Query("SELECT u FROM Utilisateur u LEFT JOIN FETCH u.pmeCliente WHERE u.email = :email")
+    Optional<Utilisateur> findByEmailWithPmeCliente(@Param("email") String email);
+
     boolean existsByEmail(String email);
 
     boolean existsByCin(String cin);

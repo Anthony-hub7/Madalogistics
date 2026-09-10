@@ -36,6 +36,18 @@ public class Hub {
     @Column(name = "zone_securisee_dispo", nullable = false)
     private boolean zoneSecuriseeDispo = false;
 
+    @Column(name = "adresse", length = 500)
+    private String adresse;
+
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
+    @Column(name = "actif", nullable = false)
+    private boolean actif = true;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

@@ -40,7 +40,9 @@ public class UtilisateurController {
 
     @PostMapping
     public ResponseEntity<UserResponse> creer(@Valid @RequestBody CreateUserRequest request) {
-        UserResponse response = utilisateurService.createUtilisateur(requireTenantId(), request);
+        var caller = SecurityUtils.getCurrentUser();
+        UserResponse response = utilisateurService.createUtilisateur(requireTenantId(), request,
+                caller.getUtilisateur().getRole());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -58,12 +60,23 @@ public class UtilisateurController {
     @PutMapping("/{id}")
     public UserResponse mettreAJour(@PathVariable UUID id,
                                     @Valid @RequestBody UpdateUserRequest request) {
-        return utilisateurService.mettreAJour(requireTenantId(), id, request);
+        var caller = SecurityUtils.getCurrentUser();
+        UUID currentUserId = caller.getUtilisateurId();
+        if (id.equals(currentUserId) && Boolean.FALSE.equals(request.habiliteValeur())) {
+            throw new BusinessException("Vous ne pouvez pas désactiver votre propre compte.", 403);
+        }
+        return utilisateurService.mettreAJour(requireTenantId(), id, request,
+                caller.getUtilisateur().getRole(), currentUserId);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> supprimer(@PathVariable UUID id) {
-        utilisateurService.supprimer(requireTenantId(), id);
+        var caller = SecurityUtils.getCurrentUser();
+        UUID currentUserId = caller.getUtilisateurId();
+        if (id.equals(currentUserId)) {
+            throw new BusinessException("Vous ne pouvez pas supprimer votre propre compte.", 403);
+        }
+        utilisateurService.supprimer(requireTenantId(), id, caller.getUtilisateur().getRole());
         return ResponseEntity.noContent().build();
     }
 

@@ -46,4 +46,11 @@ export const chauffeursService = {
 
     return response.json()
   },
+
+  /**
+   * Statut du dossier du chauffeur connecte (pour l'ecran compte non active).
+   */
+  async monStatutDossier() {
+    return apiClient.get('/chauffeurs/mon-dossier/statut')
+  },
 }

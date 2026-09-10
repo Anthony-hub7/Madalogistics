@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
-import { MapContainer, Marker, Popup, Polyline } from 'react-leaflet'
+import { useState, useEffect, useMemo } from 'react'
+import { Marker, Popup, Polyline } from 'react-leaflet'
 import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import CachedTiles from '../../map/CachedTiles'
+import MapView from '../../map/MapView'
+import { getMeta } from '../../map/mapCache'
 
 const HUB_KEY = 'madalogistix_hubs'
 const DEFAULT_CENTER = [-18.914, 47.541]
@@ -27,45 +27,63 @@ const statutLabels = {
   a_venir: 'À venir',
 }
 
-function makeIcon(color) {
-  return L.divIcon({
-    className: '',
-    html: `<div style="background:${color};width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -14],
-  })
-}
-
 function CarteOptimisationPage() {
   const [hubs, setHubs] = useState([])
   const [stops] = useState(mockStops)
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(HUB_KEY)
-      setHubs(stored ? JSON.parse(stored) : [])
-    } catch { setHubs([]) }
+  const makeIcon = useMemo(() => {
+    const cache = {}
+    return (color) => {
+      if (!cache[color]) {
+        cache[color] = L.divIcon({
+          className: '',
+          html: `<div style="background:${color};width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
+          popupAnchor: [0, -14],
+        })
+      }
+      return cache[color]
+    }
   }, [])
 
-  const activeHubs = hubs.filter(h => h.statut === 'actif' && typeof h.lat === 'number' && typeof h.lng === 'number')
-  const center = activeHubs.length > 0 ? [activeHubs[0].lat, activeHubs[0].lng] : DEFAULT_CENTER
+  useEffect(() => {
+    async function load() {
+      try {
+        const stored = localStorage.getItem(HUB_KEY)
+        if (stored) { setHubs(JSON.parse(stored)); return }
+      } catch { /* fallback */ }
+      try {
+        const cached = await getMeta('hubs_list')
+        if (cached) { setHubs(cached); return }
+      } catch { /* noop */ }
+      setHubs([])
+    }
+    load()
+  }, [])
 
-  const hubIcon = L.divIcon({
+  const activeHubs = useMemo(() => hubs.filter(h => h.statut === 'actif' && typeof h.lat === 'number' && typeof h.lng === 'number'), [hubs])
+  const center = useMemo(() => activeHubs.length > 0 ? [activeHubs[0].lat, activeHubs[0].lng] : DEFAULT_CENTER, [activeHubs])
+
+  const hubIcon = useMemo(() => L.divIcon({
     className: '',
     html: `<div style="background:#E8433D;width:36px;height:36px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center"><span class="material-symbols-outlined" style="color:white;font-size:20px">warehouse</span></div>`,
     iconSize: [36, 36],
     iconAnchor: [18, 36],
     popupAnchor: [0, -36],
-  })
+  }), [])
 
-  const route1 = activeHubs.length > 0
+  const route1 = useMemo(() => activeHubs.length > 0
     ? [[activeHubs[0].lat, activeHubs[0].lng], ...stops.slice(0, 3).map(s => [s.lat, s.lng]), [activeHubs[0].lat, activeHubs[0].lng]]
-    : []
+    : [],
+  [activeHubs, stops])
 
-  const route2 = activeHubs.length > 0
+  const route2 = useMemo(() => activeHubs.length > 0
     ? [[activeHubs[0].lat, activeHubs[0].lng], ...stops.slice(3).map(s => [s.lat, s.lng]), [activeHubs[0].lat, activeHubs[0].lng]]
-    : []
+    : [],
+  [activeHubs, stops])
+
+  const allRoutePoints = useMemo(() => [...route1, ...route2], [route1, route2])
 
   return (
     <div className="space-y-4">
@@ -77,9 +95,7 @@ function CarteOptimisationPage() {
       </div>
 
       <div className="rounded-xl overflow-hidden border border-outline-variant shadow-sm" style={{ height: '500px' }}>
-        <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
-          <CachedTiles attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
+        <MapView center={center} zoom={13} style={{ height: '100%', width: '100%' }} routePoints={allRoutePoints}>
           {activeHubs.map((hub) => (
             <Marker key={hub.id} position={[hub.lat, hub.lng]} icon={hubIcon}>
               <Popup><strong>{hub.nom}</strong><br/>{hub.adresse}</Popup>
@@ -98,9 +114,9 @@ function CarteOptimisationPage() {
             </Marker>
           ))}
 
-          {route1.length > 0 && <Polyline positions={route1} pathOptions={{ color: '#2563EB', weight: 4, dashArray: '8 8' }} />}
-          {route2.length > 0 && <Polyline positions={route2} pathOptions={{ color: '#F97316', weight: 4, dashArray: '8 8' }} />}
-        </MapContainer>
+          {route1.length > 0 && <Polyline positions={route1} pathOptions={{ color: '#2563EB', weight: 4, dashArray: '8 8', smoothFactor: 1 }} />}
+          {route2.length > 0 && <Polyline positions={route2} pathOptions={{ color: '#F97316', weight: 4, dashArray: '8 8', smoothFactor: 1 }} />}
+        </MapView>
       </div>
 
       <div className="flex flex-wrap gap-4">

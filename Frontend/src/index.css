@@ -150,6 +150,17 @@ body {
 
 /* ===== OPERATIONAL ROAD LOGISTICS UTILITIES ===== */
 
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: #e5e7eb;
+  min-height: 300px;
+  z-index: 0;
+}
+
+.leaflet-control-attribution { display: none !important; }
+.leaflet-control-zoom { border: none !important; }
+
 .font-display {
   font-family: 'Barlow Condensed', 'Chakra Petch', sans-serif;
 }
