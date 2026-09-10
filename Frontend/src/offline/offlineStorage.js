@@ -19,23 +19,44 @@ function openDB() {
 }
 
 export const offlineStorage = {
-  async save(key, data) {
+  async save(storeName, data) {
     const db = await openDB()
-    const tx = db.transaction(key, 'readwrite')
-    tx.objectStore(key).put(data)
-    return tx.done
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(storeName, 'readwrite')
+      const req = tx.objectStore(storeName).put(data)
+      req.onsuccess = () => resolve(req.result)
+      tx.oncomplete = () => resolve(req.result)
+      tx.onerror = () => reject(tx.error)
+    })
   },
-  async getAll(key) {
+
+  async getAll(storeName) {
     const db = await openDB()
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const result = []
-      const tx = db.transaction(key, 'readonly')
-      const cursor = tx.objectStore(key).openCursor()
+      const tx = db.transaction(storeName, 'readonly')
+      const cursor = tx.objectStore(storeName).openCursor()
       cursor.onsuccess = (event) => {
         const c = event.target.result
-        if (c) { result.push(c.value); c.continue() }
-        else resolve(result)
+        if (c) {
+          result.push({ ...c.value, id: c.primaryKey ?? c.value.id })
+          c.continue()
+        } else {
+          resolve(result)
+        }
       }
+      cursor.onerror = () => reject(cursor.error)
+    })
+  },
+
+  async remove(storeName, id) {
+    const db = await openDB()
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(storeName, 'readwrite')
+      const req = tx.objectStore(storeName).delete(id)
+      req.onsuccess = () => resolve()
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
     })
   },
 }

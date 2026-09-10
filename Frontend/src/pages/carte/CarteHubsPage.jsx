@@ -113,17 +113,26 @@ export default function CarteHubsPage() {
 
   const flushQueue = useCallback(async () => {
     const actions = await offlineStorage.getAll('pendingActions')
-    const hubActions = actions.filter(a => a.type === 'create_hub')
-    if (hubActions.length === 0) return
+    const hubActions = actions.filter(a => a.type === 'create_hub' && !a.synced)
+    if (hubActions.length === 0) {
+      setPendingCount(0)
+      await fetchHubs()
+      return
+    }
+    let ok = 0, ko = 0
     for (const action of hubActions) {
       try {
         await hubsService.creer(action.payload)
-        await offlineStorage.save('pendingActions', { ...action, synced: true })
-      } catch { /* retry next time */ }
+        await offlineStorage.remove('pendingActions', action.id)
+        ok++
+      } catch { ko++ }
     }
-    setPendingCount(0)
-    fetchHubs()
-    showToast(`${hubActions.length} hub(s) synchronisé(s)`, 'success')
+    const remaining = await offlineStorage.getAll('pendingActions')
+    setPendingCount(remaining.filter(a => a.type === 'create_hub' && !a.synced).length)
+    await fetchHubs()
+    if (ok > 0 && ko > 0) showToast(`${ok} synchronisé(s), ${ko} en échec`, 'info')
+    else if (ok > 0) showToast(`${ok} hub(s) synchronisé(s)`, 'success')
+    else if (ko > 0) showToast(`${ko} échec(s) de synchronisation`, 'error')
   }, [fetchHubs, showToast])
 
   useEffect(() => {
@@ -132,7 +141,7 @@ export default function CarteHubsPage() {
 
   useEffect(() => {
     offlineStorage.getAll('pendingActions').then(actions => {
-      setPendingCount(actions.filter(a => a.type === 'create_hub').length)
+      setPendingCount(actions.filter(a => a.type === 'create_hub' && !a.synced).length)
     })
   }, [])
 
@@ -233,8 +242,6 @@ export default function CarteHubsPage() {
     setSyncing(true)
     try {
       await flushQueue()
-      await fetchHubs()
-      showToast('Hubs synchronisés', 'success')
     } catch {
       showToast('Erreur lors de la synchronisation', 'error')
     } finally {
