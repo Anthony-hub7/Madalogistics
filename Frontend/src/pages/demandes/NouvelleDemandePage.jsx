@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const agencies = [
   {
@@ -8,8 +9,8 @@ const agencies = [
     code: 'RN7-HUB-TANA',
     fiabilite: 98.4,
     delai: '24h Transit RN7',
-    tarifLabel: '€€ (Groupage Standard)',
-    tarifDesc: 'Rapport qualité/prix optimal',
+    tarifLabel: '€€ (Standard Groupage)',
+    tarifDesc: 'Rapport qualité/prix optimal corridor',
     recommandee: true,
     departures: 'Départs quotidiens (06:00 / 14:00)',
     hubs: ['Tana Hub Analakely', 'Ambatolampy Relay', 'Antsirabe Terminal'],
@@ -22,7 +23,7 @@ const agencies = [
     fiabilite: 94.2,
     delai: '36h Transit Éco',
     tarifLabel: '€ (Tarif Économique)',
-    tarifDesc: 'Économie maximale sur gros volumes',
+    tarifDesc: 'Économie maximale sur gros volumes de fret',
     recommandee: false,
     departures: '3 départs par semaine (Lun/Mer/Ven)',
     hubs: ['Tana Dépôt Sud', 'Antsirabe Centre'],
@@ -34,7 +35,7 @@ const agencies = [
     code: 'RN7-REL-AMBAT',
     fiabilite: 96.0,
     delai: '18h Transit Régional',
-    tarifLabel: '€€€ (Express Direct)',
+    tarifLabel: '€€€ (Express Prioritaire)',
     tarifDesc: 'Priorité absolue sur colis légers',
     recommandee: false,
     departures: 'Départs sur réservation',
@@ -42,172 +43,157 @@ const agencies = [
   },
 ]
 
-function NouvelleDemandePage() {
-  const [step, setStep] = useState(1) // 1: Choix agence, 2: Détails colis & expédition
+export default function NouvelleDemandePage() {
+  const navigate = useNavigate()
+  const [step, setStep] = useState(1) // 1: Choix agence, 2: Détails marchandise
   const [selectedAgencyId, setSelectedAgencyId] = useState('ag-01')
+  const [submitted, setSubmitted] = useState(false)
   const [form, setForm] = useState({
-    depart: '',
-    arrivee: '',
+    depart: 'Tana Hub Analakely (Gare Soarano)',
+    arrivee: 'Antsirabe Terminal RN7 (Zone Industrielle)',
     description: '',
     poids: '',
     volume: '',
-    assurance: false,
+    assurance: true,
     express: false,
   })
 
   const update = (field, value) => setForm(prev => ({ ...prev, [field]: value }))
   const selectedAgency = agencies.find(a => a.id === selectedAgencyId) || agencies[0]
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    setSubmitted(true)
+  }
+
   return (
     <div className="space-y-6">
       
-      {/* Header & Stepper Section */}
-      <div className="border-b border-outline-variant/60 pb-5">
+      {/* En-tête de section */}
+      <div>
         <div className="flex items-center gap-3 mb-1">
-          <span className="stamp-badge stamp-badge-red text-xs">PARCOURS EXPÉDITION CLIENT</span>
-          <span className="font-mono text-xs text-on-surface-variant">CORRIDOR RN7</span>
+          <span className="font-mono text-xs text-[#8A8A92]">BORDEREAU D'ENREGISTREMENT #AUT-2026-RN7</span>
         </div>
-        <h2 className="font-display text-3xl font-bold uppercase tracking-tight text-on-surface">
-          Nouvelle Demande d'Expédition
-        </h2>
-        <p className="font-body text-sm text-on-surface-variant">
-          Consultez et choisissez votre agence partenaire puis renseignez les détails de votre marchandise.
+        <h1 className="font-display text-[25px] font-bold text-[#1A1A1E] leading-tight">
+          Nouvelle expédition de fret
+        </h1>
+        <p className="font-body text-[13.5px] text-[#8A8A92] mt-1">
+          Sélectionnez votre transporteur partenaire agréé puis dressez le descriptif de chargement.
         </p>
-
-        {/* Stepper Tabs */}
-        <div className="mt-6 flex items-center gap-4 border-t border-outline-variant/40 pt-4">
-          <button
-            onClick={() => setStep(1)}
-            className={`flex items-center gap-2.5 px-4 py-2 rounded font-display text-xs uppercase tracking-wider font-bold transition-all ${
-              step === 1
-                ? 'bg-primary text-white shadow-sm'
-                : 'bg-surface-light text-on-surface-variant hover:bg-surface-high'
-            }`}
-          >
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-xs">1</span>
-            <span>Étape 1 : Choisir une Agence ({agencies.length} dispo)</span>
-          </button>
-
-          <span className="text-on-surface-variant/40 font-mono">➔</span>
-
-          <button
-            onClick={() => selectedAgencyId && setStep(2)}
-            className={`flex items-center gap-2.5 px-4 py-2 rounded font-display text-xs uppercase tracking-wider font-bold transition-all ${
-              step === 2
-                ? 'bg-primary text-white shadow-sm'
-                : 'bg-surface-light text-on-surface-variant hover:bg-surface-high'
-            }`}
-          >
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-xs">2</span>
-            <span>Étape 2 : Détails du Colis & Expédition</span>
-          </button>
-        </div>
       </div>
 
-      {/* STEP 1: CHOICE OF AGENCY CARDS */}
-      {step === 1 && (
-        <div className="space-y-6 animate-in fade-in duration-300">
-          
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-light border border-outline-variant p-4 rounded-lg">
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary text-2xl">domain</span>
-              <div>
-                <h3 className="font-display text-base font-bold uppercase tracking-wide text-on-surface">Agences recommandées sur le Corridor RN7</h3>
-                <p className="font-body text-xs text-on-surface-variant">Classées selon notre algorithme (Proximité, Fiabilité, Délais & Tarifs)</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="license-plate-tag text-xs">TANA ➔ ANTSIRABE</span>
-            </div>
-          </div>
+      {/* Stepper textuel numéroté façon sous-registre */}
+      <div className="flex items-center gap-6 border-b border-[#ECECEC] pb-3 text-xs font-display">
+        <button
+          type="button"
+          onClick={() => setStep(1)}
+          className={`flex items-baseline gap-2 pb-1 bg-transparent border-0 cursor-pointer ${
+            step === 1
+              ? 'text-[#1A1A1E] font-bold border-b-2 border-[#E8433D]'
+              : 'text-[#8A8A92] hover:text-[#1A1A1E]'
+          }`}
+        >
+          <span className="font-mono text-[11px] text-[#E8433D]">01.A</span>
+          <span className="text-[13.5px] uppercase">Sélection de l'Agence ({agencies.length})</span>
+        </button>
 
-          {/* Cards Grid / Vertical List */}
-          <div className="space-y-4">
+        <span className="text-[#8A8A92] font-mono">/</span>
+
+        <button
+          type="button"
+          onClick={() => selectedAgencyId && setStep(2)}
+          className={`flex items-baseline gap-2 pb-1 bg-transparent border-0 cursor-pointer ${
+            step === 2
+              ? 'text-[#1A1A1E] font-bold border-b-2 border-[#E8433D]'
+              : 'text-[#8A8A92] hover:text-[#1A1A1E]'
+          }`}
+        >
+          <span className="font-mono text-[11px] text-[#E8433D]">01.B</span>
+          <span className="text-[13.5px] uppercase">Détails Marchandise & Bordereau</span>
+        </button>
+      </div>
+
+      {submitted ? (
+        <div className="bordereau-row p-8 space-y-4 text-center max-w-[650px] mx-auto my-8">
+          <div className="stamp-ink stamp-ink-red text-xs mx-auto mb-2">
+            BORDEREAU ENREGISTRÉ #CMD-2026-9540
+          </div>
+          <h3 className="font-display text-xl font-bold text-[#1A1A1E]">
+            Votre demande d'expédition a été transmise au registre
+          </h3>
+          <p className="font-body text-xs text-[#8A8A92] leading-relaxed">
+            L'agence <strong className="text-[#1A1A1E] font-display">{selectedAgency.name}</strong> examine actuellement la disponibilité de son créneau RN7.
+            Votre code de suivi officiel est attribué.
+          </p>
+          <div className="pt-4 flex justify-center gap-4">
+            <button
+              onClick={() => navigate('/client/mes_commandes')}
+              className="bg-[#E8433D] text-white rounded-md px-6 py-2.5 font-body font-semibold text-xs hover:bg-[#B82823] transition-colors"
+            >
+              Consulter dans Mes Expéditions
+            </button>
+          </div>
+        </div>
+      ) : step === 1 ? (
+        /* ÉTAPE 1 : CHOIX DE L'AGENCE PARTENAIRE */
+        <div className="space-y-4">
+          <div className="space-y-3.5">
             {agencies.map((agency) => {
               const isSelected = selectedAgencyId === agency.id
               return (
                 <div
                   key={agency.id}
                   onClick={() => setSelectedAgencyId(agency.id)}
-                  className={`waybill-card p-5 cursor-pointer transition-all duration-150 relative overflow-hidden ${
-                    isSelected
-                      ? 'border-2 border-primary bg-primary/5 shadow-md'
-                      : 'border border-outline-variant hover:border-primary/60'
+                  className={`bordereau-row p-5 sm:p-6 cursor-pointer transition-all ${
+                    isSelected ? 'ring-2 ring-[#E8433D] bg-white' : 'hover:border-[#1A1A1E]'
                   }`}
                 >
-                  {/* Top stamp & radio indicator */}
-                  <div className="flex items-start justify-between gap-4 mb-4 border-b border-outline-variant/40 pb-3">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#ECECEC] pb-3 mb-4">
+                    <div>
+                      <div className="flex items-center gap-2.5">
+                        <span className="font-mono text-xs font-bold text-[#E8433D]">[{agency.code}]</span>
+                        <h3 className="font-display text-lg font-bold text-[#1A1A1E]">{agency.name}</h3>
+                      </div>
+                      <p className="font-body text-xs text-[#8A8A92] mt-0.5">{agency.zone}</p>
+                    </div>
+
                     <div className="flex items-center gap-3">
-                      <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                        isSelected ? 'border-primary bg-primary text-white' : 'border-outline-variant'
-                      }`}>
-                        {isSelected && <span className="material-symbols-outlined text-xs">check</span>}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-display text-lg font-bold text-on-surface">{agency.name}</h4>
-                          <span className="font-mono text-xs font-semibold text-on-surface-variant">[{agency.code}]</span>
+                      {agency.recommandee && (
+                        <div className="stamp-ink stamp-ink-red text-[10px]">
+                          AGENCE RECOMMANDÉE
                         </div>
-                        <p className="font-body text-xs text-on-surface-variant mt-0.5">{agency.zone}</p>
+                      )}
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        isSelected ? 'border-[#E8433D] bg-[#E8433D]' : 'border-[#ECECEC]'
+                      }`}>
+                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                       </div>
-                    </div>
-
-                    {agency.recommandee && (
-                      <span className="stamp-badge stamp-badge-red text-xs flex items-center gap-1 shadow-sm">
-                        <span className="material-symbols-outlined text-xs">star</span>
-                        RECOMMANDÉE (SCORE OPTIMAL)
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Indicator Metrics Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-display text-xs">
-                    
-                    {/* Indicator 1: Fiabilité */}
-                    <div className="waybill-card p-3 bg-surface border border-outline-variant/60 space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-on-surface-variant font-bold uppercase tracking-wider">Fiabilité Historique</span>
-                        <span className="font-bold text-primary font-mono text-sm">{agency.fiabilite}%</span>
-                      </div>
-                      {/* Mini-meter bar */}
-                      <div className="w-full h-2 rounded bg-surface-light overflow-hidden border border-outline-variant/40">
-                        <div
-                          className="h-full bg-primary transition-all duration-500"
-                          style={{ width: `${agency.fiabilite}%` }}
-                        />
-                      </div>
-                      <p className="font-body text-[11px] text-on-surface-variant">Livraisons conformes à l'heure</p>
-                    </div>
-
-                    {/* Indicator 2: Délai Moyen */}
-                    <div className="waybill-card p-3 bg-surface border border-outline-variant/60 space-y-1.5">
-                      <span className="text-on-surface-variant font-bold uppercase tracking-wider block">Délai Moyen Transit</span>
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary text-base">schedule</span>
-                        <span className="font-bold text-on-surface text-sm">{agency.delai}</span>
-                      </div>
-                      <p className="font-body text-[11px] text-on-surface-variant">{agency.departures}</p>
-                    </div>
-
-                    {/* Indicator 3: Niveau Tarifaire */}
-                    <div className="waybill-card p-3 bg-surface border border-outline-variant/60 space-y-1.5">
-                      <span className="text-on-surface-variant font-bold uppercase tracking-wider block">Niveau Tarifaire</span>
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary text-base">payments</span>
-                        <span className="font-bold text-on-surface text-sm">{agency.tarifLabel}</span>
-                      </div>
-                      <p className="font-body text-[11px] text-on-surface-variant">{agency.tarifDesc}</p>
                     </div>
                   </div>
 
-                  {/* Footer Hub List */}
-                  <div className="mt-4 pt-3 border-t border-outline-variant/30 flex items-center justify-between text-xs font-body text-on-surface-variant">
-                    <div className="flex items-center gap-2">
-                      <span className="font-display font-bold uppercase tracking-wider text-xs text-on-surface">Relais d'étape :</span>
-                      <span>{agency.hubs.join(' ➔ ')}</span>
+                  {/* Métriques */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                    <div className="bg-[#F7F7F8] p-3 rounded border border-[#ECECEC]">
+                      <span className="font-mono text-[10px] text-[#8A8A92] uppercase block">Fiabilité Corridor</span>
+                      <span className="font-mono font-bold text-sm text-[#1A1A1E]">{agency.fiabilite}%</span>
+                      <p className="font-body text-[11px] text-[#8A8A92] mt-0.5">Livraisons conformes à l'heure</p>
                     </div>
-                    <span className="font-display font-bold text-primary text-xs uppercase tracking-wider">
-                      {isSelected ? '✓ Agence sélectionnée' : 'Cliquer pour choisir'}
+                    <div className="bg-[#F7F7F8] p-3 rounded border border-[#ECECEC]">
+                      <span className="font-mono text-[10px] text-[#8A8A92] uppercase block">Délai Estimé RN7</span>
+                      <span className="font-display font-bold text-sm text-[#1A1A1E]">{agency.delai}</span>
+                      <p className="font-body text-[11px] text-[#8A8A92] mt-0.5">{agency.departures}</p>
+                    </div>
+                    <div className="bg-[#F7F7F8] p-3 rounded border border-[#ECECEC]">
+                      <span className="font-mono text-[10px] text-[#8A8A92] uppercase block">Niveau Tarifaire</span>
+                      <span className="font-display font-bold text-sm text-[#1A1A1E]">{agency.tarifLabel}</span>
+                      <p className="font-body text-[11px] text-[#8A8A92] mt-0.5">{agency.tarifDesc}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-[#ECECEC] flex items-center justify-between text-xs font-mono text-[#8A8A92]">
+                    <span>Relais d'étape : {agency.hubs.join(' ➔ ')}</span>
+                    <span className="font-display font-semibold text-[#E8433D]">
+                      {isSelected ? '✓ Agence cochée' : 'Cliquer pour choisir'}
                     </span>
                   </div>
                 </div>
@@ -215,206 +201,169 @@ function NouvelleDemandePage() {
             })}
           </div>
 
-          {/* Action to proceed */}
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end pt-3">
             <button
               onClick={() => setStep(2)}
-              className="flex items-center gap-3 rounded bg-primary px-6 py-3 font-display text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-primary/90 active:scale-95"
+              className="bg-[#E8433D] text-white rounded-md px-6 py-2.5 font-body font-semibold text-xs hover:bg-[#B82823] transition-colors cursor-pointer shadow-sm"
             >
-              <span>Continuer avec {selectedAgency.name.split('—')[0]}</span>
-              <span className="material-symbols-outlined">arrow_forward</span>
+              Étape suivante : Renseigner les colis ➔
             </button>
           </div>
         </div>
-      )}
-
-      {/* STEP 2: SHIPMENT FORM DETAILS */}
-      {step === 2 && (
-        <div className="grid grid-cols-12 gap-6 items-start animate-in fade-in duration-300">
-          <div className="col-span-12 lg:col-span-8">
-            <section className="waybill-card p-6">
+      ) : (
+        /* ÉTAPE 2 : DÉTAILS DU COLIS & BORDEREAU */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="lg:col-span-8">
+            <form onSubmit={handleSubmit} className="bordereau-row p-6 space-y-6">
               
-              {/* Agency Selected Banner */}
-              <div className="flex items-center justify-between bg-primary/10 border border-primary/30 p-3.5 rounded mb-6">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-primary">verified</span>
-                  <div>
-                    <p className="font-display text-xs font-bold uppercase tracking-wider text-primary">AGENCE SÉLECTIONNÉE (ÉTAPE 1)</p>
-                    <p className="font-display text-sm font-bold text-on-surface">{selectedAgency.name}</p>
-                  </div>
+              <div className="bg-[#F7F7F8] border border-[#ECECEC] p-3.5 rounded flex items-center justify-between">
+                <div>
+                  <span className="font-mono text-[10px] text-[#8A8A92] uppercase block">Transporteur Sélectionné</span>
+                  <span className="font-display text-sm font-bold text-[#1A1A1E]">{selectedAgency.name}</span>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setStep(1)}
-                  className="font-display text-xs font-bold uppercase tracking-wider text-primary hover:underline"
+                  className="font-mono text-xs text-[#E8433D] hover:underline bg-transparent border-0 cursor-pointer"
                 >
-                  Changer d'agence ✎
+                  [ Modifier l'agence ]
                 </button>
               </div>
 
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="font-display text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[18px]">location_on</span>
-                      Adresse de départ
-                    </label>
-                    <input
-                      value={form.depart}
-                      onChange={(e) => update('depart', e.target.value)}
-                      className="w-full bg-surface border border-outline-variant rounded px-4 py-2.5 font-body text-sm focus:outline-none focus:border-primary transition-all"
-                      placeholder="Rue, Ville, Madagascar (ex: Tana Hub Analakely)"
-                      type="text"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="font-display text-xs font-bold uppercase tracking-wider text-on-surface flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[18px]">flag</span>
-                      Adresse d'arrivée
-                    </label>
-                    <input
-                      value={form.arrivee}
-                      onChange={(e) => update('arrivee', e.target.value)}
-                      className="w-full bg-surface border border-outline-variant rounded px-4 py-2.5 font-body text-sm focus:outline-none focus:border-primary transition-all"
-                      placeholder="Rue, Ville, Madagascar (ex: Antsirabe Terminal)"
-                      type="text"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="font-display text-xs font-bold uppercase tracking-wider text-on-surface flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[18px]">inventory_2</span>
-                    Description du colis
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-[11px] uppercase font-bold text-[#1A1A1E] mb-1.5">
+                    Hub ou Adresse de Départ
                   </label>
-                  <textarea
-                    value={form.description}
-                    onChange={(e) => update('description', e.target.value)}
-                    className="w-full bg-surface border border-outline-variant rounded px-4 py-2.5 font-body text-sm focus:outline-none focus:border-primary transition-all resize-none"
-                    placeholder="Ex: Pièces détachées automobiles, matériel informatique fragile, etc..."
-                    rows={4}
+                  <input
+                    type="text"
+                    required
+                    value={form.depart}
+                    onChange={(e) => update('depart', e.target.value)}
+                    className="w-full bg-white border border-[#ECECEC] rounded px-3.5 py-2 font-mono text-xs focus:outline-none focus:border-[#1A1A1E]"
                   />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="font-display text-xs font-bold uppercase tracking-wider text-on-surface flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[18px]">weight</span>
-                      Poids (kg)
-                    </label>
-                    <div className="relative flex items-center">
-                      <input
-                        value={form.poids}
-                        onChange={(e) => update('poids', e.target.value)}
-                        className="w-full bg-surface border border-outline-variant rounded px-4 py-2.5 pr-12 font-body text-sm focus:outline-none focus:border-primary transition-all"
-                        placeholder="0.0"
-                        step="0.1"
-                        type="number"
-                      />
-                      <span className="absolute right-4 font-display text-xs font-bold text-on-surface-variant">KG</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="font-display text-xs font-bold uppercase tracking-wider text-on-surface flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[18px]">aspect_ratio</span>
-                      Volume (m³)
-                    </label>
-                    <div className="relative flex items-center">
-                      <input
-                        value={form.volume}
-                        onChange={(e) => update('volume', e.target.value)}
-                        className="w-full bg-surface border border-outline-variant rounded px-4 py-2.5 pr-12 font-body text-sm focus:outline-none focus:border-primary transition-all"
-                        placeholder="0.00"
-                        step="0.01"
-                        type="number"
-                      />
-                      <span className="absolute right-4 font-display text-xs font-bold text-on-surface-variant">M³</span>
-                    </div>
-                  </div>
+                <div>
+                  <label className="block font-mono text-[11px] uppercase font-bold text-[#1A1A1E] mb-1.5">
+                    Hub ou Adresse de Destination
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.arrivee}
+                    onChange={(e) => update('arrivee', e.target.value)}
+                    className="w-full bg-white border border-[#ECECEC] rounded px-3.5 py-2 font-mono text-xs focus:outline-none focus:border-[#1A1A1E]"
+                  />
                 </div>
+              </div>
 
-                <div className="p-4 bg-surface-light rounded border border-outline-variant">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-display text-xs font-bold uppercase tracking-wider text-on-surface">Options prioritaires</span>
-                    <span className="stamp-badge stamp-badge-red text-[10px]">INCLUSIONS RN7</span>
-                  </div>
-                  <div className="flex gap-4">
-                    <label className="flex-1 flex items-center gap-2 p-3 bg-surface border border-outline-variant rounded cursor-pointer hover:border-primary transition-colors">
-                      <input
-                        checked={form.assurance}
-                        onChange={(e) => update('assurance', e.target.checked)}
-                        className="rounded text-primary focus:ring-primary"
-                        type="checkbox"
-                      />
-                      <span className="font-body text-xs font-semibold text-on-surface">Assurance Premium</span>
-                    </label>
-                    <label className="flex-1 flex items-center gap-2 p-3 bg-surface border border-outline-variant rounded cursor-pointer hover:border-primary transition-colors">
-                      <input
-                        checked={form.express}
-                        onChange={(e) => update('express', e.target.checked)}
-                        className="rounded text-primary focus:ring-primary"
-                        type="checkbox"
-                      />
-                      <span className="font-body text-xs font-semibold text-on-surface">Livraison Express</span>
-                    </label>
-                  </div>
+              <div>
+                <label className="block font-mono text-[11px] uppercase font-bold text-[#1A1A1E] mb-1.5">
+                  Désignation et Nature du Chargement
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Ex: 8x Cartons fournitures industrielles, 2x Palettes textiles..."
+                  value={form.description}
+                  onChange={(e) => update('description', e.target.value)}
+                  className="w-full bg-white border border-[#ECECEC] rounded px-3.5 py-2 font-body text-xs focus:outline-none focus:border-[#1A1A1E]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-[11px] uppercase font-bold text-[#1A1A1E] mb-1.5">
+                    Poids Brut Total (KG)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    required
+                    placeholder="Ex: 250"
+                    value={form.poids}
+                    onChange={(e) => update('poids', e.target.value)}
+                    className="w-full bg-white border border-[#ECECEC] rounded px-3.5 py-2 font-mono text-xs focus:outline-none focus:border-[#1A1A1E]"
+                  />
                 </div>
-
-                <div className="flex items-center justify-between pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded border border-outline-variant font-display text-xs uppercase tracking-wider font-bold text-on-surface-variant hover:bg-surface-light"
-                  >
-                    <span className="material-symbols-outlined text-sm">arrow_back</span>
-                    Précédent
-                  </button>
-
-                  <button
-                    type="submit"
-                    className="flex items-center gap-3 bg-primary text-white px-6 py-3 rounded font-display text-sm font-bold uppercase tracking-wider shadow-md hover:bg-primary/90 active:scale-95 transition-all"
-                  >
-                    <span>Envoyer le Bordereau d'Expédition</span>
-                    <span className="material-symbols-outlined">send</span>
-                  </button>
+                <div>
+                  <label className="block font-mono text-[11px] uppercase font-bold text-[#1A1A1E] mb-1.5">
+                    Volume Total Estimé (M³)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    required
+                    placeholder="Ex: 1.20"
+                    value={form.volume}
+                    onChange={(e) => update('volume', e.target.value)}
+                    className="w-full bg-white border border-[#ECECEC] rounded px-3.5 py-2 font-mono text-xs focus:outline-none focus:border-[#1A1A1E]"
+                  />
                 </div>
-              </form>
-            </section>
+              </div>
+
+              <div className="bg-[#F7F7F8] p-4 rounded border border-[#ECECEC] space-y-2">
+                <span className="font-mono text-[10px] text-[#8A8A92] uppercase block font-bold">Options d'Affrètement</span>
+                <div className="flex flex-col sm:flex-row gap-4 pt-1">
+                  <label className="flex items-center gap-2 cursor-pointer font-body text-xs">
+                    <input
+                      type="checkbox"
+                      checked={form.assurance}
+                      onChange={(e) => update('assurance', e.target.checked)}
+                      className="rounded text-[#E8433D] focus:ring-[#E8433D]"
+                    />
+                    <span>Assurance Marchandise Déclarée (Ad Valorem)</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer font-body text-xs">
+                    <input
+                      type="checkbox"
+                      checked={form.express}
+                      onChange={(e) => update('express', e.target.checked)}
+                      className="rounded text-[#E8433D] focus:ring-[#E8433D]"
+                    />
+                    <span>Priorité Transit Direct RN7 Express</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="font-mono text-xs text-[#8A8A92] hover:text-[#1A1A1E] bg-transparent border-0 cursor-pointer"
+                >
+                  ← Retour au choix agence
+                </button>
+                <button
+                  type="submit"
+                  className="bg-[#E8433D] text-white rounded-md px-6 py-2.5 font-body font-semibold text-xs hover:bg-[#B82823] transition-colors cursor-pointer shadow-sm"
+                >
+                  Signer et Transmettre le Bordereau ➔
+                </button>
+              </div>
+            </form>
           </div>
 
-          <div className="col-span-12 lg:col-span-4 space-y-6">
-            <div className="waybill-card p-5 border-l-4 border-l-primary space-y-4">
-              <h3 className="font-display text-base font-bold uppercase tracking-wide text-on-surface flex items-center gap-2 border-b border-outline-variant/40 pb-3">
-                <span className="material-symbols-outlined text-primary">map</span>
-                Aperçu Itinéraire RN7
-              </h3>
-              <div className="space-y-4 font-body text-xs">
-                <div className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-primary">location_on</span>
-                  <div>
-                    <span className="font-display text-[11px] font-bold uppercase text-on-surface-variant">Collecte</span>
-                    <p className="font-bold text-on-surface">{form.depart || '—'}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-primary">flag</span>
-                  <div>
-                    <span className="font-display text-[11px] font-bold uppercase text-on-surface-variant">Destination</span>
-                    <p className="font-bold text-on-surface">{form.arrivee || '—'}</p>
-                  </div>
-                </div>
+          {/* Volet récapitulatif officiel */}
+          <div className="lg:col-span-4 space-y-4">
+            <div className="bordereau-row p-5 space-y-3 font-body text-xs">
+              <div className="border-b border-[#ECECEC] pb-2.5">
+                <span className="font-mono text-[10px] text-[#8A8A92] uppercase block">Bordereau Récapitulatif</span>
+                <span className="font-display font-bold text-sm text-[#1A1A1E]">Itinéraire Corridor RN7</span>
               </div>
-            </div>
-
-            <div className="waybill-card p-5 space-y-3">
-              <h4 className="font-display text-xs font-bold uppercase tracking-wider text-on-surface-variant">Agence Traitante</h4>
-              <p className="font-display text-sm font-bold text-on-surface">{selectedAgency.name}</p>
-              <div className="flex items-center justify-between font-display text-xs">
-                <span className="text-on-surface-variant">Fiabilité :</span>
-                <span className="font-bold text-primary">{selectedAgency.fiabilite}%</span>
-              </div>
-              <div className="flex items-center justify-between font-display text-xs">
-                <span className="text-on-surface-variant">Délai estimé :</span>
-                <span className="font-bold text-on-surface">{selectedAgency.delai}</span>
+              <div className="space-y-2">
+                <div>
+                  <span className="text-[#8A8A92] text-[11px] block">Départ :</span>
+                  <span className="font-mono font-bold text-[#1A1A1E] text-xs">{form.depart || '—'}</span>
+                </div>
+                <div>
+                  <span className="text-[#8A8A92] text-[11px] block">Arrivée :</span>
+                  <span className="font-mono font-bold text-[#1A1A1E] text-xs">{form.arrivee || '—'}</span>
+                </div>
+                <div>
+                  <span className="text-[#8A8A92] text-[11px] block">Agence :</span>
+                  <span className="font-display font-semibold text-[#1A1A1E]">{selectedAgency.name}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -423,5 +372,3 @@ function NouvelleDemandePage() {
     </div>
   )
 }
-
-export default NouvelleDemandePage

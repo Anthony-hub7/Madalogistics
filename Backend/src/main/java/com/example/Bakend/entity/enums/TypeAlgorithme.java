@@ -4,5 +4,6 @@ public enum TypeAlgorithme {
     KNAPSACK,
     BIN_PACKING,
     AFFECTATION,
-    VRP
+    VRP,
+    CLUSTERING
 }

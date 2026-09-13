@@ -1,0 +1,501 @@
+colis_id,poids_kg,volume_m3,fragilite_0_10,valeur_estimee_ar,delai_express,categorie_declaree,designation,profil_source
+COL-0001,21.48,0.591,5,235000,0,Standard,Chaussures en carton,volumineux_moyen
+COL-0002,3.39,0.08,8,20000,1,Fragile-Valeur,Lingots artisanat argent,leger_valeur
+COL-0003,5.0,0.682,3,40000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0004,75.34,0.873,1,161000,0,Standard,Sable et gravats conditionnés,lourd_robuste
+COL-0005,0.82,0.017,8,341000,0,Express,Vanille Sambava,leger_valeur
+COL-0006,8.18,0.894,7,152000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0007,8.46,0.274,4,279000,0,Standard,Chaussures en carton,volumineux_moyen
+COL-0008,4.0,0.055,5,566000,1,Express,Bijouterie artisanale,leger_valeur
+COL-0009,4.04,0.077,7,357000,1,Fragile-Valeur,Vanille Sambava,leger_valeur
+COL-0010,2.36,0.022,4,10000,1,Express,Vaccins et produits réfrigérés,express_petit
+COL-0011,0.96,0.019,4,268000,0,Express,Échantillons pharmaceutiques,leger_valeur
+COL-0012,58.6,1.356,2,107000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0013,0.76,0.013,7,10000,1,Express,Prélèvements laboratoire,express_petit
+COL-0014,0.35,0.126,8,20000,1,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0015,6.27,0.351,2,65000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0016,17.73,0.667,4,142000,1,Express,Textile lamba et tissus,volumineux_moyen
+COL-0017,9.8,2.33,1,36000,0,Fragile-Valeur,Groupe électrogène,outlier
+COL-0018,6.35,0.036,9,773000,0,Fragile-Valeur,Documents administratifs Tana,leger_valeur
+COL-0019,20.32,0.5,2,111000,0,Standard,Chaussures en carton,volumineux_moyen
+COL-0020,1.13,0.016,7,148000,1,Express,Colis pharmacie de garde,express_petit
+COL-0021,0.36,0.002,9,5327000,0,Express,Équipement médical spécialisé,outlier
+COL-0022,72.4,0.69,7,1023000,0,Express,Instrument de musique,outlier
+COL-0023,67.74,1.577,2,117000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0024,22.95,0.536,7,109000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0025,1.73,0.045,7,234000,0,Express,Vanille Sambava,leger_valeur
+COL-0026,0.73,0.017,4,48000,1,Express,Colis pharmacie de garde,express_petit
+COL-0027,7.87,1.608,0,49000,0,Standard,Équipement médical spécialisé,outlier
+COL-0028,83.39,0.805,2,171000,0,Standard,Riz 50kg,lourd_robuste
+COL-0029,4.84,0.006,6,489000,1,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0030,14.35,0.417,4,153000,0,Express,Jouets et articles ménagers,volumineux_moyen
+COL-0031,34.92,0.219,10,3154000,0,Standard,Drone professionnel,outlier
+COL-0032,5.0,0.6,2,107000,0,Standard,Literie et couettes,volumineux_moyen
+COL-0033,2.11,0.026,6,84000,1,Express,Documents contractuels urgents,express_petit
+COL-0034,56.11,0.36,2,190000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0035,3.85,0.026,8,35000,0,Fragile-Valeur,Montres et accessoires,leger_valeur
+COL-0036,29.38,0.46,5,99000,0,Express,Jouets et articles ménagers,volumineux_moyen
+COL-0037,1.36,0.025,4,154000,1,Express,Pièces détachées moto urgentes,express_petit
+COL-0038,0.2,0.051,9,20000,0,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0039,26.73,0.817,1,179000,0,Standard,Sable et gravats conditionnés,lourd_robuste
+COL-0040,3.56,0.049,8,650000,0,Fragile-Valeur,Téléphones reconditionnés,leger_valeur
+COL-0041,11.09,0.305,2,40000,0,Express,Literie et couettes,volumineux_moyen
+COL-0042,2.36,0.03,4,939000,0,Fragile-Valeur,Lingots artisanat argent,leger_valeur
+COL-0043,0.3,0.002,8,5761000,0,Standard,Instrument de musique,outlier
+COL-0044,121.07,1.335,0,130000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0045,1.04,0.055,6,442000,0,Fragile-Valeur,Cartes SIM et accessoires télécom,leger_valeur
+COL-0046,2.79,0.029,8,20000,1,Fragile-Valeur,Cartes SIM et accessoires télécom,leger_valeur
+COL-0047,3.05,0.005,6,691000,1,Fragile-Valeur,Cartes SIM et accessoires télécom,leger_valeur
+COL-0048,3.9,0.035,8,129000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0049,0.14,0.017,5,87000,1,Fragile-Valeur,Analyses médicales,express_petit
+COL-0050,4.7,0.075,7,784000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0051,0.84,0.04,8,20000,1,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0052,47.2,1.453,2,214000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0053,0.05,0.113,8,140000,1,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0054,2.14,0.043,5,10000,1,Express,Colis pharmacie de garde,express_petit
+COL-0055,30.88,0.622,0,229000,0,Standard,Barres de fer,lourd_robuste
+COL-0056,1.35,0.038,8,880000,1,Standard,Documents administratifs Tana,leger_valeur
+COL-0057,57.05,0.74,1,160000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0058,4.08,0.021,9,347000,1,Fragile-Valeur,Documents administratifs Tana,leger_valeur
+COL-0059,92.62,1.023,2,128000,0,Standard,Ferraille et quincaillerie,lourd_robuste
+COL-0060,3.63,0.043,9,20000,1,Fragile-Valeur,Montres et accessoires,leger_valeur
+COL-0061,45.74,0.734,8,1782000,0,Express,Instrument de musique,outlier
+COL-0062,51.8,0.633,0,198000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0063,13.51,0.628,4,377000,0,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0064,44.03,0.836,7,1058000,1,Fragile-Valeur,Instrument de musique,outlier
+COL-0065,1.94,0.057,6,287000,1,Express,Cartes SIM et accessoires télécom,leger_valeur
+COL-0066,3.67,0.057,9,312000,0,Fragile-Valeur,Colis notariés,leger_valeur
+COL-0067,1.07,0.022,4,139000,0,Express,Kits de dépannage véhicule,express_petit
+COL-0068,4.07,0.009,10,365000,0,Express,Cartes SIM et accessoires télécom,leger_valeur
+COL-0069,34.13,0.995,1,114000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0070,11.59,0.429,4,412000,0,Standard,Jouets et articles ménagers,volumineux_moyen
+COL-0071,13.56,0.645,4,202000,1,Standard,Rouleaux de tissu imprimé,volumineux_moyen
+COL-0072,22.34,0.788,3,40000,1,Fragile-Valeur,Chaussures en carton,volumineux_moyen
+COL-0073,75.94,1.253,1,130000,0,Standard,Barres de fer,lourd_robuste
+COL-0074,29.83,0.309,3,40000,0,Standard,Chaussures en carton,volumineux_moyen
+COL-0075,19.26,0.393,5,188000,0,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0076,15.61,0.489,4,141000,0,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0077,41.13,0.62,1,63000,0,Standard,Sable et gravats conditionnés,lourd_robuste
+COL-0078,2.16,0.01,9,731000,1,Express,Composants électroniques,leger_valeur
+COL-0079,3.11,0.039,4,10000,1,Express,Colis pharmacie de garde,express_petit
+COL-0080,1.56,0.002,3,10000,1,Express,Analyses médicales,express_petit
+COL-0081,60.76,1.406,2,62000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0082,1.85,0.053,6,282000,0,Express,Montres et accessoires,leger_valeur
+COL-0083,3.87,1.779,1,40000,1,Fragile-Valeur,Groupe électrogène,outlier
+COL-0084,72.23,0.411,2,49000,0,Standard,Barres de fer,lourd_robuste
+COL-0085,19.88,0.389,2,194000,0,Standard,Nattes et vannerie,volumineux_moyen
+COL-0086,3.7,0.059,8,650000,1,Fragile-Valeur,Téléphones reconditionnés,leger_valeur
+COL-0087,76.94,0.67,1,157000,0,Standard,Sacs de ciment,lourd_robuste
+COL-0088,1.86,0.038,2,96000,0,Express,Pièces détachées moto urgentes,express_petit
+COL-0089,23.24,0.648,1,171000,0,Standard,Nattes et vannerie,volumineux_moyen
+COL-0090,33.96,0.81,2,266000,0,Standard,Barres de fer,lourd_robuste
+COL-0091,23.86,0.57,1,243000,0,Standard,Nattes et vannerie,volumineux_moyen
+COL-0092,0.88,0.057,4,148000,1,Standard,Courrier recommandé urgent,express_petit
+COL-0093,11.76,0.454,3,161000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0094,13.07,0.659,4,205000,0,Standard,Nattes et vannerie,volumineux_moyen
+COL-0095,1.08,0.022,7,172000,1,Express,Courrier recommandé urgent,express_petit
+COL-0096,13.35,0.868,4,241000,0,Standard,Literie et couettes,volumineux_moyen
+COL-0097,1.66,0.024,8,480000,0,Fragile-Valeur,Cartes SIM et accessoires télécom,leger_valeur
+COL-0098,3.74,0.09,7,719000,0,Fragile-Valeur,Lingots artisanat argent,leger_valeur
+COL-0099,1.16,0.023,6,150000,1,Express,Kits de dépannage véhicule,express_petit
+COL-0100,0.95,0.079,8,549000,0,Standard,Cartes SIM et accessoires télécom,leger_valeur
+COL-0101,72.9,0.372,0,231000,0,Standard,Engrais NPK,lourd_robuste
+COL-0102,2.37,0.007,6,146000,1,Express,Analyses médicales,express_petit
+COL-0103,2.41,0.028,7,20000,0,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0104,24.98,0.278,2,232000,0,Express,Vêtements en balle,volumineux_moyen
+COL-0105,23.8,0.993,4,172000,0,Standard,Literie et couettes,volumineux_moyen
+COL-0106,2.0,0.05,4,477000,0,Fragile-Valeur,Documents administratifs Tana,leger_valeur
+COL-0107,23.29,0.464,3,139000,0,Express,Textile lamba et tissus,volumineux_moyen
+COL-0108,46.77,0.71,1,195000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0109,5.0,0.444,4,176000,0,Express,Jouets et articles ménagers,volumineux_moyen
+COL-0110,3.64,0.097,9,77000,0,Express,Girofle Fenoarivo,leger_valeur
+COL-0111,4.01,0.058,6,220000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0112,1.94,0.002,2,25000,1,Express,Vaccins et produits réfrigérés,express_petit
+COL-0113,18.81,0.637,4,291000,0,Express,Rouleaux de tissu imprimé,volumineux_moyen
+COL-0114,1.87,0.062,10,555000,0,Fragile-Valeur,Vanille Sambava,leger_valeur
+COL-0115,1.06,0.002,7,103000,1,Express,Médicaments urgents,express_petit
+COL-0116,126.13,1.586,2,242000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0117,80.49,0.773,2,157000,0,Standard,Engrais NPK,lourd_robuste
+COL-0118,74.47,1.237,0,135000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0119,2.54,0.009,8,396000,1,Fragile-Valeur,Colis notariés,leger_valeur
+COL-0120,1.3,0.063,5,782000,1,Express,Bijouterie artisanale,leger_valeur
+COL-0121,109.86,0.842,1,198000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0122,74.57,0.691,0,139000,0,Express,Ferraille et quincaillerie,lourd_robuste
+COL-0123,15.03,0.397,6,201000,0,Standard,Vêtements en balle,volumineux_moyen
+COL-0124,112.05,1.059,1,174000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0125,80.85,1.142,1,185000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0126,85.59,0.3,2,85000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0127,1.86,0.01,3,230000,1,Express,Pièces d'avion / aéronautique légère,express_petit
+COL-0128,38.96,0.774,1,121000,0,Standard,Riz 50kg,lourd_robuste
+COL-0129,5.13,0.052,5,539000,1,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0130,32.47,0.611,3,97000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0131,1.77,0.013,7,196000,0,Express,Bijouterie artisanale,leger_valeur
+COL-0132,0.05,0.073,8,214000,1,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0133,0.86,0.006,6,116000,1,Standard,Colis pharmacie de garde,express_petit
+COL-0134,67.55,0.418,0,34000,0,Standard,Engrais NPK,lourd_robuste
+COL-0135,3.25,0.078,6,402000,1,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0136,5.19,0.045,8,624000,0,Fragile-Valeur,Téléphones reconditionnés,leger_valeur
+COL-0137,64.11,0.425,1,100000,0,Standard,Barres de fer,lourd_robuste
+COL-0138,1.73,0.078,8,411000,0,Express,Colis notariés,leger_valeur
+COL-0139,0.77,0.014,5,846000,0,Fragile-Valeur,Téléphones reconditionnés,leger_valeur
+COL-0140,51.06,1.046,1,168000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0141,1.87,0.024,8,364000,1,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0142,76.58,0.638,1,155000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0143,27.02,0.407,10,1692000,1,Fragile-Valeur,Antiquité / objet d'art,outlier
+COL-0144,0.05,0.005,10,159000,1,Fragile-Valeur,Pièces horlogères,leger_valeur
+COL-0145,55.89,1.531,1,171000,0,Standard,Barres de fer,lourd_robuste
+COL-0146,85.14,0.438,1,199000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0147,2.22,0.023,9,565000,1,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0148,62.26,0.922,2,127000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0149,77.13,0.34,2,161000,0,Standard,Sacs de manioc séché,lourd_robuste
+COL-0150,0.65,0.019,4,134000,0,Fragile-Valeur,Médicaments urgents,express_petit
+COL-0151,0.16,0.046,7,592000,0,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0152,2.92,0.046,7,524000,0,Express,Vanille Sambava,leger_valeur
+COL-0153,2.89,0.013,7,328000,0,Standard,Girofle Fenoarivo,leger_valeur
+COL-0154,3.16,0.035,10,559000,1,Standard,Échantillons pharmaceutiques,leger_valeur
+COL-0155,1.41,0.048,4,20000,1,Express,Vaccins et produits réfrigérés,express_petit
+COL-0156,8.71,0.283,4,192000,0,Standard,Jouets et articles ménagers,volumineux_moyen
+COL-0157,4.19,0.038,8,568000,1,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0158,86.76,0.66,1,274000,0,Standard,Barres de fer,lourd_robuste
+COL-0159,2.03,0.042,1,58000,1,Express,Pièces informatiques SAV,express_petit
+COL-0160,0.05,0.053,10,216000,0,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0161,3.28,0.102,9,288000,1,Fragile-Valeur,Pièces horlogères,leger_valeur
+COL-0162,16.33,0.492,3,109000,0,Standard,Nattes et vannerie,volumineux_moyen
+COL-0163,2.43,0.041,1,179000,1,Express,Consommables médicaux,express_petit
+COL-0164,3.28,0.063,8,498000,0,Fragile-Valeur,Pièces horlogères,leger_valeur
+COL-0165,0.41,0.038,9,52000,1,Express,Colis pharmacie de garde,express_petit
+COL-0166,1.3,0.016,2,158000,1,Express,Pièces détachées moto urgentes,express_petit
+COL-0167,3.46,0.045,9,1035000,1,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0168,1.93,0.055,8,20000,0,Fragile-Valeur,Montres et accessoires,leger_valeur
+COL-0169,0.79,0.004,5,309000,1,Express,Colis pharmacie de garde,express_petit
+COL-0170,4.01,0.039,7,20000,1,Standard,Échantillons pharmaceutiques,leger_valeur
+COL-0171,0.99,0.059,7,20000,0,Fragile-Valeur,Vanille Sambava,leger_valeur
+COL-0172,66.89,0.51,0,168000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0173,20.61,0.299,10,2048000,0,Standard,Groupe électrogène,outlier
+COL-0174,5.38,0.043,9,374000,0,Fragile-Valeur,Documents administratifs Tana,leger_valeur
+COL-0175,2.63,0.063,8,20000,0,Fragile-Valeur,Lingots artisanat argent,leger_valeur
+COL-0176,20.0,0.803,0,44000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0177,26.22,0.735,2,131000,0,Standard,Sacs de café en vrac,volumineux_moyen
+COL-0178,35.94,1.329,2,228000,0,Standard,Riz 50kg,lourd_robuste
+COL-0179,100.91,0.941,0,166000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0180,26.2,0.457,4,191000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0181,12.58,0.188,4,263000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0182,46.45,1.194,3,168000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0183,0.05,0.03,3,96000,1,Express,Pièces détachées moto urgentes,express_petit
+COL-0184,78.56,0.851,0,30000,0,Standard,Barres de fer,lourd_robuste
+COL-0185,1.43,0.023,3,19000,1,Express,Pièces d'avion / aéronautique légère,express_petit
+COL-0186,0.72,0.064,7,254000,1,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0187,5.0,0.682,5,217000,0,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0188,1.67,0.04,9,586000,0,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0189,70.74,0.836,0,139000,0,Standard,Sable et gravats conditionnés,lourd_robuste
+COL-0190,70.29,1.051,0,72000,0,Standard,Riz 50kg,lourd_robuste
+COL-0191,21.44,0.469,10,2626000,0,Fragile-Valeur,Instrument de musique,outlier
+COL-0192,27.03,0.933,2,291000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0193,11.03,0.544,3,136000,0,Standard,Textile lamba et tissus,volumineux_moyen
+COL-0194,45.94,0.789,1,147000,0,Standard,Barres de fer,lourd_robuste
+COL-0195,0.05,0.06,8,641000,1,Fragile-Valeur,Pièces horlogères,leger_valeur
+COL-0196,73.5,0.811,1,280000,0,Standard,Sable et gravats conditionnés,lourd_robuste
+COL-0197,78.24,1.056,1,108000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0198,1.74,0.028,7,719000,0,Fragile-Valeur,Colis notariés,leger_valeur
+COL-0199,60.85,0.525,3,125000,0,Standard,Engrais NPK,lourd_robuste
+COL-0200,5.0,0.573,2,237000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0201,0.64,0.013,5,57000,1,Express,Analyses médicales,express_petit
+COL-0202,1.81,0.057,6,590000,0,Express,Documents administratifs Tana,leger_valeur
+COL-0203,58.15,0.404,0,226000,0,Standard,Engrais NPK,lourd_robuste
+COL-0204,62.8,1.402,2,192000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0205,79.74,1.883,3,195000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0206,62.35,0.816,1,129000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0207,63.52,0.3,1,189000,0,Standard,Engrais NPK,lourd_robuste
+COL-0208,2.76,0.066,6,859000,0,Fragile-Valeur,Colis notariés,leger_valeur
+COL-0209,85.8,0.587,10,1961000,1,Fragile-Valeur,Groupe électrogène,outlier
+COL-0210,18.26,0.256,2,162000,0,Standard,Chaussures en carton,volumineux_moyen
+COL-0211,75.25,0.555,0,122000,0,Standard,Ferraille et quincaillerie,lourd_robuste
+COL-0212,2.07,0.042,7,402000,0,Express,Colis notariés,leger_valeur
+COL-0213,21.15,0.593,5,181000,1,Express,Textile lamba et tissus,volumineux_moyen
+COL-0214,9.05,0.598,5,277000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0215,65.9,0.773,2,116000,0,Standard,Barres de fer,lourd_robuste
+COL-0216,22.82,0.392,3,230000,0,Standard,Articles de maroquinerie,volumineux_moyen
+COL-0217,10.73,0.743,4,213000,0,Standard,Sacs de café en vrac,volumineux_moyen
+COL-0218,68.03,0.901,0,224000,0,Standard,Ferraille et quincaillerie,lourd_robuste
+COL-0219,26.57,0.553,5,278000,0,Fragile-Valeur,Textile lamba et tissus,volumineux_moyen
+COL-0220,81.75,1.257,1,88000,0,Standard,Barres de fer,lourd_robuste
+COL-0221,5.0,0.325,2,385000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0222,51.56,1.115,0,139000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0223,2.29,0.046,9,20000,1,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0224,88.11,1.421,0,30000,0,Standard,Ferraille et quincaillerie,lourd_robuste
+COL-0225,7.74,0.005,5,672000,1,Express,Téléphones reconditionnés,leger_valeur
+COL-0226,22.41,0.451,3,139000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0227,66.3,0.3,1,57000,0,Fragile-Valeur,Sable et gravats conditionnés,lourd_robuste
+COL-0228,1.2,0.017,4,163000,1,Express,Colis pharmacie de garde,express_petit
+COL-0229,22.63,0.419,1,96000,0,Fragile-Valeur,Literie et couettes,volumineux_moyen
+COL-0230,4.24,0.092,8,399000,1,Fragile-Valeur,Cartes SIM et accessoires télécom,leger_valeur
+COL-0231,2.93,0.02,8,794000,1,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0232,3.3,0.032,9,553000,1,Fragile-Valeur,Échantillons pharmaceutiques,leger_valeur
+COL-0233,1.27,0.033,4,55000,1,Express,Colis pharmacie de garde,express_petit
+COL-0234,2.73,0.082,7,411000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0235,14.24,0.15,2,251000,0,Fragile-Valeur,Sacs de café en vrac,volumineux_moyen
+COL-0236,15.87,0.548,3,172000,0,Standard,Literie et couettes,volumineux_moyen
+COL-0237,9.49,0.775,3,265000,0,Standard,Articles de maroquinerie,volumineux_moyen
+COL-0238,65.15,0.82,0,117000,0,Standard,Sacs de manioc séché,lourd_robuste
+COL-0239,67.98,0.674,0,195000,0,Standard,Barres de fer,lourd_robuste
+COL-0240,20.0,0.903,1,162000,0,Standard,Ferraille et quincaillerie,lourd_robuste
+COL-0241,18.76,0.261,3,134000,0,Standard,Rouleaux de tissu imprimé,volumineux_moyen
+COL-0242,52.9,1.241,2,121000,0,Standard,Sable et gravats conditionnés,lourd_robuste
+COL-0243,0.43,0.021,5,33000,1,Express,Pièces détachées moto urgentes,express_petit
+COL-0244,4.08,0.005,7,290000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0245,24.93,0.65,7,213000,0,Express,Nattes et vannerie,volumineux_moyen
+COL-0246,3.83,0.011,8,919000,0,Standard,Vanille Sambava,leger_valeur
+COL-0247,1.31,0.017,10,580000,0,Fragile-Valeur,Cartes SIM et accessoires télécom,leger_valeur
+COL-0248,1.02,0.089,9,115000,0,Fragile-Valeur,Téléphones reconditionnés,leger_valeur
+COL-0249,29.3,0.438,4,46000,0,Fragile-Valeur,Rouleaux de tissu imprimé,volumineux_moyen
+COL-0250,86.65,0.847,2,163000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0251,0.06,0.014,1,123000,0,Express,Consommables médicaux,express_petit
+COL-0252,7.52,0.503,2,164000,0,Standard,Chaussures en carton,volumineux_moyen
+COL-0253,1.18,0.007,4,95000,1,Fragile-Valeur,Kits de dépannage véhicule,express_petit
+COL-0254,57.93,0.497,0,176000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0255,5.0,0.403,4,188000,0,Fragile-Valeur,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0256,0.05,0.035,7,224000,1,Express,Pièces d'avion / aéronautique légère,express_petit
+COL-0257,99.09,0.846,2,78000,0,Standard,Riz 50kg,lourd_robuste
+COL-0258,7.8,0.331,4,112000,0,Standard,Textile lamba et tissus,volumineux_moyen
+COL-0259,20.0,1.409,1,279000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0260,1.13,0.003,5,104000,1,Express,Courrier recommandé urgent,express_petit
+COL-0261,18.7,0.593,3,90000,1,Standard,Literie et couettes,volumineux_moyen
+COL-0262,4.95,0.08,9,649000,0,Fragile-Valeur,Cartes SIM et accessoires télécom,leger_valeur
+COL-0263,13.07,0.697,4,262000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0264,0.12,0.018,8,851000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0265,93.94,1.044,0,166000,0,Standard,Riz 50kg,lourd_robuste
+COL-0266,101.06,0.703,2,30000,0,Standard,Sacs de manioc séché,lourd_robuste
+COL-0267,0.94,0.025,8,191000,1,Express,Courrier recommandé urgent,express_petit
+COL-0268,0.7,0.034,9,393000,0,Fragile-Valeur,Échantillons pharmaceutiques,leger_valeur
+COL-0269,2.33,0.027,7,150000,1,Express,Médicaments urgents,express_petit
+COL-0270,2.9,0.064,7,662000,0,Fragile-Valeur,Montres et accessoires,leger_valeur
+COL-0271,99.26,1.073,3,30000,0,Fragile-Valeur,Pièces détachées lourdes,lourd_robuste
+COL-0272,40.01,1.297,3,211000,0,Standard,Ferraille et quincaillerie,lourd_robuste
+COL-0273,56.58,0.485,2,131000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0274,23.38,0.571,4,251000,0,Standard,Articles de maroquinerie,volumineux_moyen
+COL-0275,18.26,0.647,5,234000,0,Standard,Sacs de café en vrac,volumineux_moyen
+COL-0276,9.39,0.666,5,210000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0277,7.2,1.121,3,283000,0,Fragile-Valeur,Rouleaux de tissu imprimé,volumineux_moyen
+COL-0278,5.0,0.605,4,136000,0,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0279,9.06,0.599,3,229000,0,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0280,3.14,0.061,6,617000,0,Fragile-Valeur,Vanille Sambava,leger_valeur
+COL-0281,12.87,0.709,3,219000,0,Standard,Vêtements en balle,volumineux_moyen
+COL-0282,73.82,0.913,1,127000,0,Standard,Engrais NPK,lourd_robuste
+COL-0283,0.72,0.002,6,10000,1,Express,Analyses médicales,express_petit
+COL-0284,101.98,1.384,1,200000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0285,0.83,0.059,9,358000,0,Standard,Vanille Sambava,leger_valeur
+COL-0286,0.05,0.002,7,31000,1,Express,Médicaments urgents,express_petit
+COL-0287,15.93,0.732,2,196000,0,Standard,Rouleaux de tissu imprimé,volumineux_moyen
+COL-0288,1.73,0.019,6,37000,1,Express,Médicaments urgents,express_petit
+COL-0289,17.56,0.397,5,181000,0,Fragile-Valeur,Rouleaux de tissu imprimé,volumineux_moyen
+COL-0290,10.79,0.493,4,164000,0,Standard,Rouleaux de tissu imprimé,volumineux_moyen
+COL-0291,16.96,0.576,3,40000,0,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0292,25.03,0.422,4,107000,0,Standard,Jouets et articles ménagers,volumineux_moyen
+COL-0293,14.96,0.626,1,100000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0294,5.51,0.328,7,124000,0,Standard,Jouets et articles ménagers,volumineux_moyen
+COL-0295,1.43,0.043,9,20000,0,Express,Lingots artisanat argent,leger_valeur
+COL-0296,76.29,0.963,0,151000,0,Fragile-Valeur,Sable et gravats conditionnés,lourd_robuste
+COL-0297,12.46,0.282,5,296000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0298,2.28,0.026,7,136000,1,Express,Pièces informatiques SAV,express_petit
+COL-0299,16.25,0.233,10,1691000,0,Standard,Drone professionnel,outlier
+COL-0300,73.9,0.424,7,1301000,1,Fragile-Valeur,Groupe électrogène,outlier
+COL-0301,1.19,0.039,4,163000,1,Standard,Kits de dépannage véhicule,express_petit
+COL-0302,73.51,0.766,2,84000,0,Standard,Sacs de manioc séché,lourd_robuste
+COL-0303,6.82,0.865,2,181000,0,Standard,Literie et couettes,volumineux_moyen
+COL-0304,36.23,0.695,1,36000,0,Standard,Barres de fer,lourd_robuste
+COL-0305,3.06,0.086,8,465000,1,Fragile-Valeur,Montres et accessoires,leger_valeur
+COL-0306,65.87,0.805,2,252000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0307,94.69,0.859,2,278000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0308,65.07,1.066,3,124000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0309,1.55,0.039,6,202000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0310,0.66,0.057,8,511000,0,Express,Documents administratifs Tana,leger_valeur
+COL-0311,21.62,0.544,3,273000,1,Standard,Nattes et vannerie,volumineux_moyen
+COL-0312,84.17,0.869,2,163000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0313,18.45,0.511,7,181000,0,Express,Jouets et articles ménagers,volumineux_moyen
+COL-0314,5.0,0.488,2,40000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0315,0.36,0.05,4,1061000,0,Fragile-Valeur,Lingots artisanat argent,leger_valeur
+COL-0316,21.32,0.195,1,245000,0,Standard,Vêtements en balle,volumineux_moyen
+COL-0317,0.48,0.028,6,116000,1,Express,Documents contractuels urgents,express_petit
+COL-0318,1.89,0.015,8,586000,0,Fragile-Valeur,Montres et accessoires,leger_valeur
+COL-0319,15.46,0.749,4,40000,0,Standard,Literie et couettes,volumineux_moyen
+COL-0320,8.45,0.596,4,224000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0321,2.1,0.062,9,183000,1,Express,Lingots artisanat argent,leger_valeur
+COL-0322,2.51,0.036,8,40000,1,Fragile-Valeur,Vaccins et produits réfrigérés,express_petit
+COL-0323,2.71,0.055,6,554000,1,Fragile-Valeur,Téléphones reconditionnés,leger_valeur
+COL-0324,1.18,0.006,6,10000,1,Express,Vaccins et produits réfrigérés,express_petit
+COL-0325,3.93,0.013,10,560000,0,Fragile-Valeur,Vanille Sambava,leger_valeur
+COL-0326,101.8,0.576,1,174000,0,Standard,Engrais NPK,lourd_robuste
+COL-0327,3.38,0.106,9,361000,0,Fragile-Valeur,Vanille Sambava,leger_valeur
+COL-0328,38.87,0.9,0,100000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0329,64.95,1.296,3,35000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0330,14.77,0.703,3,267000,1,Standard,Jouets et articles ménagers,volumineux_moyen
+COL-0331,76.21,0.343,0,110000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0332,2.62,0.048,8,254000,0,Fragile-Valeur,Documents administratifs Tana,leger_valeur
+COL-0333,4.53,0.055,6,200000,0,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0334,3.24,0.03,10,471000,1,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0335,77.27,0.939,2,215000,0,Standard,Sable et gravats conditionnés,lourd_robuste
+COL-0336,89.69,0.952,3,92000,0,Standard,Ferraille et quincaillerie,lourd_robuste
+COL-0337,11.98,0.515,1,141000,0,Express,Literie et couettes,volumineux_moyen
+COL-0338,26.2,0.675,4,113000,0,Standard,Vêtements en balle,volumineux_moyen
+COL-0339,97.87,1.351,3,142000,0,Express,Ferraille et quincaillerie,lourd_robuste
+COL-0340,0.05,0.045,7,184000,1,Express,Montres et accessoires,leger_valeur
+COL-0341,3.64,0.094,6,107000,1,Express,Téléphones reconditionnés,leger_valeur
+COL-0342,52.48,1.144,0,65000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0343,3.19,2.33,0,62000,0,Fragile-Valeur,Matériel de laboratoire fragile,outlier
+COL-0344,13.34,0.351,4,205000,0,Standard,Nattes et vannerie,volumineux_moyen
+COL-0345,21.91,1.178,2,173000,0,Standard,Barres de fer,lourd_robuste
+COL-0346,3.48,0.083,9,1031000,1,Fragile-Valeur,Lingots artisanat argent,leger_valeur
+COL-0347,0.13,0.008,7,2991000,0,Fragile-Valeur,Instrument de musique,outlier
+COL-0348,0.66,0.016,7,164000,1,Express,Pièces d'avion / aéronautique légère,express_petit
+COL-0349,29.58,1.058,2,105000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0350,30.57,0.47,4,167000,0,Standard,Barres de fer,lourd_robuste
+COL-0351,20.0,0.756,0,134000,0,Standard,Riz 50kg,lourd_robuste
+COL-0352,0.41,0.002,6,142000,1,Express,Courrier recommandé urgent,express_petit
+COL-0353,0.05,0.032,7,138000,1,Fragile-Valeur,Montres et accessoires,leger_valeur
+COL-0354,64.88,0.498,1,228000,0,Standard,Sacs de ciment,lourd_robuste
+COL-0355,0.42,0.018,5,71000,1,Express,Pièces détachées moto urgentes,express_petit
+COL-0356,1.82,0.005,5,887000,0,Fragile-Valeur,Documents administratifs Tana,leger_valeur
+COL-0357,68.27,1.502,0,151000,0,Standard,Engrais NPK,lourd_robuste
+COL-0358,1.37,0.034,9,100000,1,Standard,Colis pharmacie de garde,express_petit
+COL-0359,80.8,0.866,2,274000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0360,95.01,0.757,1,198000,0,Standard,Barres de fer,lourd_robuste
+COL-0361,3.22,0.024,5,871000,0,Fragile-Valeur,Échantillons pharmaceutiques,leger_valeur
+COL-0362,13.3,0.433,1,181000,0,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0363,73.28,0.3,3,216000,0,Standard,Sacs de ciment,lourd_robuste
+COL-0364,1.9,0.069,4,579000,0,Fragile-Valeur,Montres et accessoires,leger_valeur
+COL-0365,2.9,0.1,8,506000,0,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0366,1.58,0.012,8,550000,0,Fragile-Valeur,Documents administratifs Tana,leger_valeur
+COL-0367,81.94,1.199,0,142000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0368,5.0,0.568,4,64000,0,Standard,Jouets et articles ménagers,volumineux_moyen
+COL-0369,70.58,0.936,2,175000,0,Standard,Sacs de ciment,lourd_robuste
+COL-0370,1.67,0.019,6,91000,1,Express,Pièces informatiques SAV,express_petit
+COL-0371,3.16,0.049,8,1073000,1,Fragile-Valeur,Vanille Sambava,leger_valeur
+COL-0372,0.58,0.002,4,130000,1,Express,Colis pharmacie de garde,express_petit
+COL-0373,54.64,0.905,0,179000,0,Standard,Sacs de ciment,lourd_robuste
+COL-0374,52.49,0.87,1,247000,0,Standard,Sable et gravats conditionnés,lourd_robuste
+COL-0375,19.76,0.345,4,183000,0,Standard,Rouleaux de tissu imprimé,volumineux_moyen
+COL-0376,72.74,1.362,0,117000,0,Standard,Riz 50kg,lourd_robuste
+COL-0377,2.53,0.005,7,87000,1,Express,Courrier recommandé urgent,express_petit
+COL-0378,6.09,0.064,7,720000,0,Fragile-Valeur,Documents administratifs Tana,leger_valeur
+COL-0379,2.79,0.005,7,195000,1,Fragile-Valeur,Pièces horlogères,leger_valeur
+COL-0380,0.67,0.017,10,550000,1,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0381,1.35,0.028,6,424000,0,Fragile-Valeur,Pièces horlogères,leger_valeur
+COL-0382,75.59,0.915,8,901000,0,Standard,Instrument de musique,outlier
+COL-0383,2.47,0.045,10,728000,0,Fragile-Valeur,Échantillons pharmaceutiques,leger_valeur
+COL-0384,9.48,0.743,5,83000,0,Standard,Literie et couettes,volumineux_moyen
+COL-0385,0.44,0.002,7,10000,1,Express,Pièces informatiques SAV,express_petit
+COL-0386,3.78,0.025,5,776000,1,Fragile-Valeur,Lingots artisanat argent,leger_valeur
+COL-0387,14.92,0.532,3,154000,0,Fragile-Valeur,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0388,3.34,0.054,5,393000,0,Fragile-Valeur,Échantillons pharmaceutiques,leger_valeur
+COL-0389,59.19,0.831,1,255000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0390,3.84,0.038,10,362000,0,Standard,Montres et accessoires,leger_valeur
+COL-0391,9.86,0.682,5,221000,0,Standard,Jouets et articles ménagers,volumineux_moyen
+COL-0392,0.92,0.02,8,37000,1,Express,Colis pharmacie de garde,express_petit
+COL-0393,1.43,0.01,6,58000,1,Express,Pièces d'avion / aéronautique légère,express_petit
+COL-0394,57.43,0.587,1,222000,0,Standard,Sacs de ciment,lourd_robuste
+COL-0395,59.9,1.163,3,53000,0,Standard,Sacs de manioc séché,lourd_robuste
+COL-0396,0.55,0.033,5,48000,1,Express,Médicaments urgents,express_petit
+COL-0397,0.76,0.027,7,83000,1,Express,Kits de dépannage véhicule,express_petit
+COL-0398,20.13,0.269,4,55000,0,Standard,Mobilier léger en bois,volumineux_moyen
+COL-0399,83.91,0.964,1,154000,1,Standard,Sacs de ciment,lourd_robuste
+COL-0400,76.1,0.901,1,182000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0401,74.36,1.52,2,115000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0402,6.02,0.496,4,131000,0,Standard,Sacs de café en vrac,volumineux_moyen
+COL-0403,0.05,0.023,6,202000,1,Express,Pièces détachées moto urgentes,express_petit
+COL-0404,80.4,0.599,2,104000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0405,0.41,0.006,9,5118000,0,Standard,Antiquité / objet d'art,outlier
+COL-0406,0.46,0.007,10,5749000,0,Standard,Groupe électrogène,outlier
+COL-0407,19.85,0.503,4,235000,0,Standard,Vêtements en balle,volumineux_moyen
+COL-0408,14.4,0.418,4,74000,0,Standard,Sacs de café en vrac,volumineux_moyen
+COL-0409,89.35,1.122,2,58000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0410,80.42,0.928,1,55000,0,Standard,Sacs de ciment,lourd_robuste
+COL-0411,106.18,0.979,0,125000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0412,2.92,0.096,7,161000,1,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0413,52.93,0.808,2,89000,0,Standard,Barres de fer,lourd_robuste
+COL-0414,34.01,0.656,3,354000,1,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0415,39.94,0.516,1,160000,0,Fragile-Valeur,Pièces détachées lourdes,lourd_robuste
+COL-0416,26.35,0.171,5,102000,1,Fragile-Valeur,Articles de maroquinerie,volumineux_moyen
+COL-0417,70.07,0.551,3,145000,0,Standard,Ferraille et quincaillerie,lourd_robuste
+COL-0418,2.13,0.105,5,168000,0,Fragile-Valeur,Lingots artisanat argent,leger_valeur
+COL-0419,1.92,0.023,8,1229000,0,Standard,Composants électroniques,leger_valeur
+COL-0420,8.7,0.451,4,285000,0,Standard,Articles de maroquinerie,volumineux_moyen
+COL-0421,0.63,0.058,7,966000,1,Fragile-Valeur,Lingots artisanat argent,leger_valeur
+COL-0422,2.17,0.002,3,195000,1,Express,Kits de dépannage véhicule,express_petit
+COL-0423,0.47,0.003,8,4220000,1,Standard,Groupe électrogène,outlier
+COL-0424,2.62,0.045,6,348000,0,Fragile-Valeur,Échantillons pharmaceutiques,leger_valeur
+COL-0425,0.89,0.022,6,270000,1,Express,Analyses médicales,express_petit
+COL-0426,3.32,0.055,7,1176000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0427,54.69,0.554,1,111000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0428,3.61,0.097,9,544000,1,Fragile-Valeur,Pièces horlogères,leger_valeur
+COL-0429,64.97,0.952,2,97000,0,Standard,Barres de fer,lourd_robuste
+COL-0430,0.65,0.015,4,111000,1,Express,Kits de dépannage véhicule,express_petit
+COL-0431,27.52,0.471,2,82000,0,Standard,Articles de maroquinerie,volumineux_moyen
+COL-0432,2.32,0.086,10,243000,1,Standard,Vanille Sambava,leger_valeur
+COL-0433,19.6,0.531,4,224000,0,Standard,Rouleaux de tissu imprimé,volumineux_moyen
+COL-0434,0.98,0.041,4,175000,1,Express,Kits de dépannage véhicule,express_petit
+COL-0435,0.05,0.017,6,452000,1,Fragile-Valeur,Téléphones reconditionnés,leger_valeur
+COL-0436,5.0,0.682,7,87000,0,Standard,Chaussures en carton,volumineux_moyen
+COL-0437,89.65,1.028,0,89000,0,Standard,Engrais NPK,lourd_robuste
+COL-0438,23.62,0.939,1,207000,0,Standard,Barres de fer,lourd_robuste
+COL-0439,4.53,0.103,7,578000,0,Fragile-Valeur,Montres et accessoires,leger_valeur
+COL-0440,26.19,0.556,1,188000,1,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0441,3.37,0.006,9,687000,1,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0442,30.83,0.623,2,288000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0443,43.52,1.028,2,208000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0444,88.51,0.985,2,117000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0445,23.84,0.628,4,322000,0,Standard,Chaussures en carton,volumineux_moyen
+COL-0446,48.21,0.48,7,1950000,1,Standard,Instrument de musique,outlier
+COL-0447,0.05,0.027,7,429000,1,Standard,Montres et accessoires,leger_valeur
+COL-0448,21.8,0.889,4,268000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0449,0.32,0.01,5,4852000,0,Express,Cargaison mixte non répertoriée,outlier
+COL-0450,23.43,0.59,3,81000,1,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0451,39.47,1.416,0,162000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0452,1.65,0.069,9,517000,0,Fragile-Valeur,Vanille Sambava,leger_valeur
+COL-0453,22.08,0.812,4,40000,0,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0454,3.02,0.039,8,769000,0,Fragile-Valeur,Documents administratifs Tana,leger_valeur
+COL-0455,0.35,0.002,7,131000,1,Standard,Courrier recommandé urgent,express_petit
+COL-0456,73.4,1.129,1,164000,0,Standard,Barres de fer,lourd_robuste
+COL-0457,0.73,0.031,7,205000,1,Express,Pièces informatiques SAV,express_petit
+COL-0458,68.28,1.082,1,75000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0459,80.2,0.461,10,1522000,1,Standard,Groupe électrogène,outlier
+COL-0460,75.2,1.115,1,146000,1,Standard,Barres de fer,lourd_robuste
+COL-0461,87.16,0.922,2,220000,0,Standard,Ferraille et quincaillerie,lourd_robuste
+COL-0462,0.94,0.06,8,433000,1,Fragile-Valeur,Vanille Sambava,leger_valeur
+COL-0463,3.72,0.102,6,636000,0,Express,Téléphones reconditionnés,leger_valeur
+COL-0464,8.9,0.905,4,285000,1,Standard,Sacs de café en vrac,volumineux_moyen
+COL-0465,55.63,1.261,1,42000,0,Fragile-Valeur,Pièces détachées lourdes,lourd_robuste
+COL-0466,20.0,1.76,0,120000,0,Standard,Bidons d'huile alimentaire,lourd_robuste
+COL-0467,1.27,0.025,6,351000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0468,9.32,0.584,6,122000,1,Fragile-Valeur,Jouets et articles ménagers,volumineux_moyen
+COL-0469,0.54,0.014,4,135000,1,Express,Colis pharmacie de garde,express_petit
+COL-0470,94.13,0.58,0,115000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0471,41.11,1.436,2,129000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0472,1.03,0.018,4,112000,1,Express,Courrier recommandé urgent,express_petit
+COL-0473,62.26,1.145,0,85000,0,Standard,Sacs de charbon,lourd_robuste
+COL-0474,28.35,0.782,2,220000,0,Standard,Sacs de café en vrac,volumineux_moyen
+COL-0475,18.09,0.583,2,161000,0,Standard,Literie et couettes,volumineux_moyen
+COL-0476,1.04,0.027,4,23000,1,Express,Colis pharmacie de garde,express_petit
+COL-0477,11.73,0.297,5,175000,0,Standard,Rideaux et tissus d'ameublement,volumineux_moyen
+COL-0478,91.14,0.3,2,133000,0,Standard,Pièces détachées lourdes,lourd_robuste
+COL-0479,16.65,0.704,4,340000,0,Standard,Cartons de vaisselle,volumineux_moyen
+COL-0480,43.32,1.296,1,96000,0,Standard,Sacs de ciment,lourd_robuste
+COL-0481,1.8,0.047,7,224000,1,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0482,50.71,0.879,0,133000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0483,19.18,0.663,2,223000,0,Standard,Articles de maroquinerie,volumineux_moyen
+COL-0484,0.87,0.047,6,317000,1,Fragile-Valeur,Vanille Sambava,leger_valeur
+COL-0485,9.25,0.609,5,350000,1,Standard,Sacs de café en vrac,volumineux_moyen
+COL-0486,2.52,0.041,9,424000,1,Fragile-Valeur,Composants électroniques,leger_valeur
+COL-0487,2.23,0.011,6,100000,1,Express,Pièces d'avion / aéronautique légère,express_petit
+COL-0488,29.4,0.532,4,86000,0,Standard,Jouets et articles ménagers,volumineux_moyen
+COL-0489,29.89,0.815,3,46000,0,Standard,Barres de fer,lourd_robuste
+COL-0490,0.39,0.046,3,10000,1,Express,Kits de dépannage véhicule,express_petit
+COL-0491,2.82,0.033,7,147000,0,Fragile-Valeur,Girofle Fenoarivo,leger_valeur
+COL-0492,72.08,0.826,9,1675000,0,Standard,Matériel de laboratoire fragile,outlier
+COL-0493,2.17,0.114,7,770000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0494,105.42,1.109,2,215000,0,Standard,Briques et matériaux,lourd_robuste
+COL-0495,0.46,0.035,8,349000,1,Fragile-Valeur,Colis notariés,leger_valeur
+COL-0496,0.79,0.137,4,315000,0,Fragile-Valeur,Bijouterie artisanale,leger_valeur
+COL-0497,82.46,0.896,1,54000,0,Standard,Tôles galvanisées,lourd_robuste
+COL-0498,5.59,0.582,2,40000,0,Standard,Textile lamba et tissus,volumineux_moyen
+COL-0499,1.17,0.003,5,22000,1,Express,Pièces d'avion / aéronautique légère,express_petit
+COL-0500,1.86,0.114,8,527000,1,Fragile-Valeur,Téléphones reconditionnés,leger_valeur

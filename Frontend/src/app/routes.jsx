@@ -25,6 +25,8 @@ const DemandesListPage = lazy(() => import('../pages/demandes/DemandesListPage')
 const NouvelleDemandePage = lazy(() => import('../pages/demandes/NouvelleDemandePage'))
 const MesCommandesPage = lazy(() => import('../pages/demandes/MesCommandesPage'))
 const DetailCommandePage = lazy(() => import('../pages/demandes/DetailCommandePage'))
+const SupportClientPage = lazy(() => import('../pages/client/SupportClientPage'))
+const ParametresClientPage = lazy(() => import('../pages/client/ParametresClientPage'))
 const FlottePage = lazy(() => import('../pages/flotte/FlottePage'))
 const OptimisationPage = lazy(() => import('../pages/optimisation/OptimisationPage'))
 const MissionsProposeesPage = lazy(() => import('../pages/chauffeur/MissionsProposeesPage'))
@@ -84,17 +86,22 @@ export const ROLE_CONFIG = {
   },
   client: {
     Layout: ClientLayout,
-    defaultPage: 'nouvelle_demande',
+    defaultPage: 'mes_commandes',
     pages: {
-      nouvelle_demande: { component: NouvelleDemandePage },
       mes_commandes: { component: MesCommandesPage },
+      nouvelle_demande: { component: NouvelleDemandePage },
+      historique: { component: MesCommandesPage },
+      support: { component: SupportClientPage },
+      parametres: { component: ParametresClientPage },
       detail_commande: { component: DetailCommandePage },
       demo: { component: DemoPreviewPage },
     },
     getNavItems: () => [
-      { key: 'nouvelle_demande', label: 'Nouvelle expédition', icon: 'add_box' },
-      { key: 'mes_commandes', label: 'Mes expéditions', icon: 'local_shipping' },
-      { key: 'demo', label: 'Design Preview', icon: 'palette' },
+      { key: 'mes_commandes', label: 'Mes expéditions', num: '01' },
+      { key: 'nouvelle_demande', label: 'Nouvelle expédition', num: '02' },
+      { key: 'historique', label: 'Historique', num: '03' },
+      { key: 'support', label: 'Support', num: '04' },
+      { key: 'parametres', label: 'Paramètres', num: '05' },
     ],
   },
   driver: {

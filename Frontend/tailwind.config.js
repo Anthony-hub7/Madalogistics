@@ -74,7 +74,7 @@ export default {
         'headline-lg': ['Barlow Condensed', 'sans-serif'],
         'headline-md': ['Barlow Condensed', 'sans-serif'],
         'headline-lg-mobile': ['Barlow Condensed', 'sans-serif'],
-        'headline-xl': ['Barlow Condensed', 'sans-serif'],
+        'mono': ['Courier Prime', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
         'body-sm': ['Plus Jakarta Sans', 'sans-serif'],
       },
       fontSize: {

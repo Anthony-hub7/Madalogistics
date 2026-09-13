@@ -208,8 +208,69 @@ body {
 .stamp-badge-red {
   color: #E8433D;
   border-color: #E8433D;
-  background-color: rgba(232, 67, 61, 0.08);
 }
+
+/* Administrative Register & Freight Manifest Mockup Styles */
+.font-mono {
+  font-family: 'Courier Prime', monospace;
+}
+
+.bordereau-row {
+  background: #FFFFFF;
+  border: 1px solid #ECECEC;
+  border-radius: 8px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.bordereau-row:hover {
+  border-color: #D7DAE0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.bordereau-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #E8433D;
+  border-radius: 8px 0 0 8px;
+}
+
+.stamp-ink {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transform: rotate(-4deg);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stamp-ink-red {
+  color: #E8433D;
+  border: 1.5px solid #E8433D;
+  background: rgba(232, 67, 61, 0.04);
+}
+
+.stamp-ink-neutral {
+  color: #1A1A1E;
+  border: 1.5px solid #1A1A1E;
+  background: rgba(26, 26, 30, 0.04);
+}
+
+.stamp-ink-muted {
+  color: #8A8A92;
+  border: 1.5px solid #D7DAE0;
+  background: rgba(138, 138, 146, 0.04);
+}
+
 
 .stamp-badge-green {
   color: #166534;
