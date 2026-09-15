@@ -9,7 +9,8 @@ const navItems = [
   { key: 'hubs', label: 'Hubs', icon: 'location_on', path: '/direction/hubs' },
   { key: 'carte_hubs', label: 'Carte Hubs', icon: 'map', path: '/direction/carte_hubs' },
   { key: 'decisions', label: 'Décisions', icon: 'insights', path: '/direction/decisions' },
-  { key: 'parametres_tarifaires', label: 'Paramètres tarifaires', icon: 'payments', path: '/direction/parametres_tarifaires' },
+  { key: 'categories', label: 'Catégories', icon: 'label', path: '/direction/categories' },
+  { key: 'parametres_tarifaires', label: 'Tarifs', icon: 'payments', path: '/direction/parametres_tarifaires' },
 ]
 
 export default function DirectionLayout() {

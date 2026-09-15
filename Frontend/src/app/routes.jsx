@@ -18,6 +18,7 @@ const DashboardGestionnairePage = lazy(() => import('../pages/dashboard/Dashboar
 const DecisionsPage = lazy(() => import('../pages/dashboard/DecisionsPage'))
 const EquipePage = lazy(() => import('../pages/dashboard/EquipePage'))
 const ParametresTarifairesPage = lazy(() => import('../pages/dashboard/ParametresTarifairesPage'))
+const CategoriesDirectionPage = lazy(() => import('../pages/dashboard/CategoriesDirectionPage'))
 const HubsPage = lazy(() => import('../pages/dashboard/HubsPage'))
 const ChauffeursRattachesPage = lazy(() => import('../pages/dashboard/ChauffeursRattachesPage'))
 const ChauffeurDetailPage = lazy(() => import('../pages/dashboard/ChauffeurDetailPage'))
@@ -25,6 +26,7 @@ const DemandesListPage = lazy(() => import('../pages/demandes/DemandesListPage')
 const NouvelleDemandePage = lazy(() => import('../pages/demandes/NouvelleDemandePage'))
 const MesCommandesPage = lazy(() => import('../pages/demandes/MesCommandesPage'))
 const DetailCommandePage = lazy(() => import('../pages/demandes/DetailCommandePage'))
+const CommandeDetailLogistiquePage = lazy(() => import('../pages/demandes/CommandeDetailLogistiquePage'))
 const SupportClientPage = lazy(() => import('../pages/client/SupportClientPage'))
 const ParametresClientPage = lazy(() => import('../pages/client/ParametresClientPage'))
 const FlottePage = lazy(() => import('../pages/flotte/FlottePage'))
@@ -67,6 +69,7 @@ export const ROLE_CONFIG = {
     pages: {
       dashboard: { component: DashboardGestionnairePage },
       commandes: { component: DemandesListPage },
+      commande_detail: { component: CommandeDetailLogistiquePage },
       chauffeurs_rattaches: { component: ChauffeursRattachesPage },
       chauffeur_detail: { component: ChauffeurDetailPage },
       optimisation: { component: OptimisationPage },
@@ -131,6 +134,7 @@ export const ROLE_CONFIG = {
       carte_hubs: { component: CarteHubsPage },
       decisions: { component: DecisionsPage },
       parametres_tarifaires: { component: ParametresTarifairesPage },
+      categories: { component: CategoriesDirectionPage },
       demo: { component: DemoPreviewPage },
     },
     getNavItems: () => [
@@ -138,7 +142,8 @@ export const ROLE_CONFIG = {
       { key: 'hubs', label: 'Hubs', icon: 'location_on' },
       { key: 'carte_hubs', label: 'Carte Hubs', icon: 'map' },
       { key: 'decisions', label: 'Décisions', icon: 'insights' },
-      { key: 'parametres_tarifaires', label: 'Paramètres tarifaires', icon: 'payments' },
+      { key: 'categories', label: 'Catégories', icon: 'label' },
+      { key: 'parametres_tarifaires', label: 'Tarifs', icon: 'payments' },
       { key: 'demo', label: 'Design Preview', icon: 'palette' },
     ],
   },

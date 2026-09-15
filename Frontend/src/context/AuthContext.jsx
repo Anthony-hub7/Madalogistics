@@ -68,7 +68,7 @@ export function AuthProvider({ children }) {
   const getAccessToken = useCallback(() => tokenRef.current, [])
 
   const login = useCallback(async (email, password) => {
-    const res = await apiClient.post('/auth/login', { email, password })
+    const res = await apiClient.post('/auth/login', { email, password }, { _skipAuth: true })
     const rawToken = res.token || res.accessToken
     const { utilisateurId, tenantId, email: userEmail, fullName, redirectPath,
             statutDossier, motifRefus, typeChauffeur, agenceNom } = res
@@ -83,7 +83,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   const register = useCallback(async (data) => {
-    const res = await apiClient.post('/auth/inscription', data)
+    const res = await apiClient.post('/auth/inscription', data, { _skipAuth: true })
     const rawToken = res.token || res.accessToken
     const { utilisateurId, tenantId, email: userEmail, fullName, redirectPath } = res
     tokenRef.current = rawToken
@@ -105,7 +105,7 @@ export function AuthProvider({ children }) {
         if (user) {
           saveAuthToStorage(newToken, user)
         }
-        return res.accessToken
+        return newToken
       }
     } catch {
       // Refresh failed — user must re-login

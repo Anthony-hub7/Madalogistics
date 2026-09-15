@@ -58,7 +58,7 @@ Attention : le rôle existant `logistics` dans `Frontend/src/app/routes.jsx` cor
 
 ## 6. Modèle de données (diagramme de classes)
 
-Entité pivot `PMECliente` (tenant) → hubs, véhicules, chauffeurs, clients finaux. `DemandeTransport` (la commande) ≠ `Colis` (unité physique). Un colis groupé est rattaché à un **Sac** (chargement d'un véhicule), affecté à un chauffeur. Chaque Sac garde un double lien vers `OptimisationRun` (groupage + affectation) qui stocke la **justification en texte libre + son embedding vectoriel** (recherche sémantique, sans LLM — la justification est rédigée par le gestionnaire lors de l'ajout d'une catégorie, la recherche sémantique est destinée au client). Un Sac peut être séquencé en `Tournee` (optionnelle V1, `run_vrp_id` à null) organisant des `EtapeLivraison` (ordre, prévu/réel). Cycle de vie : Créée → groupée en Sac → séquencée en Tournee → étapes réalisées → Livrée.
+Entité pivot `PMECliente` (tenant) → hubs, véhicules, chauffeurs, clients finaux. `DemandeTransport` (la commande) ≠ `Colis` (unité physique). Un colis groupé est rattaché à un **Sac** (chargement d'un véhicule), affecté à un chauffeur. Chaque Sac garde un double lien vers `OptimisationRun` (groupage + affectation) qui stocke la **justification en texte libre** (recherche sémantique sans LLM — la justification est rédigée par le gestionnaire lors de l'ajout d'une catégorie, la recherche sémantique est destinée au client). Un Sac peut être séquencé en `Tournee` (optionnelle V1, `run_vrp_id` à null) organisant des `EtapeLivraison` (ordre, prévu/réel). Cycle de vie : Créée → groupée en Sac → séquencée en Tournee → étapes réalisées → Livrée.
 
 ## 7. Architecture & stack
 

@@ -1,13 +1,13 @@
 ---
 name: madalogistics-db
-description: "Documentation détaillée de la base de données PostgreSQL de MadaLogistix (SaaS logistique multi-tenant). Utiliser quand on travaille sur le schéma, les tables, les entités JPA, les relations/FK, le modèle de données (tenant, hub, demande, colis, sac, tournée, optimisation, facture), les migrations Flyway, l'extension pgvector ou la compréhension du modèle relationnel. Se déclenche à l'évocation de : base de données, BDD, schema, schéma SQL, table, tables, entité, entity, modèle de données, model de données, foreign key, FK, relation, PostgreSQL, pgvector, Flyway, migration, V1__init_schema."
+description: "Documentation détaillée de la base de données PostgreSQL de MadaLogistix (SaaS logistique multi-tenant). Utiliser quand on travaille sur le schéma, les tables, les entités JPA, les relations/FK, le modèle de données (tenant, hub, demande, colis, sac, tournée, optimisation, facture), les migrations Flyway ou la compréhension du modèle relationnel. Se déclenche à l'évocation de : base de données, BDD, schema, schéma SQL, table, tables, entité, entity, modèle de données, model de données, foreign key, FK, relation, PostgreSQL, Flyway, migration, V1__init_schema."
 ---
 
 # MadaLogistix — Base de données PostgreSQL (guide détaillé)
 
-SGBD : **PostgreSQL 16** (image `pgvector/pgvector:pg16` en Docker).
+SGBD : **PostgreSQL 16** (image `postgres:16` en Docker).
 Migration gérée par **Flyway** (`src/main/resources/db/migration/V1__init_schema.sql`), `ddl-auto: none` en JPA.
-Extensions : `uuid-ossp` (UUID), `vector` (pgvector, embeddings).
+Extensions : `uuid-ossp` (UUID).
 
 ## 1. Principe fondamental : multi-tenant à discriminant tenant_id
 
@@ -32,7 +32,7 @@ DemandeTransport (commande client)
 Livraison effectuée → Facture générée (1 facture par demande)
 Incident déclaré sur un Colis
 Toute action tracée dans AuditLog (BNF-08)
-Chaque groupage/affectation expliqué dans OptimisationRun (justification + embedding)
+Chaque groupage/affectation expliqué dans OptimisationRun (justification texte libre)
 ```
 
 Cycle d'un statut demande : `CREEE → EN_ATTENTE_GROUPAGE → GROUPEE → EN_TRANSIT → LIVREE / INCIDENT`.
@@ -77,10 +77,9 @@ Cycle d'un statut demande : `CREEE → EN_ATTENTE_GROUPAGE → GROUPEE → EN_TR
 
 ### 3.11 `optimisation_run` — run algorithmique (Knapsack/Bin Packing/Affectation/VRP)
 `run_id` PK ; FK : `tenant_id`, `hub_id → hub`. Colonnes :
-- `type_algorithme` CHECK (`KNAPSACK`/`BIN_PACKING`/`AFFECTATION`/`VRP`)
+- `type_algorithme` CHECK (`KNAPSACK`/`BIN_PACKING`/`AFFECTATION`/`VRP`/`CLUSTERING`)
 - `parametres JSONB`, `resultat JSONB` (entrées/sorties de l'algo)
 - `justification_document TEXT` (raisonnement en langage clair)
-- `justification_embedding VECTOR(1536)` (**pgvector**, recherche sémantique sans LLM)
 - `duree_calcul_ms INTEGER`, `created_at`
 Index : tenant + hub + type.
 
@@ -134,7 +133,6 @@ Index : tenant + hub + type.
 - **Timestamps** : `TIMESTAMP`, `created_at` défaut `now()` ; `updated_at` présent seulement sur `pme_cliente`.
 - **Enums en base** : stockés en `VARCHAR` via CHECK (rôles, statuts, types).
 - **JSONB** : `parametres`/`resultat` (optimisation_run), `details` (audit_log) — mappés en `String` dans les entités JPA.
-- **pgvector** : `justification_embedding VECTOR(1536)` — nécessite l'image `pgvector/pgvector:pg16`.
 
 ## 6. Correspondance entités JPA ↔ tables
 
@@ -155,7 +153,6 @@ Index : tenant + hub + type.
 - **TIMESTAMP (sans timezone)** : le schéma stocke l'heure « locale » telle quelle ; acceptable car l'app est mono-fuseau (Madagascar UTC+3). Pour une multi-fuseau on choisirait `TIMESTAMPTZ`.
 - **CHAR(1) pour `classe_valeur`** : valeur unique A/B/C ; `VARCHAR` aurait aussi convenu, le CHECK garantit le domaine.
 - **JSONB (et non `json`)** : stockage binaire efficace, pas de doublons de clés, requêtable via opérateurs JSONB et indexable GIN. Utilisé pour des structures flexibles (paramètres/résultat d'algo, détails d'audit) sans schéma relationnel figé.
-- **VECTOR(1536)** : type fourni par **pgvector** ; tableau de 1536 nombres à virgule flottante (dimension classique des embeddings de texte). Coût ~6 Ko par ligne (1536 × 4 octets).
 
 ### 8.2 Index et requêtes types
 Chaque index correspond à une requête métier prévisible :
@@ -166,7 +163,6 @@ Chaque index correspond à une requête métier prévisible :
 - `idx_optim_run_type` : historique par type d'algorithme (KNAPSACK/BIN_PACKING/…).
 - `idx_audit_entite (entite, entite_id)` : retrouver l'historique d'une entité précise (litiges, facturation).
 - `idx_sac_vehicule` / `idx_sac_chauffeur` : planification (sacs affectés à un véhicule/chauffeur).
-- **pgvector (non créé en V1, à prévoir)** : si le volume d'`optimisation_run` grandit, ajouter un index **HNSW** pour la recherche ANN : `CREATE INDEX ON optimisation_run USING hnsw (justification_embedding vector_l2_ops);` — sans lui, la recherche sémantique est un scan séquentiel.
 
 ### 8.3 Isolation multi-tenant : comment c'est garanti
 - Modèle retenu : **shared database / shared schema** (1 base, 1 schéma, mêmes tables pour tous les tenants) avec **discriminant `tenant_id`**. Alternative plus coûteuse : schema-per-tenant ou database-per-tenant (analyse des compromis coût/isolation/complexité à justifier dans le mémoire).
@@ -180,13 +176,7 @@ Chaque index correspond à une requête métier prévisible :
 - **ON DELETE SET NULL** sur les références optionnelles (`vehicule`, `chauffeur`, `categorie`, `sac`, `run_groupage/affectation/vrp`) : on **préserve l'historique** des colis/sacs/tournées même si l'objet référencé disparaît (ex. un véhicule retiré de la flotte garde ses sacs passés avec `vehicule_id = NULL`).
 - **CASCADE sur les enfants directs** (chauffeur→utilisateur, colis→demande, etape→tournee/colis, incident→colis) : cohérence du cycle de vie (une demande supprimée emporte ses colis et incidents).
 
-### 8.5 pgvector et la recherche sémantique
-- `optimisation_run.justification_embedding` stocke le vecteur de `justification_document` pour permettre une **recherche sémantique** de décisions passées par similarité vectorielle, **sans appel à un LLM à l'exécution** (la justification est rédigée par le gestionnaire à la création d'une catégorie ; la recherche sémantique est destinée au client).
-- Distances prises en charge : L2 (`vector_l2_ops`), cosinus (`vector_cosine_ops`), produit scalaire. La distance cosinus est adaptée à des vecteurs d'embeddings.
-- Exemple de requête : `SELECT run_id, justification_document, 1 - (justification_embedding <=> $1) AS similarite FROM optimisation_run WHERE tenant_id = $2 ORDER BY justification_embedding <=> $1 LIMIT 10;`
-- **Prérequis d'infra** : l'image Docker `pgvector/pgvector:pg16` (l'extension `vector` n'existe pas dans `postgres:16` standard). D'où le changement de l'image DB dans `docker-compose.yml`.
-
-### 8.6 Transactions et concurrence
+### 8.5 Transactions et concurrence
 - Niveau d'isolation par défaut PostgreSQL : **READ COMMITTED**. Les scénarios multi-étapes (créer demande → calculer tarif → persister ; constituer un sac → l'affecter) doivent être enveloppés dans une transaction (`@Transactional` en Spring) pour garantir l'atomicité.
 - Modèle **shared-schema** : les tenants travaillent sur des lignes distinctes → **verrouillage au niveau ligne**, aucune contention d'écriture entre tenants ; c'est l'un des avantages opérationnels du choix retenu.
 - Le pool de connexions **HikariCP** (géré par Spring Boot, 10 connexions par défaut) alimente le backend ; la BDD est joignable sur le réseau Docker `madalogistics-net` via le hostname `db` (port interne 5432).
@@ -201,5 +191,5 @@ Chaque index correspond à une requête métier prévisible :
 - `spring.jpa.hibernate.ddl-auto: none` : Hibernate ne crée/modifie **plus** le schéma, il fait confiance à Flyway.
 - **Enums** : `@Enumerated(EnumType.STRING)` → stockées en `VARCHAR` (défendable face aux changements d'ordre ; à l'opposé de `ORDINAL` qui casse à la moindre réorganisation).
 - **`LocalDateTime` ↔ `TIMESTAMP`** (sans tz), cohérent avec le schéma.
-- **JSONB / VECTOR** : champs mappés en `String` avec `@Column(columnDefinition = "jsonb")` / `"VECTOR(1536)"`. Hibernate délègue le type DDL au moteur ; le driver PostgreSQL renvoie le texte JSON / la représentation du vecteur en chaîne — pas de dépendance supplémentaire (ni hibernate-types ni hibernates-pgvector). Limite : pas d'accès structurel JSON en JPQL natif (utiliser des requêtes SQL natives si besoin).
+- **JSONB** : champs mappés en `String` avec `@Column(columnDefinition = "jsonb")`. Hibernate délègue le type DDL au moteur ; le driver PostgreSQL renvoie le texte JSON en chaîne — pas de dépendance supplémentaire. Limite : pas d'accès structurel JSON en JPQL natif (utiliser des requêtes SQL natives si besoin).
 - Les relations sont **lazy** (`FetchType.LAZY`) : éviter les accès hors transaction (risque de `LazyInitializationException`), penser aux DTO pour exposer les données au frontend.

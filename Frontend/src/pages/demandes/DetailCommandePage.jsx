@@ -1,150 +1,148 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { demandesService } from '../../services/demandesService'
+import MapView from '../../map/MapView'
+import { Marker, Popup } from 'react-leaflet'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+
+const STATUT_LABELS = {
+  CREEE: { stamp: 'CRÉÉE', style: 'stamp-ink-neutral', step: 0 },
+  VALIDEE: { stamp: 'VALIDÉE', style: 'stamp-ink-neutral', step: 1 },
+  EN_ATTENTE_GROUPAGE: { stamp: 'EN ATTENTE', style: 'stamp-ink-neutral', step: 1 },
+  GROUPEE: { stamp: 'GROUPÉE', style: 'stamp-ink-neutral', step: 2 },
+  EN_TRANSIT: { stamp: 'EN TRANSIT', style: 'stamp-ink-red', step: 3 },
+  LIVREE: { stamp: 'LIVRÉE', style: 'stamp-ink-red', step: 4 },
+  INCIDENT: { stamp: 'INCIDENT', style: 'stamp-ink-muted', step: 3 },
+  REFUSEE: { stamp: 'REFUSÉE', style: 'stamp-ink-muted', step: 0 },
+  ANNULEE: { stamp: 'ANNULÉE', style: 'stamp-ink-muted', step: 0 },
+}
+
+const STEPS = ['Créée', 'Préparation', 'En livraison', 'Livrée']
+
+const markerIcon = (color) => L.divIcon({
+  className: '',
+  html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+})
 
 export default function DetailCommandePage() {
   const navigate = useNavigate()
-  const [activeStatus, setActiveStatus] = useState('LIVREE')
+  const [searchParams] = useSearchParams()
+  const demandeId = searchParams.get('id')
+  const [order, setOrder] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [showCancelModal, setShowCancelModal] = useState(false)
-  const [cancelConfirmed, setCancelConfirmed] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
 
-  const mockOrders = {
-    LIVREE: {
-      ref: 'CMD-2026-8932',
-      trackingCode: '#AUT-2026-RN7-8932',
-      destination: 'Antsirabe Terminal RN7 (Zone Industrielle)',
-      depart: 'Tana Hub Analakely (Gare Soarano)',
-      agencyName: 'MadaExpress RN7 — Hub Antananarivo',
-      status: 'LIVREE',
-      statusStamp: 'LIVRÉE 02/09',
-      stampStyle: 'stamp-ink-red',
-      dateCreation: '01 Septembre 2026 à 08:15',
-      contenu: '12x Palettes Textiles Habillement',
-      poids: '570 kg',
-      volume: '1.2 m³',
-      montant: '1,450,000 MGA',
-      factureGeneree: true,
-      numFacture: 'FACT-2026-8932',
-      hubInfo: {
-        name: 'Hub Antananarivo RN7 (Gare Soarano)',
-        address: 'Enceinte Gare Soarano, Route Nationale 7, Antananarivo 101',
-        horaires: 'Du Lundi au Samedi : 06:00 - 18:00 (Guichet Fret #2)',
-        contact: '+261 34 07 890 12',
-      },
-      preciseTimeSlot: 'Mardi 2 Septembre 2026 entre 09:30 et 11:30',
-      etaArrival: '15:45 (Arrivée conforme)',
-      pod: {
-        deliveredAt: '02/09/2026 à 15:42',
-        receiverName: 'R. RANDRIAMAMPIANINA (Dépôt)',
-        signatureName: 'R. RANDRIA',
-        photoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=400&q=80',
-        status: 'Livraison conforme sous réserve d\'emballage',
-      },
-    },
-    COLLECTE_CONFIRMEE: {
-      ref: 'CMD-2026-9104',
-      trackingCode: '#AUT-2026-RN7-9104',
-      destination: 'Ambatolampy Relay',
-      depart: 'Tana Hub Analakely',
-      agencyName: 'ColisPlus Madagascar — Relay Ambatolampy',
-      status: 'COLLECTE_CONFIRMEE',
-      statusStamp: 'COLLECTE CONFIRMÉE',
-      stampStyle: 'stamp-ink-neutral',
-      dateCreation: '01 Septembre 2026 à 10:30',
-      contenu: '02x Conteneurs Matériel Informatique',
-      poids: '400 kg',
-      volume: '2.5 m³',
-      montant: '2,100,000 MGA',
-      factureGeneree: true,
-      numFacture: 'FACT-2026-9104',
-      hubInfo: {
-        name: 'Hub Antananarivo RN7 (Gare Soarano)',
-        address: 'Enceinte Gare Soarano, Route Nationale 7, Antananarivo 101',
-        horaires: 'Du Lundi au Samedi : 06:00 - 18:00',
-        contact: '+261 34 07 890 12',
-      },
-      preciseTimeSlot: 'Mardi 2 Septembre 2026 entre 14:00 et 16:00',
-      etaArrival: 'Mercredi 3 Septembre à 10:00 (Corridor RN7)',
-    },
-    REFUSEE: {
-      ref: 'CMD-2026-9280',
-      trackingCode: '#AUT-2026-RN7-9280',
-      destination: 'Antsirabe Industrial Hub',
-      depart: 'Tana Hub',
-      agencyName: 'TransCorridor RN7 — Terminal Antsirabe',
-      status: 'REFUSEE',
-      statusStamp: 'NON PRISE EN CHARGE',
-      stampStyle: 'stamp-ink-muted',
-      dateCreation: '31 Août 2026 à 17:00',
-      contenu: '05x Fûts Produits Chimiques',
-      poids: '850 kg',
-      volume: '3.2 m³',
-      montant: '—',
-      refusalReason: 'Capacité pleine sur le camion citerne / matières réglementées du 02/09 — Gabarit incompatible.',
-      refusalMessage: 'Veuillez réajuster le conditionnement ou sélectionner le Relais Ambatolampy.',
-    },
+  useEffect(() => {
+    if (!demandeId) { setLoading(false); return }
+    setLoading(true)
+    demandesService.getById(demandeId)
+      .then(data => setOrder(data))
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [demandeId])
+
+  const handleCancel = async () => {
+    setCancelling(true)
+    try {
+      await demandesService.annuler(demandeId)
+      setOrder(prev => ({ ...prev, statut: 'ANNULEE' }))
+      setShowCancelModal(false)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setCancelling(false)
+    }
   }
 
-  const o = mockOrders[activeStatus] || mockOrders.LIVREE
-  const isRefused = o.status === 'REFUSEE'
-  const isCancellable = o.status === 'CREEE' || o.status === 'CONFIRMEE'
+  if (!demandeId) {
+    return (
+      <div className="space-y-6">
+        <p className="font-body text-xs text-[#8A8A92]">Aucune commande spécifiée.</p>
+        <button onClick={() => navigate('/client/mes_commandes')}
+          className="font-mono text-xs text-[#E8433D] hover:underline bg-transparent border-0 cursor-pointer">
+          ← Retour aux expéditions
+        </button>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return <div className="bordereau-row p-8 text-center font-mono text-sm text-[#8A8A92]">Chargement…</div>
+  }
+
+  if (error || !order) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded p-3 font-body text-xs">{error || 'Commande introuvable'}</div>
+        <button onClick={() => navigate('/client/mes_commandes')}
+          className="font-mono text-xs text-[#E8433D] hover:underline bg-transparent border-0 cursor-pointer">
+          ← Retour aux expéditions
+        </button>
+      </div>
+    )
+  }
+
+  const info = STATUT_LABELS[order.statut] || STATUT_LABELS.CREEE
+  const isCancellable = order.statut === 'CREEE' || order.statut === 'VALIDEE'
+  const isRefused = order.statut === 'REFUSEE'
+
+  const MAP_CENTER = order.latitudeLivraison
+    ? [order.latitudeLivraison, order.longitudeLivraison]
+    : order.latitudeCollecte
+      ? [order.latitudeCollecte, order.longitudeCollecte]
+      : [-18.8792, 47.5079]
+
+  const MARKERS = []
+  if (order.latitudeCollecte && order.longitudeCollecte) {
+    MARKERS.push({ pos: [order.latitudeCollecte, order.longitudeCollecte], color: '#3B82F6', label: 'Collecte' })
+  }
+  if (order.latitudeLivraison && order.longitudeLivraison) {
+    MARKERS.push({ pos: [order.latitudeLivraison, order.longitudeLivraison], color: '#E8433D', label: 'Livraison' })
+  }
+
+  const formatDate = (d) => {
+    if (!d) return '—'
+    try { return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) }
+    catch { return d }
+  }
+
+  const totalPoids = (order.colis || []).reduce((s, c) => s + (parseFloat(c.poidsKg) || 0), 0)
+  const totalVolume = (order.colis || []).reduce((s, c) => s + (parseFloat(c.volumeM3) || 0), 0)
 
   return (
     <div className="space-y-6">
-      
-      {/* Navigateur de test de statut */}
-      <div className="bg-white border border-[#ECECEC] rounded-lg p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <span className="font-mono text-[#8A8A92] uppercase font-bold">
-          [ Échantillon Registre ] :
-        </span>
-        <div className="flex gap-2">
-          {Object.keys(mockOrders).map((st) => (
-            <button
-              key={st}
-              onClick={() => { setActiveStatus(st); setCancelConfirmed(false) }}
-              className={`px-2.5 py-1 rounded font-mono text-xs cursor-pointer border ${
-                activeStatus === st
-                  ? 'bg-[#1A1A1E] text-white border-[#1A1A1E]'
-                  : 'bg-[#F7F7F8] text-[#8A8A92] border-[#ECECEC] hover:text-[#1A1A1E]'
-              }`}
-            >
-              {st}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* En-tête du bordereau officiel */}
+      {/* En-tête */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-[#ECECEC] pb-4">
         <div>
           <button
             onClick={() => navigate('/client/mes_commandes')}
             className="font-mono text-xs text-[#8A8A92] hover:text-[#1A1A1E] flex items-center gap-1 mb-2 bg-transparent border-0 cursor-pointer"
           >
-            ← Revenir au sommaire des expéditions
+            ← Revenir aux expéditions
           </button>
           <div className="flex items-center gap-3">
             <h1 className="font-mono text-2xl font-bold text-[#1A1A1E]">
-              {o.ref}
+              #{String(order.demandeId).slice(0, 8).toUpperCase()}
             </h1>
-            <span className="font-mono text-xs text-[#E8433D] font-bold">
-              {o.trackingCode}
-            </span>
+            <div className={`stamp-ink ${info.style}`}>{info.stamp}</div>
           </div>
           <p className="font-body text-xs text-[#8A8A92] mt-0.5">
-            Transporteur officiel : <strong className="font-display text-[#1A1A1E]">{o.agencyName}</strong>
+            Hub : <strong className="font-display text-[#1A1A1E]">{order.hubNom || '—'}</strong>
+            {' '}&middot; Créée le {formatDate(order.createdAt)}
           </p>
         </div>
-
         <div className="flex items-center gap-3">
-          <div className={`stamp-ink ${o.stampStyle}`}>
-            {cancelConfirmed ? 'DEMANDE ANNULÉE' : o.statusStamp}
-          </div>
-          {isCancellable && !cancelConfirmed && (
+          {isCancellable && (
             <button
               onClick={() => setShowCancelModal(true)}
               className="border border-[#E8433D] text-[#E8433D] hover:bg-[#E8433D] hover:text-white rounded px-3 py-1.5 font-mono text-xs font-bold uppercase transition-colors cursor-pointer"
             >
-              Annuler bordereau
+              Annuler
             </button>
           )}
         </div>
@@ -154,156 +152,172 @@ export default function DetailCommandePage() {
       {showCancelModal && (
         <div className="fixed inset-0 z-50 bg-[#1A1A1E]/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-[#1A1A1E] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl">
-            <h3 className="font-display text-lg font-bold text-[#1A1A1E] uppercase">
-              Confirmation d'annulation
-            </h3>
+            <h3 className="font-display text-lg font-bold text-[#1A1A1E] uppercase">Annuler la commande</h3>
             <p className="font-body text-xs text-[#8A8A92] leading-relaxed">
-              Confirmez-vous l'annulation définitive du bordereau <strong className="font-mono text-[#1A1A1E]">{o.ref}</strong> auprès du registre et du transporteur ?
+              Confirmez-vous l'annulation de la commande <strong className="font-mono text-[#1A1A1E]">
+                #{String(order.demandeId).slice(0, 8).toUpperCase()}
+              </strong> ?
             </p>
             <div className="flex justify-end gap-3 pt-2">
-              <button
-                onClick={() => setShowCancelModal(false)}
-                className="px-4 py-2 border border-[#ECECEC] rounded font-body text-xs text-[#8A8A92] hover:text-[#1A1A1E]"
-              >
-                Garder le bordereau
+              <button onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 border border-[#ECECEC] rounded font-body text-xs text-[#8A8A92] hover:text-[#1A1A1E]">
+                Garder
               </button>
-              <button
-                onClick={() => { setCancelConfirmed(true); setShowCancelModal(false) }}
-                className="px-4 py-2 bg-[#E8433D] text-white rounded font-body font-semibold text-xs hover:bg-[#B82823]"
-              >
-                Confirmer l'annulation
+              <button onClick={handleCancel} disabled={cancelling}
+                className="px-4 py-2 bg-[#E8433D] text-white rounded font-body font-semibold text-xs hover:bg-[#B82823] disabled:opacity-40">
+                {cancelling ? 'Annulation…' : 'Confirmer l\'annulation'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Corps du bordereau */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        {/* Colonne gauche : Étapes & Manifeste détaillé */}
+        {/* Colonne gauche : Carte + détails */}
         <div className="lg:col-span-8 space-y-6">
-          
-          {isRefused ? (
-            <div className="bordereau-row p-6 space-y-3">
-              <span className="stamp-ink stamp-ink-muted text-xs">AVIS DE NON-PRISE EN CHARGE</span>
-              <p className="font-body text-sm font-bold text-[#1A1A1E]">{o.refusalReason}</p>
-              <p className="font-body text-xs text-[#8A8A92]">{o.refusalMessage}</p>
-              <div className="pt-2">
-                <button
-                  onClick={() => navigate('/client/nouvelle_demande')}
-                  className="bg-[#E8433D] text-white rounded px-4 py-2 font-body text-xs font-semibold"
-                >
-                  Régulariser un nouveau bordereau
-                </button>
+          {/* Carte */}
+          {MARKERS.length > 0 && (
+            <div className="bordereau-row overflow-hidden">
+              <div className="p-3 border-b border-[#ECECEC]">
+                <span className="font-mono text-[10px] text-[#8A8A92] uppercase font-bold">Carte</span>
               </div>
-            </div>
-          ) : (
-            <div className="bordereau-row p-6 space-y-6">
-              <div className="border-b border-[#ECECEC] pb-3 flex justify-between items-center">
-                <span className="font-display font-bold uppercase text-sm text-[#1A1A1E]">
-                  Procès-Verbal d'Acheminement & Émargement
-                </span>
-                <span className="font-mono text-xs text-[#8A8A92]">AXE RN7</span>
-              </div>
-
-              {/* Étapes détaillées */}
-              <div className="space-y-6 font-body text-xs">
-                
-                <div className="border-l-2 border-[#1A1A1E] pl-4 space-y-1">
-                  <div className="flex justify-between font-mono text-[11px] text-[#8A8A92]">
-                    <span>1. ENREGISTREMENT OFFICIEL</span>
-                    <span>{o.dateCreation}</span>
-                  </div>
-                  <p className="font-bold text-[#1A1A1E]">Demande prise en compte sous le code {o.trackingCode}</p>
-                </div>
-
-                {o.hubInfo && (
-                  <div className="border-l-2 border-[#1A1A1E] pl-4 space-y-1">
-                    <span className="font-mono text-[11px] text-[#8A8A92]">2. HUB DE COLLECTE VALIDÉ</span>
-                    <p className="font-bold text-[#1A1A1E]">{o.hubInfo.name}</p>
-                    <p className="text-[#8A8A92]">{o.hubInfo.address}</p>
-                    <p className="font-mono text-[#8A8A92]">Contact : {o.hubInfo.contact} — {o.hubInfo.horaires}</p>
-                  </div>
-                )}
-
-                {o.preciseTimeSlot && (
-                  <div className="border-l-2 border-[#E8433D] pl-4 space-y-1 bg-[#F7F7F8] p-3 rounded-r">
-                    <span className="font-mono text-[11px] text-[#E8433D] font-bold">3. CRÉNEAU DE COLLECTE OPTIMISÉ</span>
-                    <p className="font-display font-bold text-sm text-[#1A1A1E]">{o.preciseTimeSlot}</p>
-                  </div>
-                )}
-
-                {o.pod && (
-                  <div className="border-l-2 border-[#1A1A1E] pl-4 space-y-3 pt-2">
-                    <div className="flex justify-between items-center">
-                      <span className="font-mono text-[11px] text-[#1A1A1E] font-bold">4. ÉMARGEMENT CLIENT & PREUVE (POD)</span>
-                      <span className="font-mono text-[11px] text-[#8A8A92]">{o.pod.deliveredAt}</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                      <div className="space-y-1">
-                        <span className="font-mono text-[10px] text-[#8A8A92] block uppercase">Photo de Réception sur Site</span>
-                        <div className="h-32 rounded border border-[#ECECEC] overflow-hidden">
-                          <img src={o.pod.photoUrl} alt="POD" className="w-full h-full object-cover" />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <span className="font-mono text-[10px] text-[#8A8A92] block uppercase">Signature Numérique Émargée</span>
-                        <div className="h-32 rounded border border-[#ECECEC] bg-[#F7F7F8] p-3 flex flex-col justify-between text-center">
-                          <span className="font-mono text-[10px] text-[#8A8A92]">RÉCEPTIONNAIRE</span>
-                          <span className="font-display text-xl font-bold text-[#1A1A1E] italic tracking-widest">
-                            {o.pod.signatureName}
-                          </span>
-                          <span className="font-mono text-[10px] text-[#8A8A92]">{o.pod.receiverName}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
+              <div style={{ height: '280px' }}>
+                <MapView center={MAP_CENTER} zoom={12} style={{ height: '100%', width: '100%' }}>
+                  {MARKERS.map((m, i) => (
+                    <Marker key={i} position={m.pos} icon={markerIcon(m.color)}>
+                      <Popup>{m.label}</Popup>
+                    </Marker>
+                  ))}
+                </MapView>
               </div>
             </div>
           )}
 
+          {/* Statuts */}
+          <div className="bordereau-row p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-display font-bold uppercase text-sm text-[#1A1A1E]">Suivi</span>
+            </div>
+            <div className="flex items-center justify-between px-2">
+              {STEPS.map((label, i) => {
+                const isDone = i < info.step
+                return (
+                  <div key={label} className="flex flex-col items-center gap-1.5 flex-1 relative text-center">
+                    {i < STEPS.length - 1 && (
+                      <div className={`absolute top-[7px] left-1/2 w-full h-[2px] z-0 ${
+                        i < info.step - 1 ? 'bg-[#E8433D]' : 'bg-[#ECECEC]'
+                      }`} />
+                    )}
+                    <div className={`w-[14px] h-[14px] rounded-full border-2 z-10 transition-colors ${
+                      isDone ? 'bg-[#E8433D] border-[#E8433D]' : 'bg-white border-[#ECECEC]'
+                    }`} />
+                    <span className={`font-display text-[9.5px] uppercase tracking-[0.4px] ${
+                      isDone ? 'text-[#1A1A1E] font-bold' : 'text-[#8A8A92]'
+                    }`}>{label}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Colis */}
+          {order.colis && order.colis.length > 0 && (
+            <div className="bordereau-row p-6 space-y-3">
+              <span className="font-display font-bold uppercase text-sm text-[#1A1A1E]">Colis ({order.colis.length})</span>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="font-mono text-[10px] text-[#8A8A92] uppercase border-b border-[#ECECEC]">
+                    <th className="text-left py-2">#</th>
+                    <th className="text-left py-2">Poids</th>
+                    <th className="text-left py-2">Volume</th>
+                    <th className="text-left py-2">Catégorie</th>
+                    <th className="text-left py-2">État</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {order.colis.map((c, i) => (
+                    <tr key={c.colisId || i} className="border-b border-[#ECECEC] last:border-0">
+                      <td className="py-2 font-mono text-[#E8433D]">{i + 1}</td>
+                      <td className="py-2 font-mono">{c.poidsKg} kg</td>
+                      <td className="py-2 font-mono">{c.volumeM3} m³</td>
+                      <td className="py-2 font-body">{c.categorieLibelle || '—'}</td>
+                      <td className="py-2 font-mono text-[10px]">{c.etat || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t border-[#1A1A1E] font-bold">
+                    <td className="py-1.5 font-mono text-[10px] uppercase">Total</td>
+                    <td className="py-1.5 font-mono">{totalPoids} kg</td>
+                    <td className="py-1.5 font-mono">{totalVolume} m³</td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          )}
+
+          {/* Motif refus */}
+          {isRefused && order.motifRefus && (
+            <div className="bordereau-row p-6 space-y-2">
+              <span className="stamp-ink stamp-ink-muted text-xs">REFUSÉE</span>
+              <p className="font-body text-sm font-bold text-[#1A1A1E]">Motif du refus</p>
+              <p className="font-body text-xs text-[#8A8A92]">{order.motifRefus}</p>
+            </div>
+          )}
         </div>
 
-        {/* Colonne droite : Fiche Signalétique de la Marchandise */}
+        {/* Colonne droite : Fiche signalétique */}
         <div className="lg:col-span-4 space-y-4">
           <div className="bordereau-row p-5 space-y-3 font-body text-xs">
             <div className="border-b border-[#ECECEC] pb-2.5">
               <span className="font-mono text-[10px] text-[#8A8A92] uppercase block">Fiche Signalétique</span>
-              <span className="font-display font-bold text-sm text-[#1A1A1E]">Contenu du Bordereau</span>
+              <span className="font-display font-bold text-sm text-[#1A1A1E]">Détails</span>
             </div>
-
             <div className="space-y-2 font-mono">
               <div className="flex justify-between">
-                <span className="text-[#8A8A92]">Départ :</span>
-                <span className="text-[#1A1A1E] font-bold text-right">{o.depart}</span>
+                <span className="text-[#8A8A92]">Collecte :</span>
+                <span className="text-[#1A1A1E] font-bold text-right max-w-[200px]">{order.adresseCollecte || '—'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#8A8A92]">Arrivée :</span>
-                <span className="text-[#1A1A1E] font-bold text-right">{o.destination}</span>
+                <span className="text-[#8A8A92]">Livraison :</span>
+                <span className="text-[#E8433D] font-bold text-right max-w-[200px]">{order.adresseLivraison || '—'}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-[#8A8A92]">Poids :</span>
-                <span className="text-[#1A1A1E] font-bold">{o.poids}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[#8A8A92]">Volume :</span>
-                <span className="text-[#1A1A1E] font-bold">{o.volume}</span>
-              </div>
+              {order.dateSouhaitee && (
+                <div className="flex justify-between">
+                  <span className="text-[#8A8A92]">Date souhaitée :</span>
+                  <span className="text-[#1A1A1E] font-bold">{order.dateSouhaitee}</span>
+                </div>
+              )}
+              {order.creneau && (
+                <div className="flex justify-between">
+                  <span className="text-[#8A8A92]">Créneau :</span>
+                  <span className="text-[#1A1A1E] font-bold">{order.creneau}</span>
+                </div>
+              )}
+              {order.nomDestinataire && (
+                <div className="flex justify-between">
+                  <span className="text-[#8A8A92]">Destinataire :</span>
+                  <span className="text-[#1A1A1E] font-bold">{order.nomDestinataire}</span>
+                </div>
+              )}
+              {order.telDestinataire && (
+                <div className="flex justify-between">
+                  <span className="text-[#8A8A92]">Tél. :</span>
+                  <span className="text-[#1A1A1E] font-bold">{order.telDestinataire}</span>
+                </div>
+              )}
               <div className="flex justify-between pt-2 border-t border-[#ECECEC] font-display">
-                <span className="text-[#8A8A92] uppercase font-bold">Affrètement :</span>
-                <span className="text-[#E8433D] font-bold text-sm">{o.montant}</span>
+                <span className="text-[#8A8A92] uppercase font-bold">Tarif :</span>
+                <span className="text-[#E8433D] font-bold text-sm">
+                  {order.tarif ? `${new Intl.NumberFormat('fr-MG').format(order.tarif)} Ar` : '—'}
+                </span>
               </div>
             </div>
           </div>
         </div>
-
       </div>
-
     </div>
   )
 }

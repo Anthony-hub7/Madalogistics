@@ -62,6 +62,10 @@ public class Utilisateur {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_final_id")
+    private ClientFinal clientFinal;
+
     @OneToOne(mappedBy = "utilisateur")
     private Chauffeur chauffeur;
 

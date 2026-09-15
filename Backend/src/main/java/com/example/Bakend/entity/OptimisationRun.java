@@ -31,8 +31,9 @@ public class OptimisationRun {
     @JoinColumn(name = "tenant_id", nullable = false)
     private PMECliente pmeCliente;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "hub_id", nullable = false)
+    // V12 : hub_id nullable pour CLUSTERING tenant-scoped
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hub_id")
     private Hub hub;
 
     @Enumerated(EnumType.STRING)
@@ -47,9 +48,6 @@ public class OptimisationRun {
 
     @Column(name = "justification_document", columnDefinition = "TEXT")
     private String justificationDocument;
-
-    @Column(name = "justification_embedding", columnDefinition = "VECTOR(1536)")
-    private String justificationEmbedding;
 
     @Column(name = "duree_calcul_ms")
     private Integer dureeCalculMs;

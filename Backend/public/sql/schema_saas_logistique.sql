@@ -1,11 +1,10 @@
 -- =====================================================================
 -- SCHEMA SQL — SaaS de gestion logistique et de flotte pour PME (Madagascar)
 -- Multi-tenant : shared database / shared schema, discriminant tenant_id
--- SGBD cible : PostgreSQL (extension pgvector requise pour les embeddings)
+-- SGBD cible : PostgreSQL 16
 -- =====================================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "vector";  -- pour justification_embedding (OptimisationRun)
 
 -- =====================================================================
 -- 1. PMECliente (tenant)
@@ -152,7 +151,6 @@ CREATE TABLE optimisation_run (
     parametres              JSONB,
     resultat                JSONB,
     justification_document  TEXT,          -- raisonnement en langage clair
-    justification_embedding VECTOR(1536),  -- recherche sémantique, sans recours à un LLM à l'exécution
     duree_calcul_ms         INTEGER,
     created_at              TIMESTAMP NOT NULL DEFAULT now()
 );

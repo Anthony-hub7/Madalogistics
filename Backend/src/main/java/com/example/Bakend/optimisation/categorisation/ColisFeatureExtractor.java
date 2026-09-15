@@ -1,28 +1,71 @@
 package com.example.Bakend.optimisation.categorisation;
 
+import com.example.Bakend.entity.ColisFeature;
+import com.example.Bakend.repository.ColisFeatureRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
- * Extrait les features de clustering depuis le CSV mock ou la base de données.
- * Applique log1p() sur valeur_estimee_ar avant standardisation.
+ * Extraction des features de clustering depuis la BDD (V12) ou le CSV mock (dev/test).
  *
- * Feature vector : [poids, volume, log1p(valeur), fragilité, délai]
- * Exclut : categorie_declaree, designation, profil_source (validation uniquement).
+ * V12 : extractFromDb(tenantId) lit colis_features (table dediee).
+ * Le CSV mock est garde pour les tests unitaires uniquement.
+ *
+ * Feature vector : [poids, volume, log1p(valeur), fragilite, delai]
  */
 @Component
 public class ColisFeatureExtractor {
 
     private static final String CSV_PATH = "ml/colis_mock.csv";
 
+    private final ColisFeatureRepository colisFeatureRepository;
+
+    public ColisFeatureExtractor(ColisFeatureRepository colisFeatureRepository) {
+        this.colisFeatureRepository = colisFeatureRepository;
+    }
+
     /**
-     * Charge le CSV mock et retourne les features + métadonnées.
+     * Constructeur pour tests unitaires (pas d'acces BDD).
+     */
+    ColisFeatureExtractor() {
+        this.colisFeatureRepository = null;
+    }
+
+    /**
+     * V12 : extraction depuis colis_features (BDD).
+     * Jointure colis + colis_features pour recuperer poids/volume + fragilite/valeur/delai.
+     */
+    public List<ColisFeatures> extractFromDb(UUID tenantId) {
+        List<ColisFeature> dbFeatures = colisFeatureRepository.findFeaturesForClustering(tenantId);
+        List<ColisFeatures> features = new ArrayList<>();
+
+        for (ColisFeature cf : dbFeatures) {
+            features.add(ColisFeatures.builder()
+                    .colisId(cf.getColis().getColisId().toString())
+                    .poidsKg(cf.getColis().getPoidsKg().doubleValue())
+                    .volumeM3(cf.getColis().getVolumeM3().doubleValue())
+                    .fragilite010(cf.getFragilite010() != null ? cf.getFragilite010() : 0)
+                    .valeurEstimeeAr(cf.getValeurEstimeeAr() != null
+                            ? cf.getValeurEstimeeAr().doubleValue() : 0.0)
+                    .delaiExpress(cf.getDelaiExpress() ? 1.0 : 0.0)
+                    .categorieDeclaree(cf.getCategoriePredite() != null
+                            ? cf.getCategoriePredite().getClasseCode() : "")
+                    .build());
+        }
+        return features;
+    }
+
+    /**
+     * Extraction depuis le CSV mock (dev/test uniquement).
+     * Garde pour retrocompatibilite des tests existants.
      */
     public List<ColisFeatures> extractFromMockCsv() {
         List<ColisFeatures> features = new ArrayList<>();
@@ -31,13 +74,13 @@ public class ColisFeatureExtractor {
                         new ClassPathResource(CSV_PATH).getInputStream(),
                         StandardCharsets.UTF_8))) {
 
-            String header = reader.readLine(); // skip header
+            String header = reader.readLine();
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);
                 if (parts.length < 9) continue;
 
-                ColisFeatures f = ColisFeatures.builder()
+                features.add(ColisFeatures.builder()
                         .colisId(parts[0].trim())
                         .poidsKg(Double.parseDouble(parts[1].trim()))
                         .volumeM3(Double.parseDouble(parts[2].trim()))
@@ -47,8 +90,7 @@ public class ColisFeatureExtractor {
                         .categorieDeclaree(parts[6].trim())
                         .designation(parts[7].trim())
                         .profilSource(parts[8].trim())
-                        .build();
-                features.add(f);
+                        .build());
             }
         } catch (Exception e) {
             throw new RuntimeException("Erreur lecture CSV mock: " + CSV_PATH, e);
@@ -58,7 +100,7 @@ public class ColisFeatureExtractor {
 
     /**
      * Convertit la liste de ColisFeatures en matrice double[][] pour Smile K-Means.
-     * Ordre : [poids, volume, log1p(valeur), fragilité, délai].
+     * Ordre : [poids, volume, log1p(valeur), fragilite, delai].
      */
     public double[][] toMatrix(List<ColisFeatures> features) {
         double[][] matrix = new double[features.size()][];
@@ -70,7 +112,6 @@ public class ColisFeatureExtractor {
 
     /**
      * Standardisation manuelle : moyenne 0, variance 1 par colonne.
-     * Retourne [matrice standardisée, moyennes[], écarts-types[]].
      */
     public StandardizationResult standardize(double[][] matrix) {
         int n = matrix.length;
@@ -79,16 +120,12 @@ public class ColisFeatureExtractor {
         double[] mean = new double[d];
         double[] std = new double[d];
 
-        // Calcul des moyennes
         for (int j = 0; j < d; j++) {
             double sum = 0;
-            for (int i = 0; i < n; i++) {
-                sum += matrix[i][j];
-            }
+            for (int i = 0; i < n; i++) sum += matrix[i][j];
             mean[j] = sum / n;
         }
 
-        // Calcul des écarts-types
         for (int j = 0; j < d; j++) {
             double sumSq = 0;
             for (int i = 0; i < n; i++) {
@@ -96,10 +133,9 @@ public class ColisFeatureExtractor {
                 sumSq += diff * diff;
             }
             std[j] = Math.sqrt(sumSq / n);
-            if (std[j] == 0) std[j] = 1; // éviter division par zéro
+            if (std[j] == 0) std[j] = 1;
         }
 
-        // Application de la standardisation
         double[][] standardized = new double[n][d];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < d; j++) {
@@ -110,9 +146,5 @@ public class ColisFeatureExtractor {
         return new StandardizationResult(standardized, mean, std);
     }
 
-    /**
-     * Résultat de la standardisation, pour pouvoir appliquer les mêmes
-     // paramètres sur de nouvelles données (inference).
-     */
     public record StandardizationResult(double[][] standardized, double[] mean, double[] std) {}
 }

@@ -1,6 +1,5 @@
 package com.example.Bakend.entity;
 
-import com.example.Bakend.entity.enums.ClasseValeur;
 import com.example.Bakend.entity.enums.SacStatut;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,8 +13,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Sac — unité opérationnelle du groupage (chargement d'un véhicule).
+ * Sac — unite operationnelle du groupage (chargement d'un vehicule).
  * Table : sac
+ *
+ * V12 : categorie_dominante etendue de CHAR(1) a VARCHAR(20) (classe_code dynamique).
  */
 @Entity
 @Table(name = "sac")
@@ -45,9 +46,9 @@ public class Sac {
     @JoinColumn(name = "chauffeur_id")
     private Chauffeur chauffeur;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "categorie_dominante", length = 1)
-    private ClasseValeur categorieDominante;
+    // V12 : VARCHAR(20) dynamique (classe_code), pas plus ClasseValeur enum
+    @Column(name = "categorie_dominante", length = 20)
+    private String categorieDominante;
 
     @Column(name = "taux_remplissage", precision = 5, scale = 2)
     private BigDecimal tauxRemplissage;

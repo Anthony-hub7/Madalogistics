@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { seuilService } from '../../services/seuilService'
 import { tarifsService } from '../../services/tarifsService'
+import { categoriesService } from '../../services/categoriesService'
 
 function JaugeSeuil({ value }) {
   const color = value < 50 ? '#DC3545' : value < 80 ? '#FFC107' : '#198754'
@@ -24,7 +25,7 @@ function JaugeSeuil({ value }) {
   )
 }
 
-const emptyGrille = { libelle: '', prixParKg: '', prixParM3: '', prixMinimum: '' }
+const emptyGrille = { libelle: '', prixParKg: '', prixParM3: '', prixParKm: '', prixMinimum: '', categorieId: '' }
 
 export default function ParametresTarifairesTab() {
   const [seuil, setSeuil] = useState(0)
@@ -33,6 +34,7 @@ export default function ParametresTarifairesTab() {
 
   const [grilles, setGrilles] = useState([])
   const [grillesLoading, setGrillesLoading] = useState(true)
+  const [categories, setCategories] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyGrille)
@@ -49,6 +51,10 @@ export default function ParametresTarifairesTab() {
       .then(data => setGrilles(data))
       .catch(() => {})
       .finally(() => setGrillesLoading(false))
+
+    categoriesService.lister()
+      .then(data => setCategories(data))
+      .catch(() => {})
   }, [])
 
   const handleSaveSeuil = async () => {
@@ -73,7 +79,9 @@ export default function ParametresTarifairesTab() {
       libelle: g.libelle,
       prixParKg: g.prixParKg ?? '',
       prixParM3: g.prixParM3 ?? '',
+      prixParKm: g.prixParKm ?? '',
       prixMinimum: g.prixMinimum ?? '',
+      categorieId: g.categorieId ?? '',
     })
     setEditingId(g.grilleId)
     setShowForm(true)
@@ -87,7 +95,9 @@ export default function ParametresTarifairesTab() {
         libelle: form.libelle,
         prixParKg: form.prixParKg !== '' ? Number(form.prixParKg) : null,
         prixParM3: form.prixParM3 !== '' ? Number(form.prixParM3) : null,
+        prixParKm: form.prixParKm !== '' ? Number(form.prixParKm) : null,
         prixMinimum: form.prixMinimum !== '' ? Number(form.prixMinimum) : null,
+        categorieId: form.categorieId || null,
       }
       if (editingId) {
         const updated = await tarifsService.modifier(editingId, payload)
@@ -172,16 +182,34 @@ export default function ParametresTarifairesTab() {
         {showForm && (
           <div className="p-5 border-b border-outline-variant bg-surface-container-low/30 space-y-3">
             <h4 className="font-label-md text-label-md font-bold">{editingId ? 'Modifier la grille' : 'Nouvelle grille'}</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="md:col-span-3">
                 <label className="font-label-sm text-label-sm text-on-surface-variant block mb-1">Libellé *</label>
                 <input
                   type="text"
                   value={form.libelle}
                   onChange={(e) => setForm({ ...form, libelle: e.target.value })}
-                  placeholder="Ex: Standard"
+                  placeholder="Ex: Fragile - Haute valeur"
                   className="w-full rounded-lg border border-outline-variant px-3 py-2 font-label-md text-label-md"
                 />
+              </div>
+              <div className="md:col-span-3">
+                <label className="font-label-sm text-label-sm text-on-surface-variant block mb-1">Catégorie</label>
+                <select
+                  value={form.categorieId}
+                  onChange={(e) => setForm({ ...form, categorieId: e.target.value })}
+                  className="w-full rounded-lg border border-outline-variant px-3 py-2 font-label-md text-label-md bg-surface-container-lowest"
+                >
+                  <option value="">— Repli global (aucune catégorie) —</option>
+                  {categories.filter(c => c.actif).map(cat => (
+                    <option key={cat.categorieId} value={cat.categorieId}>
+                      {cat.libelle} ({cat.classeCode})
+                    </option>
+                  ))}
+                </select>
+                <p className="font-label-xs text-label-xs text-on-surface-variant mt-1">
+                  Sélectionnez une catégorie ou laissez vide pour un tarif de repli global.
+                </p>
               </div>
               <div>
                 <label className="font-label-sm text-label-sm text-on-surface-variant block mb-1">Prix/kg (Ar)</label>
@@ -194,12 +222,22 @@ export default function ParametresTarifairesTab() {
                 />
               </div>
               <div>
-                <label className="font-label-sm text-label-sm text-on-surface-variant block mb-1">Prix/m3 (Ar)</label>
+                <label className="font-label-sm text-label-sm text-on-surface-variant block mb-1">Prix/m³ (Ar)</label>
                 <input
                   type="number"
                   value={form.prixParM3}
                   onChange={(e) => setForm({ ...form, prixParM3: e.target.value })}
                   placeholder="15000"
+                  className="w-full rounded-lg border border-outline-variant px-3 py-2 font-label-md text-label-md"
+                />
+              </div>
+              <div>
+                <label className="font-label-sm text-label-sm text-on-surface-variant block mb-1">Prix/km (Ar/km)</label>
+                <input
+                  type="number"
+                  value={form.prixParKm}
+                  onChange={(e) => setForm({ ...form, prixParKm: e.target.value })}
+                  placeholder="500"
                   className="w-full rounded-lg border border-outline-variant px-3 py-2 font-label-md text-label-md"
                 />
               </div>
@@ -242,8 +280,10 @@ export default function ParametresTarifairesTab() {
               <thead className="bg-surface-container-low">
                 <tr>
                   <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Libellé</th>
+                  <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Catégorie</th>
                   <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Prix/kg (Ar)</th>
-                  <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Prix/m3 (Ar)</th>
+                  <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Prix/m³ (Ar)</th>
+                  <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Prix/km (Ar/km)</th>
                   <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Prix minimum (Ar)</th>
                   <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Statut</th>
                   <th className="px-5 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Actions</th>
@@ -251,10 +291,20 @@ export default function ParametresTarifairesTab() {
               </thead>
               <tbody className="divide-y divide-outline-variant">
                 {grilles.map((g) => (
-                  <tr key={g.grilleId} className="hover:bg-surface-container-low/50">
+                  <tr key={g.grilleId} className={`hover:bg-surface-container-low/50 ${!g.actif ? 'opacity-50' : ''}`}>
                     <td className="px-5 py-4 font-label-md text-label-md font-bold">{g.libelle}</td>
+                    <td className="px-5 py-4">
+                      {g.categorieLibelle ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full font-label-sm text-label-sm font-bold bg-tertiary-container/30 text-on-tertiary-container">
+                          {g.categorieLibelle} ({g.categorieClasseCode})
+                        </span>
+                      ) : (
+                        <span className="font-body-sm text-body-sm text-on-surface-variant italic">Repli global</span>
+                      )}
+                    </td>
                     <td className="px-5 py-4 font-body-sm text-body-sm">{g.prixParKg != null ? Number(g.prixParKg).toLocaleString() : '-'}</td>
                     <td className="px-5 py-4 font-body-sm text-body-sm">{g.prixParM3 != null ? Number(g.prixParM3).toLocaleString() : '-'}</td>
+                    <td className="px-5 py-4 font-body-sm text-body-sm">{g.prixParKm != null ? `${Number(g.prixParKm).toLocaleString()} Ar/km` : '-'}</td>
                     <td className="px-5 py-4 font-body-sm text-body-sm">{g.prixMinimum != null ? Number(g.prixMinimum).toLocaleString() : '-'}</td>
                     <td className="px-5 py-4">
                       <button
@@ -281,6 +331,7 @@ export default function ParametresTarifairesTab() {
           <div className="text-center py-8 text-on-surface-variant">
             <span className="material-symbols-outlined text-5xl opacity-30">receipt_long</span>
             <p className="font-body-md text-body-md mt-2">Aucune grille tarifaire configurée</p>
+            <p className="font-label-sm text-label-sm text-outline mt-1">Ajoutez une grille avec une catégorie ou un repli global.</p>
           </div>
         )}
       </div>

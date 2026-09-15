@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,12 +47,56 @@ public class DemandeTransport {
     @Column(name = "adresse_livraison", length = 500)
     private String adresseLivraison;
 
+    // Géolocalisation collecte
+    @Column(name = "latitude_collecte")
+    private Double latitudeCollecte;
+
+    @Column(name = "longitude_collecte")
+    private Double longitudeCollecte;
+
+    // Géolocalisation livraison
+    @Column(name = "latitude_livraison")
+    private Double latitudeLivraison;
+
+    @Column(name = "longitude_livraison")
+    private Double longitudeLivraison;
+
+    // Planning
+    @Column(name = "date_souhaitee")
+    private LocalDate dateSouhaitee;
+
+    @Column(name = "creneau", length = 30)
+    private String creneau;
+
+    // Destinataire
+    @Column(name = "nom_destinataire", length = 255)
+    private String nomDestinataire;
+
+    @Column(name = "tel_destinataire", length = 50)
+    private String telDestinataire;
+
     @Column(name = "tarif", precision = 10, scale = 2)
     private BigDecimal tarif;
+
+    // V14 : distance calculée (km)
+    @Column(name = "distance_km", precision = 10, scale = 2)
+    private BigDecimal distanceKm;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false, length = 30)
     private DemandeStatut statut = DemandeStatut.CREEE;
+
+    // Validation / refus
+    @Column(name = "motif_refus", columnDefinition = "TEXT")
+    private String motifRefus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "valide_par")
+    private Utilisateur validePar;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "grille_id")
+    private GrilleTarifaire grilleUtilisee;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

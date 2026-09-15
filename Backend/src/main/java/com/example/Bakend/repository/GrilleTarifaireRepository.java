@@ -11,7 +11,7 @@ import java.util.UUID;
 
 /**
  * Repository de la grille tarifaire d'un tenant.
- * Couche repository : uniquement des requêtes JPA/JPQL, pas de logique métier.
+ * V15 : requêtes par catégorie pour résolution tarifaire.
  */
 public interface GrilleTarifaireRepository extends JpaRepository<GrilleTarifaire, UUID> {
 
@@ -25,4 +25,18 @@ public interface GrilleTarifaireRepository extends JpaRepository<GrilleTarifaire
 
     @Query("SELECT g FROM GrilleTarifaire g WHERE g.pmeCliente.tenantId = :tenantId ORDER BY g.actif DESC, g.libelle ASC")
     List<GrilleTarifaire> rechercherParTenant(@Param("tenantId") UUID tenantId);
+
+    // V15 : grille active pour une catégorie donnée
+    Optional<GrilleTarifaire> findByPmeClienteTenantIdAndCategorieCategorieIdAndActifTrue(
+            UUID tenantId, UUID categorieId);
+
+    // V15 : grille active de repli global (categorie NULL)
+    Optional<GrilleTarifaire> findByPmeClienteTenantIdAndCategorieIsNullAndActifTrue(UUID tenantId);
+
+    // V15 : vérifier unicité active par catégorie
+    boolean existsByPmeClienteTenantIdAndCategorieCategorieIdAndActifTrueAndGrilleIdNot(
+            UUID tenantId, UUID categorieId, UUID grilleId);
+
+    boolean existsByPmeClienteTenantIdAndCategorieCategorieIdAndActifTrue(
+            UUID tenantId, UUID categorieId);
 }

@@ -2,120 +2,170 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { demandesService } from '../../services/demandesService'
 
-function mapApiOrder(o) {
-  return {
-    id: o.id || o.numero || o.reference,
-    client: o.client?.nom || o.clientNom || o.client,
-    destination: o.destination || o.villeDestination || '—',
-    weight: o.poids ? `${o.poids}kg` : o.weight || '—',
-    volume: o.volume ? `${o.volume}m³` : o.volume || '—',
-    priority: o.priorite || o.priority || 'Normale',
-    priorityClass: (o.priorite || o.priority) === 'Haute' || (o.priorite || o.priority) === 'Critique'
-      ? 'text-primary font-bold' : 'text-on-surface-variant',
-    status: o.statut || o.status || 'En attente',
-    isGreen: (o.statut || o.status) === 'Livrée',
-    statusDot: (o.statut || o.status) === 'En attente',
-  }
+const STATUT_MAP = {
+  CREEE: { label: 'Créée', dot: 'bg-yellow-400', badge: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
+  VALIDEE: { label: 'Validée', dot: 'bg-blue-400', badge: 'bg-blue-50 text-blue-700 border-blue-200' },
+  EN_ATTENTE_GROUPAGE: { label: 'En attente groupage', dot: 'bg-orange-400', badge: 'bg-orange-50 text-orange-700 border-orange-200' },
+  GROUPEE: { label: 'Groupée', dot: 'bg-purple-400', badge: 'bg-purple-50 text-purple-700 border-purple-200' },
+  EN_TRANSIT: { label: 'En transit', dot: 'bg-[#E8433D]', badge: 'bg-red-50 text-[#E8433D] border-red-200' },
+  LIVREE: { label: 'Livrée', dot: 'bg-green-500', badge: 'bg-green-50 text-green-700 border-green-200' },
+  INCIDENT: { label: 'Incident', dot: 'bg-gray-400', badge: 'bg-gray-50 text-gray-700 border-gray-200' },
+  REFUSEE: { label: 'Refusée', dot: 'bg-gray-400', badge: 'bg-gray-50 text-gray-500 border-gray-200' },
+  ANNULEE: { label: 'Annulée', dot: 'bg-gray-300', badge: 'bg-gray-50 text-gray-400 border-gray-200' },
 }
 
-const filters = ['Tous', 'En attente', 'En cours', 'Livrée']
+const FILTERS = [
+  { key: 'Tous', statut: null },
+  { key: 'CREEE', statut: 'CREEE' },
+  { key: 'EN_ATTENTE_GROUPAGE', statut: 'EN_ATTENTE_GROUPAGE' },
+  { key: 'EN_TRANSIT', statut: 'EN_TRANSIT' },
+  { key: 'LIVREE', statut: 'LIVREE' },
+  { key: 'REFUSEE', statut: 'REFUSEE' },
+]
 
-function DemandesListPage() {
+function RefuseModal({ open, onClose, onConfirm }) {
+  const [motif, setMotif] = useState('')
+  if (!open) return null
+  return (
+    <div className="fixed inset-0 z-50 bg-[#1A1A1E]/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white border border-[#1A1A1E] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl">
+        <h3 className="font-display text-lg font-bold text-[#1A1A1E] uppercase">Refuser la commande</h3>
+        <textarea
+          rows={3}
+          value={motif}
+          onChange={(e) => setMotif(e.target.value)}
+          placeholder="Motif du refus..."
+          className="w-full bg-white border border-[#ECECEC] rounded px-3 py-2 font-body text-xs focus:outline-none focus:border-[#1A1A1E]"
+        />
+        <div className="flex justify-end gap-3 pt-2">
+          <button onClick={onClose}
+            className="px-4 py-2 border border-[#ECECEC] rounded font-body text-xs text-[#8A8A92] hover:text-[#1A1A1E]">
+            Annuler
+          </button>
+          <button onClick={() => onConfirm(motif)}
+            className="px-4 py-2 bg-[#E8433D] text-white rounded font-body font-semibold text-xs hover:bg-[#B82823]">
+            Confirmer le refus
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function DemandesListPage() {
   const navigate = useNavigate()
   const [activeFilter, setActiveFilter] = useState('Tous')
   const [search, setSearch] = useState('')
-  const [selectedOrders, setSelectedOrders] = useState([])
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [selectedIds, setSelectedIds] = useState([])
 
-  useEffect(() => {
-    let cancelled = false
-    async function load() {
-      try {
-        const data = await demandesService.getAll()
-        if (!cancelled && Array.isArray(data)) {
-          setOrders(data.map(mapApiOrder))
-        }
-      } catch (err) {
-        if (!cancelled) setError(err.message || 'Impossible de charger les commandes')
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
+  // Refuse modal
+  const [refuseTarget, setRefuseTarget] = useState(null)
+  const [acting, setActing] = useState(false)
+
+  useEffect(() => { loadOrders() }, [])
+
+  const loadOrders = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const data = await demandesService.getAll()
+      setOrders(Array.isArray(data) ? data : [])
+    } catch (e) {
+      setError(e.message || 'Erreur de chargement')
+    } finally {
+      setLoading(false)
     }
-    load()
-    return () => { cancelled = true }
-  }, [])
+  }
 
-  const filtered = orders.filter((o) => {
-    const matchStatus = activeFilter === 'Tous' || o.status === activeFilter
-    const matchSearch = !search || o.id.toLowerCase().includes(search.toLowerCase()) || o.client.toLowerCase().includes(search.toLowerCase())
-    return matchStatus && matchSearch
+  const filtreStatut = FILTERS.find(f => f.key === activeFilter)?.statut
+  const filtered = orders.filter(o => {
+    if (filtreStatut && o.statut !== filtreStatut) return false
+    if (search) {
+      const s = search.toLowerCase()
+      const id = (o.demandeId || '').toLowerCase()
+      const client = (o.clientNom || '').toLowerCase()
+      const dest = (o.adresseLivraison || '').toLowerCase()
+      if (!id.includes(s) && !client.includes(s) && !dest.includes(s)) return false
+    }
+    return true
   })
 
-  const selectableOrders = filtered.filter(o => o.status === 'En attente')
-  const allSelectableSelected = selectableOrders.length > 0 && selectableOrders.every(o => selectedOrders.includes(o.id))
+  const selectable = filtered.filter(o => o.statut === 'CREEE')
+  const allSelected = selectable.length > 0 && selectable.every(o => selectedIds.includes(o.demandeId))
 
-  const toggleSelectAll = () => {
-    if (allSelectableSelected) {
-      setSelectedOrders([])
-    } else {
-      setSelectedOrders(selectableOrders.map(o => o.id))
-    }
-  }
+  const toggleAll = () => setSelectedIds(allSelected ? [] : selectable.map(o => o.demandeId))
+  const toggleOne = (id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
 
-  const toggleSelect = (id) => {
-    setSelectedOrders(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    )
-  }
-
-  const handleSendToOptimisation = () => {
-    const selected = orders.filter(o => selectedOrders.includes(o.id))
+  const handleOptimisation = () => {
+    const selected = orders.filter(o => selectedIds.includes(o.demandeId))
     navigate('/logistics/optimisation', { state: { selectedOrders: selected } })
   }
 
+  const handleValider = async (demandeId) => {
+    setActing(true)
+    try {
+      await demandesService.valider(demandeId)
+      await loadOrders()
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setActing(false)
+    }
+  }
+
+  const handleRefuser = async (motif) => {
+    if (!refuseTarget) return
+    setActing(true)
+    try {
+      await demandesService.refuser(refuseTarget, motif)
+      setRefuseTarget(null)
+      await loadOrders()
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setActing(false)
+    }
+  }
+
+  const formatDate = (d) => {
+    if (!d) return '—'
+    try { return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) }
+    catch { return d }
+  }
+
+  const countByStatut = (s) => orders.filter(o => o.statut === s).length
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end border-b border-outline-variant/60 pb-5">
+      <RefuseModal open={!!refuseTarget} onClose={() => setRefuseTarget(null)} onConfirm={handleRefuser} />
+
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end border-b border-[#ECECEC] pb-5">
         <div>
-          <div className="flex items-center gap-3">
-            <span className="font-stamp text-xs uppercase px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30">BORDEREAUX & MANIFESTES</span>
-            <span className="text-xs font-mono text-on-surface-variant">RN7-LOG</span>
-          </div>
-          <h2 className="font-display text-3xl font-bold uppercase tracking-tight text-on-surface mt-1">Gestion des Commandes</h2>
-          <p className="font-body text-sm text-on-surface-variant">
-            Gérez et suivez vos flux logistiques en temps réel sur le corridor Antananarivo–Antsirabe.
-          </p>
+          <h2 className="font-display text-2xl font-bold text-[#1A1A1E]">Gestion des Commandes</h2>
+          <p className="font-body text-sm text-[#8A8A92]">Validez, refusez et suivez les commandes de vos clients.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="inline-flex rounded border border-outline-variant bg-surface-light p-1">
-            {filters.map((f) => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                className={`rounded px-3 py-1 font-display text-xs uppercase tracking-wider transition-all ${
-                  activeFilter === f
-                    ? 'bg-primary text-white font-bold'
-                    : 'text-on-surface-variant hover:bg-surface'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
+        <div className="inline-flex rounded border border-[#ECECEC] bg-[#F7F7F8] p-1 overflow-x-auto">
+          {FILTERS.map(f => (
+            <button key={f.key} onClick={() => setActiveFilter(f.key)}
+              className={`rounded px-3 py-1 font-display text-xs uppercase tracking-wider whitespace-nowrap transition-all ${
+                activeFilter === f.key ? 'bg-[#1A1A1E] text-white font-bold' : 'text-[#8A8A92] hover:bg-white'
+              }`}>
+              {f.key === 'Tous' ? 'Tous' : (STATUT_MAP[f.key]?.label || f.key)}
+            </button>
+          ))}
         </div>
       </div>
 
-      {selectedOrders.length > 0 && (
-        <div className="flex items-center justify-between rounded border-2 border-primary bg-primary/10 p-4">
-          <span className="font-display text-sm font-bold uppercase tracking-wide text-primary">
-            {selectedOrders.length} commande{selectedOrders.length > 1 ? 's' : ''} sélectionnée{selectedOrders.length > 1 ? 's' : ''} pour optimisation
+      {selectedIds.length > 0 && (
+        <div className="flex items-center justify-between rounded border-2 border-[#E8433D] bg-[#E8433D]/5 p-4">
+          <span className="font-display text-sm font-bold uppercase text-[#E8433D]">
+            {selectedIds.length} commande(s) sélectionnée(s)
           </span>
-          <button
-            onClick={handleSendToOptimisation}
-            className="flex items-center gap-2 rounded bg-primary px-4 py-2 font-display text-xs uppercase tracking-wider font-bold text-white shadow transition-all hover:bg-primary/90"
-          >
+          <button onClick={handleOptimisation}
+            className="flex items-center gap-2 rounded bg-[#E8433D] px-4 py-2 font-display text-xs uppercase font-bold text-white hover:bg-[#B82823] transition-colors">
             <span className="material-symbols-outlined text-[18px]">auto_graph</span>
             Envoyer vers Optimisation
           </button>
@@ -124,42 +174,33 @@ function DemandesListPage() {
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {[
-          { label: 'Total Commandes', value: orders.length.toLocaleString(), trend: '+12%', icon: 'assignment' },
-          { label: 'En attente', value: orders.filter(o => o.status === 'En attente').length, icon: 'pending' },
-          { label: 'En cours', value: orders.filter(o => o.status === 'En cours').length, icon: 'local_shipping' },
-          { label: 'Livrées (24h)', value: orders.filter(o => o.status === 'Livrée').length, icon: 'check_circle' },
-        ].map((card) => (
-          <div key={card.label} className="waybill-card p-4 border-l-4 border-l-primary space-y-2">
-            <div className="flex items-start justify-between">
-              <span className="material-symbols-outlined text-primary">{card.icon}</span>
-              {card.trend && <span className="font-display text-xs font-bold text-primary">{card.trend}</span>}
-            </div>
-            <div>
-              <p className="font-display text-xs uppercase tracking-widest text-on-surface-variant">{card.label}</p>
-              <h3 className="font-display text-2xl font-bold text-on-surface tabular-nums">{loading ? '—' : card.value}</h3>
-            </div>
+          { label: 'Total', value: orders.length, icon: 'assignment', color: '#1A1A1E' },
+          { label: 'En attente', value: countByStatut('CREEE'), icon: 'pending', color: '#F59E0B' },
+          { label: 'En cours', value: countByStatut('EN_TRANSIT') + countByStatut('EN_ATTENTE_GROUPAGE'), icon: 'local_shipping', color: '#E8433D' },
+          { label: 'Livrées', value: countByStatut('LIVREE'), icon: 'check_circle', color: '#10B981' },
+        ].map(c => (
+          <div key={c.label} className="bordereau-row p-4 space-y-1" style={{ borderLeftColor: c.color, borderLeftWidth: '4px' }}>
+            <span className="material-symbols-outlined" style={{ color: c.color }}>{c.icon}</span>
+            <p className="font-mono text-[10px] text-[#8A8A92] uppercase">{c.label}</p>
+            <h3 className="font-display text-2xl font-bold text-[#1A1A1E]">{loading ? '—' : c.value}</h3>
           </div>
         ))}
       </div>
 
-      <div className="waybill-card overflow-hidden">
-        {error && (
-          <div className="mx-4 mt-4 rounded-lg border-2 border-[#E8433D]/30 bg-[#E8433D]/5 p-3 text-center">
-            <p className="font-display text-xs font-bold uppercase tracking-wider text-[#E8433D]">{error}</p>
-          </div>
-        )}
-        <div className="border-b border-outline-variant bg-surface-light px-4 py-3 md:px-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded p-3 font-body text-xs">{error}</div>
+      )}
+
+      <div className="bordereau-row overflow-hidden">
+        <div className="border-b border-[#ECECEC] bg-[#F7F7F8] px-4 py-3 md:px-6">
           <div className="relative max-w-xs">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher une commande..."
-              className="w-full rounded border border-outline-variant bg-surface py-1.5 pl-10 pr-4 font-body text-xs focus:border-primary focus:outline-none"
-            />
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8A92] text-[18px]">search</span>
+            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder="Rechercher..."
+              className="w-full rounded border border-[#ECECEC] bg-white py-1.5 pl-10 pr-4 font-body text-xs focus:border-[#1A1A1E] focus:outline-none" />
           </div>
         </div>
+
         {loading ? (
           <div className="flex justify-center py-12">
             <span className="material-symbols-outlined animate-spin text-3xl text-[#E8433D]">progress_activity</span>
@@ -167,61 +208,79 @@ function DemandesListPage() {
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center text-[#8A8A92]">
             <span className="material-symbols-outlined text-5xl opacity-30">assignment</span>
-            <p className="font-body text-sm mt-2">{search ? 'Aucun résultat' : 'Aucune commande'}</p>
+            <p className="font-body text-sm mt-2">Aucune commande</p>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left">
-                <thead className="border-b border-outline-variant bg-surface-light">
+                <thead className="border-b border-[#ECECEC] bg-[#F7F7F8]">
                   <tr>
-                    <th className="px-4 py-3.5 md:px-6 w-12">
-                      <input
-                        type="checkbox"
-                        checked={allSelectableSelected}
-                        onChange={toggleSelectAll}
-                        className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary"
-                      />
+                    <th className="px-4 py-3 md:px-6 w-10">
+                      <input type="checkbox" checked={allSelected} onChange={toggleAll}
+                        className="w-4 h-4 rounded" />
                     </th>
-                    <th className="px-4 py-3.5 font-display text-xs uppercase tracking-widest font-bold text-on-surface-variant md:px-6">ID commande</th>
-                    <th className="px-4 py-3.5 font-display text-xs uppercase tracking-widest font-bold text-on-surface-variant md:px-6">Client</th>
-                    <th className="hidden px-4 py-3.5 font-display text-xs uppercase tracking-widest font-bold text-on-surface-variant md:table-cell md:px-6">Destination</th>
-                    <th className="hidden px-4 py-3.5 text-right font-display text-xs uppercase tracking-widest font-bold text-on-surface-variant sm:table-cell md:px-6">Logistique</th>
-                    <th className="hidden px-4 py-3.5 font-display text-xs uppercase tracking-widest font-bold text-on-surface-variant lg:table-cell md:px-6">Priorité</th>
-                    <th className="px-4 py-3.5 font-display text-xs uppercase tracking-widest font-bold text-on-surface-variant md:px-6">Statut Stamp</th>
+                    <th className="px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Réf.</th>
+                    <th className="px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Client</th>
+                    <th className="hidden md:table-cell px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Destination</th>
+                    <th className="hidden sm:table-cell px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Colis</th>
+                    <th className="hidden sm:table-cell px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Tarif</th>
+                    <th className="hidden lg:table-cell px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Date souhaitée</th>
+                    <th className="px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Statut</th>
+                    <th className="px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-outline-variant/40 bg-surface">
-                  {filtered.map((order) => {
-                    const isSelectable = order.status === 'En attente'
-                    const isSelected = selectedOrders.includes(order.id)
+                <tbody className="divide-y divide-[#ECECEC]">
+                  {filtered.map(o => {
+                    const st = STATUT_MAP[o.statut] || STATUT_MAP.CREEE
+                    const isCree = o.statut === 'CREEE'
                     return (
-                      <tr key={order.id} className={`transition-colors hover:bg-surface-light/70 ${isSelected ? 'bg-primary/10' : ''}`}>
-                        <td className="px-4 py-4 md:px-6">
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleSelect(order.id)}
-                            disabled={!isSelectable}
-                            className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary disabled:opacity-30"
-                          />
+                      <tr key={o.demandeId} className="hover:bg-[#F7F7F8]/60 transition-colors">
+                        <td className="px-4 py-3 md:px-6">
+                          <input type="checkbox" checked={selectedIds.includes(o.demandeId)}
+                            onChange={() => toggleOne(o.demandeId)} disabled={!isCree}
+                            className="w-4 h-4 rounded disabled:opacity-30" />
                         </td>
-                        <td className="px-4 py-4 font-stamp text-sm font-bold text-primary md:px-6">{order.id}</td>
-                        <td className="px-4 py-4 font-body text-sm text-on-surface md:px-6">{order.client}</td>
-                        <td className="hidden px-4 py-4 font-body text-sm text-on-surface-variant md:table-cell md:px-6">{order.destination}</td>
-                        <td className="hidden px-4 py-4 text-right sm:table-cell md:px-6">
-                          <div className="font-display text-sm font-bold text-on-surface tabular-nums">{order.weight}</div>
-                          <div className="font-body text-xs text-on-surface-variant">{order.volume}</div>
+                        <td className="px-4 py-3 font-mono text-xs font-bold text-[#E8433D] cursor-pointer hover:underline"
+                          onClick={() => navigate(`/logistics/commande_detail?id=${o.demandeId}`)}>
+                          #{String(o.demandeId).slice(0, 8).toUpperCase()}
                         </td>
-                        <td className="hidden px-4 py-4 lg:table-cell md:px-6">
-                          <span className={`font-display text-xs uppercase tracking-wider ${order.priorityClass}`}>
-                            {order.priority}
+                        <td className="px-4 py-3 font-body text-xs">{o.clientNom || '—'}</td>
+                        <td className="hidden md:table-cell px-4 py-3 font-body text-xs text-[#8A8A92] max-w-[200px] truncate">{o.adresseLivraison || '—'}</td>
+                        <td className="hidden sm:table-cell px-4 py-3 font-mono text-xs">{o.nbColis || 0}</td>
+                        <td className="hidden sm:table-cell px-4 py-3 font-mono text-xs font-bold">
+                          {o.tarif ? `${new Intl.NumberFormat('fr-MG').format(o.tarif)} Ar` : '—'}
+                        </td>
+                        <td className="hidden lg:table-cell px-4 py-3 font-mono text-xs text-[#8A8A92]">
+                          {o.dateSouhaitee || '—'} {o.creneau ? `(${o.creneau})` : ''}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[10px] ${st.badge}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`}></span>
+                            {st.label}
                           </span>
                         </td>
-                        <td className="px-4 py-4 md:px-6">
-                          <span className={`stamp-badge text-xs ${order.isGreen ? 'stamp-badge-green' : 'stamp-badge-red'}`}>
-                            {order.status}
-                          </span>
+                        <td className="px-4 py-3">
+                          {isCree && (
+                            <div className="flex items-center gap-1.5">
+                              <button onClick={() => handleValider(o.demandeId)} disabled={acting}
+                                className="bg-green-600 text-white rounded px-2 py-1 font-mono text-[10px] hover:bg-green-700 disabled:opacity-40 cursor-pointer"
+                                title="Valider">
+                                Valider
+                              </button>
+                              <button onClick={() => setRefuseTarget(o.demandeId)} disabled={acting}
+                                className="border border-[#E8433D] text-[#E8433D] rounded px-2 py-1 font-mono text-[10px] hover:bg-[#E8433D] hover:text-white disabled:opacity-40 cursor-pointer"
+                                title="Refuser">
+                                Refuser
+                              </button>
+                            </div>
+                          )}
+                          {!isCree && (
+                            <button onClick={() => navigate(`/logistics/commande_detail?id=${o.demandeId}`)}
+                              className="font-mono text-[10px] text-[#8A8A92] hover:text-[#1A1A1E] bg-transparent border-0 cursor-pointer underline">
+                              Voir
+                            </button>
+                          )}
                         </td>
                       </tr>
                     )
@@ -229,15 +288,12 @@ function DemandesListPage() {
                 </tbody>
               </table>
             </div>
-            <div className="flex items-center justify-between border-t border-outline-variant bg-surface-light px-4 py-3 md:px-6 font-display text-xs uppercase tracking-wider text-on-surface-variant">
-              <p>Affichage de 1-{filtered.length} sur {orders.length} commandes</p>
+            <div className="flex items-center justify-between border-t border-[#ECECEC] bg-[#F7F7F8] px-4 py-3 md:px-6 font-mono text-[10px] text-[#8A8A92]">
+              <p>{filtered.length} commande(s)</p>
             </div>
           </>
         )}
       </div>
-
     </div>
   )
 }
-
-export default DemandesListPage

@@ -65,6 +65,16 @@ public class PMECliente {
     @Column(name = "motif_refus", columnDefinition = "TEXT")
     private String motifRefus;
 
+    // ── V12 : referentiel dynamique ML ──
+    @Column(name = "seuil_ml_min_colis", nullable = false)
+    private Integer seuilMlMinColis = 30;
+
+    @Column(name = "clustering_dirty", nullable = false)
+    private Boolean clusteringDirty = false;
+
+    @Column(name = "referentiel_version", nullable = false)
+    private Integer referentielVersion = 1;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

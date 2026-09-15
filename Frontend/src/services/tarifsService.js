@@ -1,5 +1,9 @@
 import { apiClient } from './apiClient'
 
+/**
+ * Service CRUD grilles tarifaires (V15 : avec catégorie + prix/km).
+ * Accès : DIRECTION uniquement.
+ */
 export const tarifsService = {
   async lister() {
     return apiClient.get('/direction/tarifs')

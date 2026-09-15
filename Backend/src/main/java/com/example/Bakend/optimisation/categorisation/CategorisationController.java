@@ -3,28 +3,21 @@ package com.example.Bakend.optimisation.categorisation;
 import com.example.Bakend.config.TenantContext;
 import com.example.Bakend.entity.OptimisationRun;
 import com.example.Bakend.entity.PMECliente;
-import com.example.Bakend.entity.Hub;
 import com.example.Bakend.entity.enums.TypeAlgorithme;
 import com.example.Bakend.repository.OptimisationRunRepository;
 import com.example.Bakend.repository.PMEClienteRepository;
-import com.example.Bakend.repository.HubRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * API de catégorisation non supervisée des colis.
- *
- * POST /api/optimisation/categorisation — lance le clustering K-Means sur le dataset mock
- *
- * Les résultats sont tracés dans optimisation_run (type CLUSTERING, JSONB resultat)
- * si le contexte tenant est disponible.
+ * API de categorisation non supervisee des colis (V12 dynamique).
+ * Serialisation JSONB manuelle (sans Jackson).
  */
 @RestController
 @RequestMapping("/api/optimisation/categorisation")
@@ -35,33 +28,30 @@ public class CategorisationController {
     private final CategorisationService categorisationService;
     private final OptimisationRunRepository optimisationRunRepository;
     private final PMEClienteRepository pmeClienteRepository;
-    private final HubRepository hubRepository;
 
     public CategorisationController(CategorisationService categorisationService,
                                      OptimisationRunRepository optimisationRunRepository,
-                                     PMEClienteRepository pmeClienteRepository,
-                                     HubRepository hubRepository) {
+                                     PMEClienteRepository pmeClienteRepository) {
         this.categorisationService = categorisationService;
         this.optimisationRunRepository = optimisationRunRepository;
         this.pmeClienteRepository = pmeClienteRepository;
-        this.hubRepository = hubRepository;
     }
 
-    /**
-     * Lance le clustering non supervisé sur le dataset mock.
-     * Trace le run dans optimisation_run pour audit si contexte tenant dispo.
-     */
     @PostMapping
     public ResponseEntity<Map<String, Object>> runClustering() {
-        log.info("Demande de clustering reçue");
+        UUID tenantId = TenantContext.getTenantId();
+        if (tenantId == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "error", "Contexte tenant manquant"));
+        }
+
+        log.info("Demande clustering tenant {}", tenantId);
 
         try {
-            CategorisationResult result = categorisationService.runClustering();
+            CategorisationResult result = categorisationService.runClustering(tenantId);
+            persistRun(tenantId, result);
 
-            // Persistance du run d'optimisation (si tenant + hub disponibles)
-            persistRunIfPossible(result);
-
-            // Réponse API
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("success", true);
             response.put("meilleur_k", result.getMeilleurK());
@@ -71,17 +61,19 @@ public class CategorisationController {
             response.put("silhouette", result.getSilhouette());
             response.put("davies_bouldin", result.getDaviesBouldin());
             response.put("centroides", result.getCentroides());
-            response.put("cluster_labels", result.getClusterLabels());
+            response.put("cluster_mapping", result.getClusterMapping());
             response.put("confusion_matrix", result.getConfusionMatrix());
             response.put("categories_uniques", result.getCategoriesUniques());
             response.put("purete", result.getPurete());
             response.put("affectations", result.getAffectations());
             response.put("duree_calcul_ms", result.getDureeCalculMs());
+            response.put("referentiel_version", result.getReferentielVersion());
+            response.put("nb_categories_ref", result.getNbCategoriesRef());
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.error("Erreur clustering", e);
+            log.error("Erreur clustering tenant {}", tenantId, e);
             return ResponseEntity.internalServerError().body(Map.of(
                     "success", false,
                     "error", e.getMessage() != null ? e.getMessage() : e.getClass().getName()
@@ -89,46 +81,105 @@ public class CategorisationController {
         }
     }
 
-    private void persistRunIfPossible(CategorisationResult result) {
-        UUID tenantId = TenantContext.getTenantId();
-        if (tenantId == null) return;
-
+    /**
+     * Persiste le run CLUSTERING dans optimisation_run (hub_id=NULL).
+     * JSONB construit manuellement (sans Jackson).
+     */
+    private void persistRun(UUID tenantId, CategorisationResult result) {
         try {
             PMECliente tenant = pmeClienteRepository.findByTenantId(tenantId).orElse(null);
-            List<Hub> hubs = hubRepository.findByPmeClienteTenantId(tenantId);
-            Hub hub = hubs.isEmpty() ? null : hubs.get(0);
-
-            if (tenant == null || hub == null) return;
+            if (tenant == null) return;
 
             OptimisationRun run = new OptimisationRun();
             run.setPmeCliente(tenant);
-            run.setHub(hub);
+            run.setHub(null); // V12 : CLUSTERING tenant-scoped
             run.setTypeAlgorithme(TypeAlgorithme.CLUSTERING);
 
-            // parametres JSONB
-            run.setParametres("{\"k_testes\":[3,4,5],\"features\":[\"poids\",\"volume\",\"log1p(valeur)\",\"fragilite\",\"delai\"],\"preprocessing\":\"log1p(valeur)+standardizer\",\"source\":\"csv_mock\"}");
+            // parametres JSONB (manuel)
+            run.setParametres(buildParamsJson(result));
 
-            // resultat JSONB
-            int idx = result.getKTestes().indexOf(result.getMeilleurK());
-            double silVal = idx >= 0 ? result.getSilhouette().get(idx) : 0;
-            run.setResultat("{\"meilleur_k\":" + result.getMeilleurK()
-                    + ",\"purete\":" + result.getPurete()
-                    + ",\"silhouette\":" + silVal
-                    + ",\"nb_colis\":" + result.getNbColis() + "}");
+            // resultat JSONB (manuel)
+            run.setResultat(buildResultatJson(result));
 
             run.setDureeCalculMs((int) result.getDureeCalculMs());
             run.setJustificationDocument(
-                    "Clustering non supervisé K-Means sur " + result.getNbColis() + " colis. " +
+                    "Clustering non supervise K-Means sur " + result.getNbColis() + " colis. " +
+                    "Referentiel v" + result.getReferentielVersion() + " (" + result.getNbCategoriesRef() + " categories). " +
                     "Meilleur k=" + result.getMeilleurK() +
-                    " (silhouette=" + silVal + ", pureté=" + result.getPurete() + "). " +
-                    "Features : poids, volume, log1p(valeur), fragilité, délai. " +
-                    "Catégorie déclarée exclue de l'input (validation uniquement)."
+                    " (silhouette=" + getSilVal(result) + ", purete=" + result.getPurete() + "). " +
+                    "Features : poids, volume, log1p(valeur), fragilite, delai. " +
+                    "Matching centroide vs seuils_ml (distance euclidienne normalisee)."
             );
 
             optimisationRunRepository.save(run);
-            log.info("Run CLUSTERING #{} persisté pour tenant {}", run.getRunId(), tenantId);
+            log.info("Run CLUSTERING #{} persiste pour tenant {} (referentiel v{})",
+                    run.getRunId(), tenantId, result.getReferentielVersion());
         } catch (Exception e) {
-            log.warn("Persistance run clustering échouée (non bloquant): {}", e.getMessage());
+            log.warn("Persistance run clustering echouee (non bloquant): {}", e.getMessage());
         }
+    }
+
+    private double getSilVal(CategorisationResult result) {
+        int idx = result.getKTestes().indexOf(result.getMeilleurK());
+        return idx >= 0 ? result.getSilhouette().get(idx) : 0;
+    }
+
+    private String buildParamsJson(CategorisationResult r) {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"k_testes\":").append(listIntToJson(r.getKTestes()));
+        sb.append(",\"features\":[\"poids\",\"volume\",\"log1p(valeur)\",\"fragilite\",\"delai\"]");
+        sb.append(",\"preprocessing\":\"log1p(valeur)+standardizer\"");
+        sb.append(",\"source\":\"colis_features_bdd\"");
+        sb.append(",\"referentiel_version\":").append(r.getReferentielVersion());
+        sb.append(",\"nb_categories_ref\":").append(r.getNbCategoriesRef());
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private String buildResultatJson(CategorisationResult r) {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append("\"meilleur_k\":").append(r.getMeilleurK());
+        sb.append(",\"purete\":").append(r.getPurete());
+        sb.append(",\"silhouette\":").append(getSilVal(r));
+        sb.append(",\"nb_colis\":").append(r.getNbColis());
+        sb.append(",\"referentiel_version\":").append(r.getReferentielVersion());
+        // cluster_mapping serialise manuellement
+        sb.append(",\"cluster_mapping\":").append(clusterMappingToJson(r));
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private String clusterMappingToJson(CategorisationResult r) {
+        if (r.getClusterMapping() == null) return "{}";
+        StringBuilder sb = new StringBuilder("{");
+        boolean first = true;
+        for (var entry : r.getClusterMapping().entrySet()) {
+            if (!first) sb.append(",");
+            first = false;
+            sb.append("\"").append(entry.getKey()).append("\":{");
+            CategorisationService.ClusterMatch m = entry.getValue();
+            sb.append("\"categorieId\":\"").append(m.categorieId() != null ? m.categorieId() : "").append("\"");
+            sb.append(",\"classeCode\":\"").append(m.classeCode()).append("\"");
+            sb.append(",\"libelle\":\"").append(escapeJson(m.libelle())).append("\"");
+            sb.append(",\"distance\":").append(m.distance());
+            sb.append("}");
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private String listIntToJson(java.util.List<Integer> list) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < list.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append(list.get(i));
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 }

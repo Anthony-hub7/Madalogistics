@@ -3,10 +3,13 @@ package com.example.Bakend.service;
 import com.example.Bakend.config.RoleRedirectMapper;
 import com.example.Bakend.dto.response.AuthResponse;
 import com.example.Bakend.entity.PMECliente;
+import com.example.Bakend.entity.CategorieProduit;
 import com.example.Bakend.entity.Utilisateur;
+import com.example.Bakend.entity.enums.ClasseValeur;
 import com.example.Bakend.entity.enums.Role;
 import com.example.Bakend.exception.BusinessException;
 import com.example.Bakend.exception.ResourceNotFoundException;
+import com.example.Bakend.repository.CategorieProduitRepository;
 import com.example.Bakend.repository.PMEClienteRepository;
 import com.example.Bakend.repository.UtilisateurRepository;
 import com.example.Bakend.security.JwtService;
@@ -30,6 +33,7 @@ public class AgenceRegistrationService {
 
     private final PMEClienteRepository pmeClienteRepository;
     private final UtilisateurRepository utilisateurRepository;
+    private final CategorieProduitRepository categorieProduitRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
@@ -37,12 +41,14 @@ public class AgenceRegistrationService {
 
     public AgenceRegistrationService(PMEClienteRepository pmeClienteRepository,
                                      UtilisateurRepository utilisateurRepository,
+                                     CategorieProduitRepository categorieProduitRepository,
                                      PasswordEncoder passwordEncoder,
                                      JwtService jwtService,
                                      RefreshTokenService refreshTokenService,
                                      RoleRedirectMapper roleRedirectMapper) {
         this.pmeClienteRepository = pmeClienteRepository;
         this.utilisateurRepository = utilisateurRepository;
+        this.categorieProduitRepository = categorieProduitRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
@@ -106,6 +112,7 @@ public class AgenceRegistrationService {
 
     /**
      * Valide un dossier d'agence (admin SAAS).
+     * Hook : seed les 3 categories standards si le tenant n'en a aucune active.
      */
     public void validerDossier(UUID tenantId) {
         PMECliente tenant = pmeClienteRepository.findByTenantId(tenantId)
@@ -118,6 +125,8 @@ public class AgenceRegistrationService {
         tenant.setStatutDossier("VALIDEE");
         tenant.setMotifRefus(null);
         pmeClienteRepository.save(tenant);
+
+        seedCategoriesDefaut(tenant);
     }
 
     /**
@@ -169,6 +178,7 @@ public class AgenceRegistrationService {
     /**
      * Reactiver un compte d'agence desactivee (admin SAAS).
      * Le statut repasse a VALIDEE.
+     * Hook : seed les 3 categories standards si le tenant n'en a aucune active.
      */
     public void reactiverDossier(UUID tenantId) {
         PMECliente tenant = pmeClienteRepository.findByTenantId(tenantId)
@@ -181,6 +191,8 @@ public class AgenceRegistrationService {
         tenant.setStatutDossier("VALIDEE");
         tenant.setMotifRefus(null);
         pmeClienteRepository.save(tenant);
+
+        seedCategoriesDefaut(tenant);
     }
 
     /**
@@ -226,5 +238,53 @@ public class AgenceRegistrationService {
                 saved.getNom(),
                 roleRedirectMapper.getRedirectPath(saved.getRole())
         );
+    }
+
+    /**
+     * Seed les 3 categories standards si le tenant n'en a aucune active.
+     * Idempotent : verifie l'etat reel (count actif), pas un flag.
+     * Snapshot one-shot : ne modifie jamais les categories existantes.
+     * Appele depuis validerDossier() et reactiverDossier().
+     */
+    private void seedCategoriesDefaut(PMECliente tenant) {
+        long actives = categorieProduitRepository.countByPmeClienteTenantIdAndActif(
+                tenant.getTenantId(), true);
+        if (actives > 0) {
+            return;
+        }
+
+        String[][] templates = {
+            {"Fragile / Haute valeur", "A",
+             "Colis contenant des marchandises fragiles ou de grande valeur (bijoux, electronique, art). " +
+             "Obligation de manipulation precautionneuse, emballage renforce, pas de superposition. " +
+             "Affectation reservee aux chauffeurs habilites (habilite_valeur=true).",
+             "{\"poids_min\":null,\"poids_max\":null,\"volume_min\":null,\"volume_max\":null,\"fragilite_min\":7,\"fragilite_max\":10,\"valeur_min\":200000,\"valeur_max\":null,\"delai_max_h\":null}",
+             "true"},
+            {"Standard", "B",
+             "Colis de poids et volume moyens, pas de contrainte de manipulation particuliere. " +
+             "Correspond a la majorite des envois (vetiments, petit commerce, documents). " +
+             "Groupage standard avec n'importe quel type.",
+             "{\"poids_min\":null,\"poids_max\":null,\"volume_min\":null,\"volume_max\":null,\"fragilite_min\":null,\"fragilite_max\":null,\"valeur_min\":null,\"valeur_max\":null,\"delai_max_h\":null}",
+             "false"},
+            {"Robuste / Lourd", "C",
+             "Colis lourds ou encombrants, resistant a la manipulation (sacs de riz, briques, ferraille, engrais). " +
+             "Aucune contrainte de fragilite, mais necessite un vehicule a forte capacite ponderale.",
+             "{\"poids_min\":40,\"poids_max\":null,\"volume_min\":null,\"volume_max\":null,\"fragilite_min\":null,\"fragilite_max\":null,\"valeur_min\":null,\"valeur_max\":null,\"delai_max_h\":null}",
+             "false"}
+        };
+
+        for (String[] t : templates) {
+            CategorieProduit cat = new CategorieProduit();
+            cat.setPmeCliente(tenant);
+            cat.setLibelle(t[0]);
+            cat.setClasseValeur(ClasseValeur.valueOf(t[1]));
+            cat.setClasseCode(t[1]);          // V12 : double-ecriture
+            cat.setJustification(t[2]);
+            cat.setSeuilsMl(t[3]);            // V12 : seuils pre-calculés
+            cat.setHabiliteRequis(Boolean.parseBoolean(t[4])); // V12
+            cat.setActif(true);
+            cat.setMlActivable(true);          // V12
+            categorieProduitRepository.save(cat);
+        }
     }
 }

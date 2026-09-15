@@ -10,8 +10,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Grille tarifaire d'un tenant.
+ * Grille tarifaire d'un tenant, liée à une catégorie.
  * Table : grille_tarifaire
+ *
+ * V15 : prix par catégorie + prix/km. categorie_id NULL = tarif de repli global.
  */
 @Entity
 @Table(name = "grille_tarifaire")
@@ -38,8 +40,16 @@ public class GrilleTarifaire {
     @Column(name = "prix_par_m3", precision = 10, scale = 2)
     private BigDecimal prixParM3;
 
+    @Column(name = "prix_par_km", precision = 10, scale = 2)
+    private BigDecimal prixParKm;
+
     @Column(name = "prix_minimum", precision = 10, scale = 2)
     private BigDecimal prixMinimum;
+
+    // V15 : lien vers catégorie (NULL = tarif de repli global)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "categorie_id")
+    private CategorieProduit categorie;
 
     @Column(name = "actif", nullable = false)
     private boolean actif = true;

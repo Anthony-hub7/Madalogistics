@@ -35,7 +35,18 @@ class ApiClient {
       credentials: 'include',
     })
 
-    if (response.status === 401 && !skipAuth && this._refreshFn) {
+    // Les endpoints d'auth (/auth/login, /auth/inscription, /auth/refresh...)
+    // ne doivent jamais déclencher le mécanisme de refresh ni le message
+    // "Session expirée" : un 401 ici = identifiants incorrects, on remonte
+    // le vrai message du backend.
+    const isAuthEndpoint = endpoint.startsWith('/auth/')
+
+    if (isAuthEndpoint && response.status === 401) {
+      const body = await response.json().catch(() => ({}))
+      throw new Error(body.message || 'Email ou mot de passe incorrect')
+    }
+
+    if (response.status === 401 && !skipAuth && !isAuthEndpoint && this._refreshFn) {
       if (this._isRefreshing && this._refreshPromise) {
         const newToken = await this._refreshPromise
         if (newToken) {
@@ -75,7 +86,7 @@ class ApiClient {
       throw new Error('Session expirée, veuillez vous reconnecter.')
     }
 
-    if (response.status === 401 && !skipAuth) {
+    if (response.status === 401 && !skipAuth && !isAuthEndpoint) {
       window.location.href = '/'
       throw new Error('Session expirée, veuillez vous reconnecter.')
     }
