@@ -132,11 +132,19 @@ public class SeuilsMl {
 
     private static Double parseDouble(String s) {
         if (s.equals("null")) return null;
-        return Double.parseDouble(s);
+        try {
+            return Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private static Integer parseInt(String s) {
         if (s.equals("null")) return null;
-        return (int) Double.parseDouble(s);
+        try {
+            return (int) Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }

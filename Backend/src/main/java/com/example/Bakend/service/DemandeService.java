@@ -6,6 +6,8 @@ import com.example.Bakend.entity.enums.ColisEtat;
 import com.example.Bakend.entity.enums.DemandeStatut;
 import com.example.Bakend.exception.BusinessException;
 import com.example.Bakend.exception.ResourceNotFoundException;
+import com.example.Bakend.optimisation.categorisation.CategorisationInferenceService;
+import com.example.Bakend.optimisation.categorisation.NiveauValeurMapper;
 import com.example.Bakend.repository.*;
 import com.example.Bakend.security.CustomUserDetails;
 import com.example.Bakend.security.SecurityUtils;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +38,10 @@ public class DemandeService {
     private final PMEClienteRepository pmeClienteRepository;
     private final CategorieProduitRepository categorieProduitRepository;
     private final TarificationService tarificationService;
+    private final CategorisationInferenceService categorisationInferenceService;
+    private final ColisFeatureRepository colisFeatureRepository;
+    private final EtapeLivraisonRepository etapeLivraisonRepository;
+    private final FactureRepository factureRepository;
 
     public DemandeService(DemandeTransportRepository demandeRepository,
                           ColisRepository colisRepository,
@@ -43,7 +50,11 @@ public class DemandeService {
                           UtilisateurRepository utilisateurRepository,
                           PMEClienteRepository pmeClienteRepository,
                           CategorieProduitRepository categorieProduitRepository,
-                          TarificationService tarificationService) {
+                          TarificationService tarificationService,
+                          CategorisationInferenceService categorisationInferenceService,
+                          ColisFeatureRepository colisFeatureRepository,
+                          EtapeLivraisonRepository etapeLivraisonRepository,
+                          FactureRepository factureRepository) {
         this.demandeRepository = demandeRepository;
         this.colisRepository = colisRepository;
         this.hubRepository = hubRepository;
@@ -52,6 +63,10 @@ public class DemandeService {
         this.pmeClienteRepository = pmeClienteRepository;
         this.categorieProduitRepository = categorieProduitRepository;
         this.tarificationService = tarificationService;
+        this.categorisationInferenceService = categorisationInferenceService;
+        this.colisFeatureRepository = colisFeatureRepository;
+        this.etapeLivraisonRepository = etapeLivraisonRepository;
+        this.factureRepository = factureRepository;
     }
 
     // ========================================================================
@@ -78,10 +93,10 @@ public class DemandeService {
         Hub hub = hubRepository.findByPmeClienteTenantIdAndHubId(tenantId, request.hubId())
                 .orElseThrow(() -> new ResourceNotFoundException("Hub introuvable : " + request.hubId()));
 
-        // Calculer le tarif via TarificationService (V15)
+        // Calculer le tarif via TarificationService (V16)
         TarificationService.ResultatTarification resultat = tarificationService
                 .calculerPourCreation(
-                        tenantId, request.colis(),
+                        tenantId, request.hubId(), request.colis(),
                         request.assurance(), request.express(),
                         request.latitudeCollecte(), request.longitudeCollecte(),
                         request.latitudeLivraison(), request.longitudeLivraison());
@@ -113,16 +128,39 @@ public class DemandeService {
             colis.setDemande(demande);
             colis.setPoidsKg(c.poidsKg());
             colis.setVolumeM3(c.volumeM3());
+            CategorieProduit categorie = null;
             if (c.categorieId() != null) {
-                CategorieProduit categorie = categorieProduitRepository
+                categorie = categorieProduitRepository
                         .findByPmeClienteTenantIdAndCategorieId(tenantId, c.categorieId())
                         .orElse(null);
-                colis.setCategorie(categorie);
             }
+            int fragilite = c.fragilite() != null ? c.fragilite() : 0;
+            double valeur = NiveauValeurMapper.toMontant(c.niveauValeur()).doubleValue();
+            if (categorie == null) {
+                categorie = categorisationInferenceService.predire(
+                        tenantId,
+                        c.poidsKg().doubleValue(),
+                        c.volumeM3().doubleValue(),
+                        fragilite,
+                        valeur,
+                        request.express());
+            }
+            colis.setCategorie(categorie);
             colis.setEtat(ColisEtat.EN_ATTENTE);
             colisList.add(colis);
         }
         colisRepository.saveAll(colisList);
+
+        for (Colis colis : colisList) {
+            DemandeColisRequest c = request.colis().get(colisList.indexOf(colis));
+            ColisFeature cf = new ColisFeature();
+            cf.setColis(colis);
+            cf.setPmeCliente(tenant);
+            cf.setFragilite010(c.fragilite() != null ? c.fragilite().shortValue() : 0);
+            cf.setValeurEstimeeAr(NiveauValeurMapper.toMontant(c.niveauValeur()));
+            cf.setDelaiExpress(request.express());
+            colisFeatureRepository.save(cf);
+        }
 
         return demande;
     }
@@ -163,12 +201,54 @@ public class DemandeService {
 
     public DemandeTransport annuler(UUID tenantId, UUID demandeId) {
         DemandeTransport demande = obtenirDemande(tenantId, demandeId);
-        if (demande.getStatut() != DemandeStatut.CREEE && demande.getStatut() != DemandeStatut.VALIDEE) {
+        if (demande.getStatut() != DemandeStatut.CREEE
+                && demande.getStatut() != DemandeStatut.VALIDEE
+                && demande.getStatut() != DemandeStatut.EN_ATTENTE_GROUPAGE) {
             throw new BusinessException(
-                    "Seules les commandes CREEE ou VALIDEE peuvent être annulées (statut actuel : " + demande.getStatut() + ")", 409);
+                    "Seules les commandes CREEE, VALIDEE ou EN_ATTENTE_GROUPAGE peuvent être annulées (statut actuel : " + demande.getStatut() + ")", 409);
         }
         demande.setStatut(DemandeStatut.ANNULEE);
         return demandeRepository.save(demande);
+    }
+
+    // ========================================================================
+    // PROGRAMMATION (EN_ATTENTE_GROUPAGE → GROUPEE)
+    // ========================================================================
+
+    public DemandeTransport programmer(UUID tenantId, UUID demandeId, LocalDateTime dateCollecte, String creneauPrecis) {
+        DemandeTransport demande = obtenirDemande(tenantId, demandeId);
+        if (demande.getStatut() != DemandeStatut.EN_ATTENTE_GROUPAGE) {
+            throw new BusinessException(
+                    "Seules les commandes EN_ATTENTE_GROUPAGE peuvent être programmées (statut actuel : " + demande.getStatut() + ")", 409);
+        }
+        demande.setStatut(DemandeStatut.GROUPEE);
+        return demandeRepository.save(demande);
+    }
+
+    // ========================================================================
+    // MARQUER LIVRÉ (EN_TRANSIT → LIVREE + facture auto)
+    // ========================================================================
+
+    public DemandeTransport marquerLivree(UUID tenantId, UUID demandeId, String photoUrl, String signatureNom) {
+        DemandeTransport demande = obtenirDemande(tenantId, demandeId);
+        if (demande.getStatut() != DemandeStatut.EN_TRANSIT) {
+            throw new BusinessException(
+                    "Seules les commandes EN_TRANSIT peuvent être marquées livrées (statut actuel : " + demande.getStatut() + ")", 409);
+        }
+        demande.setStatut(DemandeStatut.LIVREE);
+        DemandeTransport saved = demandeRepository.save(demande);
+
+        // Génération automatique de la facture
+        if (factureRepository.findByDemandeDemandeId(demandeId).isEmpty()) {
+            Facture facture = new Facture();
+            facture.setPmeCliente(demande.getPmeCliente());
+            facture.setDemande(demande);
+            facture.setMontantTotal(demande.getTarif() != null ? demande.getTarif() : BigDecimal.ZERO);
+            facture.setStatut(com.example.Bakend.entity.enums.FactureStatut.EMISE);
+            factureRepository.save(facture);
+        }
+
+        return saved;
     }
 
     // ========================================================================
@@ -192,5 +272,29 @@ public class DemandeService {
     public DemandeTransport obtenirDemande(UUID tenantId, UUID demandeId) {
         return demandeRepository.findByPmeClienteTenantIdAndDemandeId(tenantId, demandeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Demande introuvable : " + demandeId));
+    }
+
+    // ========================================================================
+    // FACTURE
+    // ========================================================================
+
+    @Transactional(readOnly = true)
+    public java.util.Map<String, Object> obtenirFacture(UUID tenantId, UUID demandeId) {
+        DemandeTransport demande = obtenirDemande(tenantId, demandeId);
+        var factureOpt = factureRepository.findByDemandeDemandeId(demandeId);
+        if (factureOpt.isEmpty()) {
+            return java.util.Map.of("existe", false, "demandeId", demandeId);
+        }
+        Facture f = factureOpt.get();
+        return java.util.Map.of(
+                "existe", true,
+                "factureId", f.getFactureId(),
+                "montantTotal", f.getMontantTotal(),
+                "statut", f.getStatut().name(),
+                "dateEmission", f.getDateEmission(),
+                "demandeId", demandeId,
+                "distanceKm", demande.getDistanceKm() != null ? demande.getDistanceKm() : BigDecimal.ZERO,
+                "tarif", demande.getTarif() != null ? demande.getTarif() : BigDecimal.ZERO
+        );
     }
 }

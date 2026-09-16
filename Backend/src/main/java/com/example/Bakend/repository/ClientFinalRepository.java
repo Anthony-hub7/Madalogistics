@@ -23,6 +23,8 @@ public interface ClientFinalRepository extends JpaRepository<ClientFinal, UUID> 
 
     boolean existsByPmeClienteTenantIdAndNom(UUID tenantId, String nom);
 
+    Optional<ClientFinal> findByPmeClienteTenantIdAndNom(UUID tenantId, String nom);
+
     @Query("SELECT c FROM ClientFinal c WHERE c.pmeCliente.tenantId = :tenantId ORDER BY c.nom ASC")
     List<ClientFinal> rechercherParTenant(@Param("tenantId") UUID tenantId);
 

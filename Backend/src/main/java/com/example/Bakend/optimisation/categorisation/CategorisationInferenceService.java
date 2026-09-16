@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.Comparator;
 
 /**
  * Infrence temps reel : assignation de categorie a un colis (V12 dynamique).
@@ -41,6 +42,27 @@ public class CategorisationInferenceService {
         this.categorieProduitRepository = categorieProduitRepository;
         this.colisFeatureRepository = colisFeatureRepository;
         this.optimisationRunRepository = optimisationRunRepository;
+    }
+
+    /**
+     * Prédit la classe d'un colis à partir de ses dimensions (sans colis persisté).
+     * Utilisé pour la prédiction en temps réel lors de la création de commande.
+     */
+    public CategorieProduit predire(UUID tenantId, double poids, double volume, int fragilite, double valeur, boolean express) {
+        List<CategorieProduit> categories = categorieProduitRepository
+                .findByPmeClienteTenantIdAndActif(tenantId, true);
+        if (categories.isEmpty()) return null;
+
+        CategorieProduit matchRegle = matchByRegle(categories, poids, volume, fragilite, valeur, express);
+        if (matchRegle != null) return matchRegle;
+
+        CategorieProduit matchCentroide = matchByCentroid(tenantId, categories);
+        if (matchCentroide != null) return matchCentroide;
+
+        return categories.stream()
+                .filter(c -> "B".equals(c.getClasseCode()))
+                .findFirst()
+                .orElse(categories.get(0));
     }
 
     /**
@@ -93,7 +115,27 @@ public class CategorisationInferenceService {
     private CategorieProduit matchByRegle(List<CategorieProduit> categories,
                                           double poids, double volume, int fragilite,
                                           double valeur, boolean express) {
-        for (CategorieProduit cat : categories) {
+        // Trier par spécificité décroissante : plus de bornes non-null = testé en premier
+        // Empêche B (Standard, tous-null) de capturer les colis qui matchent A ou C
+        List<CategorieProduit> tries = categories.stream()
+                .sorted(Comparator.comparingInt((CategorieProduit c) -> {
+                    SeuilsMl s = SeuilsMl.fromJson(c.getSeuilsMl());
+                    if (s == null) return 0;
+                    int bornes = 0;
+                    if (s.getPoidsMin() != null) bornes++;
+                    if (s.getPoidsMax() != null) bornes++;
+                    if (s.getVolumeMin() != null) bornes++;
+                    if (s.getVolumeMax() != null) bornes++;
+                    if (s.getFragiliteMin() != null) bornes++;
+                    if (s.getFragiliteMax() != null) bornes++;
+                    if (s.getValeurMin() != null) bornes++;
+                    if (s.getValeurMax() != null) bornes++;
+                    if (s.getDelaiMaxH() != null) bornes++;
+                    return bornes;
+                }).reversed())
+                .toList();
+
+        for (CategorieProduit cat : tries) {
             SeuilsMl seuils = SeuilsMl.fromJson(cat.getSeuilsMl());
             if (seuils != null && seuils.matches(poids, volume, fragilite, valeur, express)) {
                 return cat;

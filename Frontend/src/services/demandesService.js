@@ -29,4 +29,36 @@ export const demandesService = {
   annuler(id) {
     return apiClient.post(`/demandes/${id}/annuler`)
   },
+
+  programmer(id, data) {
+    return apiClient.post(`/demandes/${id}/programmer`, data)
+  },
+
+  livrer(id, data) {
+    return apiClient.post(`/demandes/${id}/livrer`, data || {})
+  },
+
+  getFacture(id) {
+    return apiClient.get(`/demandes/${id}/facture`)
+  },
+
+  predireClasse(data) {
+    return apiClient.post('/demandes/predire-classe', data)
+  },
+
+  getHubs() {
+    return apiClient.get('/demandes/hubs')
+  },
+
+  recommanderHubs(params) {
+    const qs = new URLSearchParams({
+      latCollecte: params.latitudeCollecte,
+      lonCollecte: params.longitudeCollecte,
+      latLivraison: params.latitudeLivraison,
+      lonLivraison: params.longitudeLivraison,
+      assurance: params.assurance,
+      express: params.express,
+    }).toString()
+    return apiClient.get(`/demandes/recommandation-hubs?${qs}`)
+  },
 }

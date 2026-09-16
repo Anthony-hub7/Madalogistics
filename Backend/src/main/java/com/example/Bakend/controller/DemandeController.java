@@ -5,9 +5,13 @@ import com.example.Bakend.entity.*;
 import com.example.Bakend.entity.enums.DemandeStatut;
 import com.example.Bakend.entity.enums.Role;
 import com.example.Bakend.exception.BusinessException;
+import com.example.Bakend.optimisation.categorisation.CategorisationInferenceService;
+import com.example.Bakend.optimisation.categorisation.NiveauValeurMapper;
+import com.example.Bakend.repository.HubRepository;
 import com.example.Bakend.security.CustomUserDetails;
 import com.example.Bakend.security.SecurityUtils;
 import com.example.Bakend.service.DemandeService;
+import com.example.Bakend.service.RecommandationService;
 import com.example.Bakend.repository.CategorieProduitRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -31,11 +35,20 @@ public class DemandeController {
 
     private final DemandeService demandeService;
     private final CategorieProduitRepository categorieProduitRepository;
+    private final RecommandationService recommandationService;
+    private final CategorisationInferenceService categorisationInferenceService;
+    private final HubRepository hubRepository;
 
     public DemandeController(DemandeService demandeService,
-                             CategorieProduitRepository categorieProduitRepository) {
+                             CategorieProduitRepository categorieProduitRepository,
+                             RecommandationService recommandationService,
+                             CategorisationInferenceService categorisationInferenceService,
+                             HubRepository hubRepository) {
         this.demandeService = demandeService;
         this.categorieProduitRepository = categorieProduitRepository;
+        this.recommandationService = recommandationService;
+        this.categorisationInferenceService = categorisationInferenceService;
+        this.hubRepository = hubRepository;
     }
 
     // ========================================================================
@@ -220,6 +233,147 @@ public class DemandeController {
                     return (Map<String, Object>) map;
                 })
                 .toList();
+    }
+
+    // ========================================================================
+    // RECOMMANDATION HUBS (Phase 1 — score pondéré)
+    // ========================================================================
+
+    /**
+     * Classe les hubs du tenant par score décroissant (proximité + tarif + fiabilité + délai).
+     * GET /api/demandes/recommandation-hubs?latCollecte=...&lonCollecte=...&latLivraison=...&lonLivraison=...&assurance=false&express=false
+     */
+    @GetMapping("/recommandation-hubs")
+    @PreAuthorize("hasAnyRole('CLIENT_FINAL','GESTIONNAIRE','DIRECTION')")
+    @Transactional(readOnly = true)
+    public List<HubRecommandationResponse> recommanderHubs(
+            @RequestParam Double latCollecte,
+            @RequestParam Double lonCollecte,
+            @RequestParam Double latLivraison,
+            @RequestParam Double lonLivraison,
+            @RequestParam(defaultValue = "false") boolean assurance,
+            @RequestParam(defaultValue = "false") boolean express) {
+        UUID tenantId = requireTenantId();
+        return recommandationService.classer(
+                tenantId, latCollecte, lonCollecte, latLivraison, lonLivraison,
+                assurance, express);
+    }
+
+    // ========================================================================
+    // PRÉDICTION CLASSE (Module C)
+    // ========================================================================
+
+    /**
+     * Prédit la classe d'un colis via les règles ML du tenant.
+     * POST /api/demandes/predire-classe
+     */
+    @PostMapping("/predire-classe")
+    @PreAuthorize("hasAnyRole('CLIENT_FINAL','GESTIONNAIRE','DIRECTION')")
+    @Transactional(readOnly = true)
+    public PredireClasseResponse predireClasse(@Valid @RequestBody PredireClasseRequest request) {
+        UUID tenantId = requireTenantId();
+        if (request.poidsKg() == null || request.volumeM3() == null
+                || request.poidsKg().doubleValue() <= 0 || request.volumeM3().doubleValue() <= 0) {
+            throw new BusinessException("Le poids et le volume doivent être supérieurs à 0", 400);
+        }
+        int fragilite = request.fragilite() != null ? request.fragilite() : 0;
+        double valeur = NiveauValeurMapper.toMontant(request.niveauValeur()).doubleValue();
+        CategorieProduit predite = categorisationInferenceService.predire(
+                tenantId,
+                request.poidsKg().doubleValue(),
+                request.volumeM3().doubleValue(),
+                fragilite,
+                valeur,
+                request.express());
+        if (predite == null) {
+            return new PredireClasseResponse(null, null, null, "Aucune catégorie disponible");
+        }
+        return new PredireClasseResponse(
+                predite.getCategorieId(),
+                predite.getClasseCode(),
+                predite.getLibelle(),
+                "regles_ml");
+    }
+
+    // ========================================================================
+    // HUBS ACCESSIBLES (Module D)
+    // ========================================================================
+
+    /**
+     * Liste les hubs actifs du tenant (pour CLIENT_FINAL).
+     * GET /api/demandes/hubs
+     */
+    @GetMapping("/hubs")
+    @PreAuthorize("hasAnyRole('CLIENT_FINAL','GESTIONNAIRE','DIRECTION')")
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> listerHubs() {
+        UUID tenantId = requireTenantId();
+        return hubRepository.findByPmeClienteTenantId(tenantId)
+                .stream()
+                .filter(Hub::isActif)
+                .map(h -> {
+                    var map = new java.util.HashMap<String, Object>();
+                    map.put("hubId", h.getHubId());
+                    map.put("nom", h.getNom());
+                    map.put("adresse", h.getAdresse());
+                    map.put("latitude", h.getLatitude());
+                    map.put("longitude", h.getLongitude());
+                    return (Map<String, Object>) map;
+                })
+                .toList();
+    }
+
+    // ========================================================================
+    // LIVRAISON (Module F — marque par le chauffeur)
+    // ========================================================================
+
+    /**
+     * Marque une commande livrée : EN_TRANSIT → LIVREE + facture auto + POD.
+     * POST /api/demandes/{id}/livrer
+     */
+    @PostMapping("/{demandeId}/livrer")
+    @PreAuthorize("hasAnyRole('CHAUFFEUR','GESTIONNAIRE','DIRECTION')")
+    public ResponseEntity<Map<String, String>> marquerLivree(
+            @PathVariable UUID demandeId,
+            @RequestBody(required = false) LivraisonChauffeurRequest body) {
+        UUID tenantId = requireTenantId();
+        String photoUrl = body != null ? body.photoUrl() : null;
+        String signatureNom = body != null ? body.signatureNom() : null;
+        demandeService.marquerLivree(tenantId, demandeId, photoUrl, signatureNom);
+        return ResponseEntity.ok(Map.of("message", "Commande marquée livrée"));
+    }
+
+    // ========================================================================
+    // FACTURE (Module G)
+    // ========================================================================
+
+    /**
+     * Récupère la facture liée à une commande.
+     * GET /api/demandes/{id}/facture
+     */
+    @GetMapping("/{demandeId}/facture")
+    @PreAuthorize("hasAnyRole('CLIENT_FINAL','GESTIONNAIRE','DIRECTION')")
+    @Transactional(readOnly = true)
+    public ResponseEntity<Map<String, Object>> obtenirFacture(@PathVariable UUID demandeId) {
+        UUID tenantId = requireTenantId();
+        return ResponseEntity.ok(demandeService.obtenirFacture(tenantId, demandeId));
+    }
+
+    // ========================================================================
+    // PROGRAMMATION (Module E)
+    // ========================================================================
+
+    /**
+     * Programme une commande : EN_ATTENTE_GROUPAGE → GROUPEE avec fenêtre précise.
+     * POST /api/demandes/{id}/programmer
+     */
+    @PostMapping("/{demandeId}/programmer")
+    @PreAuthorize("hasAnyRole('GESTIONNAIRE','DIRECTION')")
+    public ResponseEntity<Map<String, String>> programmer(@PathVariable UUID demandeId,
+                                                          @Valid @RequestBody ProgrammerRequest request) {
+        UUID tenantId = requireTenantId();
+        demandeService.programmer(tenantId, demandeId, request.dateCollecte(), request.creneauPrecis());
+        return ResponseEntity.ok(Map.of("message", "Collecte programmée"));
     }
 
     // ========================================================================

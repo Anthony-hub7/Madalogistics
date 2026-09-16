@@ -5,18 +5,17 @@ import java.util.List;
 
 /**
  * Requête de calcul de devis (sans créer de commande).
- * V14 : colis individuels avec catégorie + coords pour calcul distance.
+ * V16 : hubId pour calcul distance tournée 3 segments (hub→collecte→livraison→hub).
  */
 public record DemandeDevisRequest(
+        java.util.UUID hubId,
         BigDecimal poidsTotalKg,
         BigDecimal volumeTotalM3,
         boolean assurance,
         boolean express,
 
-        // V14 : colis individuels avec catégorie
         List<DevisColisRequest> colis,
 
-        // V14 : coordonnées pour calcul distance
         Double latitudeCollecte,
         Double longitudeCollecte,
         Double latitudeLivraison,

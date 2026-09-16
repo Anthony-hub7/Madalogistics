@@ -31,4 +31,7 @@ public interface DemandeTransportRepository extends JpaRepository<DemandeTranspo
 
     @Query("SELECT COUNT(d) FROM DemandeTransport d WHERE d.pmeCliente.tenantId = :tenantId AND d.statut = :statut")
     long compterParStatut(@Param("tenantId") UUID tenantId, @Param("statut") DemandeStatut statut);
+
+    @Query("SELECT COUNT(d) FROM DemandeTransport d WHERE d.pmeCliente.tenantId = :tenantId AND d.hub.hubId = :hubId AND d.statut = :statut")
+    long compterParHubEtStatut(@Param("tenantId") UUID tenantId, @Param("hubId") UUID hubId, @Param("statut") DemandeStatut statut);
 }

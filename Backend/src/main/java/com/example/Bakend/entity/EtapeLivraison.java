@@ -49,4 +49,14 @@ public class EtapeLivraison {
 
     @Column(name = "date_heure_reelle")
     private LocalDateTime dateHeureReelle;
+
+    // POD (preuve de livraison)
+    @Column(name = "photo_url", columnDefinition = "TEXT")
+    private String photoUrl;
+
+    @Column(name = "signature_nom", length = 255)
+    private String signatureNom;
+
+    @Column(name = "date_signature")
+    private LocalDateTime dateSignature;
 }

@@ -5,12 +5,12 @@ import com.example.Bakend.dto.demande.DemandeDevisRequest;
 import com.example.Bakend.dto.demande.DemandeDevisResponse;
 import com.example.Bakend.entity.CategorieProduit;
 import com.example.Bakend.entity.GrilleTarifaire;
+import com.example.Bakend.entity.Hub;
 import com.example.Bakend.exception.BusinessException;
-import com.example.Bakend.maps.HaversineUtil;
-import com.example.Bakend.maps.MapsHttpClient;
-import com.example.Bakend.maps.MapsProperties;
+import com.example.Bakend.maps.DistanceProvider;
 import com.example.Bakend.repository.CategorieProduitRepository;
 import com.example.Bakend.repository.GrilleTarifaireRepository;
+import com.example.Bakend.repository.HubRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,7 @@ import java.math.RoundingMode;
 import java.util.*;
 
 /**
- * Service de tarification V15 — calcul par grille reliée à catégorie + distance.
+ * Service de tarification V16 — calcul par grille reliée à catégorie + distance tournée 3 segments.
  *
  * Résolution par colis :
  *   grille = grille active liée à la catégorie du colis, sinon grille de repli global (categorie NULL)
@@ -28,7 +28,8 @@ import java.util.*;
  *           × 1.10 si assurance × 1.25 si express
  *
  * Erreur explicite si aucun tarif applicable.
- * Distance : OSRM route, fallback HaversineUtil ×1.2, 0 si coords absentes.
+ * Distance : Haversine vol d'oiseau × 1.35 (route 3 segments : hub→collecte→livraison→hub).
+ * OsrmDistanceProvider branchable plus tard sans toucher les appelants.
  */
 @Slf4j
 @Service
@@ -37,17 +38,17 @@ public class TarificationService {
 
     private final GrilleTarifaireRepository grilleTarifaireRepository;
     private final CategorieProduitRepository categorieProduitRepository;
-    private final MapsHttpClient mapsHttpClient;
-    private final MapsProperties mapsProperties;
+    private final HubRepository hubRepository;
+    private final DistanceProvider distanceProvider;
 
     public TarificationService(GrilleTarifaireRepository grilleTarifaireRepository,
                                CategorieProduitRepository categorieProduitRepository,
-                               MapsHttpClient mapsHttpClient,
-                               MapsProperties mapsProperties) {
+                               HubRepository hubRepository,
+                               DistanceProvider distanceProvider) {
         this.grilleTarifaireRepository = grilleTarifaireRepository;
         this.categorieProduitRepository = categorieProduitRepository;
-        this.mapsHttpClient = mapsHttpClient;
-        this.mapsProperties = mapsProperties;
+        this.hubRepository = hubRepository;
+        this.distanceProvider = distanceProvider;
     }
 
     // ========================================================================
@@ -62,10 +63,12 @@ public class TarificationService {
             throw new BusinessException("La commande doit contenir au moins un colis", 400);
         }
 
-        // Distance
-        BigDecimal distanceKm = calculerDistance(
-                request.latitudeCollecte(), request.longitudeCollecte(),
-                request.latitudeLivraison(), request.longitudeLivraison());
+        // Résoudre le hub et calculer la distance tournée 3 segments
+        double[] hubCoords = resoudreHubCoords(tenantId, request.hubId());
+        BigDecimal distanceKm = distanceProvider.calculerTourneeKm(
+                hubCoords[0], hubCoords[1],
+                safeDouble(request.latitudeCollecte()), safeDouble(request.longitudeCollecte()),
+                safeDouble(request.latitudeLivraison()), safeDouble(request.longitudeLivraison()));
 
         // Résoudre la grille de repli global (une seule pour le tenant)
         GrilleTarifaire grilleRepli = grilleTarifaireRepository
@@ -148,7 +151,7 @@ public class TarificationService {
         tarif = tarif.setScale(2, RoundingMode.HALF_UP);
 
         return new DemandeDevisResponse(
-                tarif, "Tarification par catégorie (V15)",
+                tarif, "Tarification tournée 3 segments (V16)",
                 null, null, null,
                 distanceKm.setScale(2, RoundingMode.HALF_UP),
                 details, maxPrixMinimum
@@ -160,11 +163,16 @@ public class TarificationService {
     // ========================================================================
 
     public ResultatTarification calculerPourCreation(UUID tenantId,
+                                                     UUID hubId,
                                                      List<DemandeColisRequest> colisList,
                                                      boolean assurance, boolean express,
                                                      Double latCollecte, Double lonCollecte,
                                                      Double latLivraison, Double lonLivraison) {
-        BigDecimal distanceKm = calculerDistance(latCollecte, lonCollecte, latLivraison, lonLivraison);
+        double[] hubCoords = resoudreHubCoords(tenantId, hubId);
+        BigDecimal distanceKm = distanceProvider.calculerTourneeKm(
+                hubCoords[0], hubCoords[1],
+                safeDouble(latCollecte), safeDouble(lonCollecte),
+                safeDouble(latLivraison), safeDouble(lonLivraison));
 
         GrilleTarifaire grilleRepli = grilleTarifaireRepository
                 .findByPmeClienteTenantIdAndCategorieIsNullAndActifTrue(tenantId)
@@ -238,44 +246,27 @@ public class TarificationService {
     }
 
     // ========================================================================
-    // DISTANCE
-    // ========================================================================
-
-    private BigDecimal calculerDistance(Double lat1, Double lon1, Double lat2, Double lon2) {
-        if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) {
-            return BigDecimal.ZERO;
-        }
-        try {
-            return osrmDistance(lat1, lon1, lat2, lon2);
-        } catch (Exception e) {
-            log.warn("OSRM fallback to Haversine: {}", e.getMessage());
-        }
-        double haversineKm = HaversineUtil.distance(lat1, lon1, lat2, lon2);
-        double routeKm = haversineKm * 1.2;
-        return BigDecimal.valueOf(routeKm).setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private BigDecimal osrmDistance(double lat1, double lon1, double lat2, double lon2) throws Exception {
-        String uri = mapsProperties.getRoutingUrl()
-                + "/route/v1/driving/"
-                + lon1 + "," + lat1 + ";" + lon2 + "," + lat2
-                + "?overview=false";
-        String body = mapsHttpClient.fetchString(uri, mapsProperties.getUserAgent());
-        if (body.contains("\"distance\"")) {
-            int idx = body.indexOf("\"distance\"");
-            int colon = body.indexOf(':', idx);
-            int end = body.indexOf(',', colon);
-            if (end < 0) end = body.indexOf('}', colon);
-            String val = body.substring(colon + 1, end).trim();
-            double meters = Double.parseDouble(val);
-            return BigDecimal.valueOf(meters / 1000.0).setScale(2, RoundingMode.HALF_UP);
-        }
-        throw new RuntimeException("No distance in OSRM response");
-    }
-
-    // ========================================================================
     // HELPERS
     // ========================================================================
+
+    /**
+     * Résout les coords du hub (latitude, longitude). Si le hub n'a pas de coords, retourne [0,0].
+     */
+    private double[] resoudreHubCoords(UUID tenantId, UUID hubId) {
+        if (hubId == null) {
+            return new double[]{0, 0};
+        }
+        return hubRepository.findByPmeClienteTenantIdAndHubId(tenantId, hubId)
+                .map(h -> new double[]{
+                        h.getLatitude() != null ? h.getLatitude() : 0,
+                        h.getLongitude() != null ? h.getLongitude() : 0
+                })
+                .orElse(new double[]{0, 0});
+    }
+
+    private static double safeDouble(Double val) {
+        return val != null ? val : 0;
+    }
 
     private Map<UUID, CategorieProduit> resoudreCategories(UUID tenantId,
                                                            List<DemandeDevisRequest.DevisColisRequest> colisList) {

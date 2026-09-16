@@ -48,6 +48,9 @@ public class Hub {
     @Column(name = "actif", nullable = false)
     private boolean actif = true;
 
+    @Column(name = "horaires", length = 100)
+    private String horaires;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

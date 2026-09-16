@@ -1,6 +1,7 @@
 package com.example.Bakend.controller;
 
 import com.example.Bakend.config.RoleRedirectMapper;
+import com.example.Bakend.dto.auth.AgenceRecommandeeResponse;
 import com.example.Bakend.dto.request.AgenceDossierRequest;
 import com.example.Bakend.dto.request.ChauffeurDossierRequest;
 import com.example.Bakend.dto.request.FinalisationAgenceRequest;
@@ -9,14 +10,18 @@ import com.example.Bakend.dto.request.LoginRequest;
 import com.example.Bakend.dto.response.AuthResponse;
 import com.example.Bakend.entity.PMECliente;
 import com.example.Bakend.entity.Utilisateur;
+import com.example.Bakend.exception.BusinessException;
 import com.example.Bakend.repository.PMEClienteRepository;
 import com.example.Bakend.repository.UtilisateurRepository;
 import com.example.Bakend.security.CustomUserDetails;
 import com.example.Bakend.security.JwtService;
+import com.example.Bakend.security.SecurityUtils;
+import com.example.Bakend.service.AgenceRecommandationService;
 import com.example.Bakend.service.AgenceRegistrationService;
 import com.example.Bakend.service.ChauffeurRegistrationService;
 import com.example.Bakend.service.ClientRegistrationService;
 import com.example.Bakend.service.RefreshTokenService;
+import com.example.Bakend.service.TransfertAgenceService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -56,6 +61,8 @@ public class AuthController {
     private final RoleRedirectMapper roleRedirectMapper;
     private final PMEClienteRepository pmeClienteRepository;
     private final com.example.Bakend.repository.ChauffeurRepository chauffeurRepository;
+    private final AgenceRecommandationService agenceRecommandationService;
+    private final TransfertAgenceService transfertAgenceService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtService jwtService,
@@ -66,7 +73,9 @@ public class AuthController {
                           ChauffeurRegistrationService chauffeurRegistrationService,
                           RoleRedirectMapper roleRedirectMapper,
                           PMEClienteRepository pmeClienteRepository,
-                          com.example.Bakend.repository.ChauffeurRepository chauffeurRepository) {
+                          com.example.Bakend.repository.ChauffeurRepository chauffeurRepository,
+                          AgenceRecommandationService agenceRecommandationService,
+                          TransfertAgenceService transfertAgenceService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
@@ -77,6 +86,8 @@ public class AuthController {
         this.roleRedirectMapper = roleRedirectMapper;
         this.pmeClienteRepository = pmeClienteRepository;
         this.chauffeurRepository = chauffeurRepository;
+        this.agenceRecommandationService = agenceRecommandationService;
+        this.transfertAgenceService = transfertAgenceService;
     }
 
     /**
@@ -328,6 +339,47 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
 
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Agences recommandées pour un client (scoring backend).
+     * GET /api/auth/public/agences/recommandees?latCollecte=...&lonCollecte=...
+     */
+    @GetMapping("/public/agences/recommandees")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<AgenceRecommandeeResponse>> agencesRecommandees(
+            @RequestParam(required = false) Double latCollecte,
+            @RequestParam(required = false) Double lonCollecte) {
+        List<AgenceRecommandeeResponse> result = agenceRecommandationService.classer(latCollecte, lonCollecte);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Transfert d'un client vers une autre agence (changement de tenant).
+     * POST /api/auth/changer-agence
+     */
+    @PostMapping("/changer-agence")
+    @Transactional
+    public ResponseEntity<AuthResponse> changerAgence(
+            @RequestBody Map<String, java.util.UUID> body,
+            HttpServletResponse response) {
+        CustomUserDetails user = SecurityUtils.getCurrentUser();
+        if (user == null) {
+            throw new BusinessException("Utilisateur non authentifié", 401);
+        }
+        java.util.UUID nouveauTenantId = body.get("tenantId");
+        if (nouveauTenantId == null) {
+            throw new BusinessException("Le champ tenantId est obligatoire", 400);
+        }
+
+        AuthResponse authResponse = transfertAgenceService.transferer(
+                user.getUtilisateur().getUtilisateurId(), nouveauTenantId);
+
+        String refreshToken = refreshTokenService.createRefreshToken(
+                authResponse.utilisateurId(), authResponse.tenantId());
+        addRefreshCookie(response, refreshToken);
+
+        return ResponseEntity.ok(authResponse);
     }
 
     private void addRefreshCookie(HttpServletResponse response, String refreshToken) {
