@@ -168,14 +168,18 @@ public class DemandeController {
     // ========================================================================
 
     /**
-     * Valide une commande : CREEE → EN_ATTENTE_GROUPAGE.
+     * Valide une commande : CREEE → EN_ATTENTE_GROUPAGE (Phase 3bis).
      * POST /api/demandes/{id}/valider
+     * Body optionnel : { "modeLivraison": "AGENCE" | "FREELANCE" }
      */
     @PostMapping("/{demandeId}/valider")
     @PreAuthorize("hasAnyRole('GESTIONNAIRE','DIRECTION')")
-    public ResponseEntity<Map<String, String>> valider(@PathVariable UUID demandeId) {
+    public ResponseEntity<Map<String, String>> valider(
+            @PathVariable UUID demandeId,
+            @RequestBody(required = false) ValiderDemandeRequest body) {
         UUID tenantId = requireTenantId();
-        demandeService.valider(tenantId, demandeId);
+        String mode = body != null ? body.modeLivraison() : null;
+        demandeService.valider(tenantId, demandeId, mode);
         return ResponseEntity.ok(Map.of("message", "Commande validée et mise en attente de groupage"));
     }
 

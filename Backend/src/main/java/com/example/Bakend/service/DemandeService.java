@@ -2,12 +2,16 @@ package com.example.Bakend.service;
 
 import com.example.Bakend.dto.demande.*;
 import com.example.Bakend.entity.*;
+import com.example.Bakend.entity.enums.AuditAction;
 import com.example.Bakend.entity.enums.ColisEtat;
 import com.example.Bakend.entity.enums.DemandeStatut;
+import com.example.Bakend.entity.enums.ModeLivraison;
 import com.example.Bakend.exception.BusinessException;
 import com.example.Bakend.exception.ResourceNotFoundException;
 import com.example.Bakend.optimisation.categorisation.CategorisationInferenceService;
 import com.example.Bakend.optimisation.categorisation.NiveauValeurMapper;
+import com.example.Bakend.optimisation.delai.DelaiService;
+import com.example.Bakend.maps.TrajetService;
 import com.example.Bakend.repository.*;
 import com.example.Bakend.security.CustomUserDetails;
 import com.example.Bakend.security.SecurityUtils;
@@ -42,6 +46,8 @@ public class DemandeService {
     private final ColisFeatureRepository colisFeatureRepository;
     private final EtapeLivraisonRepository etapeLivraisonRepository;
     private final FactureRepository factureRepository;
+    private final AuditLogRepository auditLogRepository;
+    private final TrajetService trajetService;
 
     public DemandeService(DemandeTransportRepository demandeRepository,
                           ColisRepository colisRepository,
@@ -54,7 +60,9 @@ public class DemandeService {
                           CategorisationInferenceService categorisationInferenceService,
                           ColisFeatureRepository colisFeatureRepository,
                           EtapeLivraisonRepository etapeLivraisonRepository,
-                          FactureRepository factureRepository) {
+                          FactureRepository factureRepository,
+                          AuditLogRepository auditLogRepository,
+                          TrajetService trajetService) {
         this.demandeRepository = demandeRepository;
         this.colisRepository = colisRepository;
         this.hubRepository = hubRepository;
@@ -67,6 +75,8 @@ public class DemandeService {
         this.colisFeatureRepository = colisFeatureRepository;
         this.etapeLivraisonRepository = etapeLivraisonRepository;
         this.factureRepository = factureRepository;
+        this.auditLogRepository = auditLogRepository;
+        this.trajetService = trajetService;
     }
 
     // ========================================================================
@@ -93,6 +103,16 @@ public class DemandeService {
         Hub hub = hubRepository.findByPmeClienteTenantIdAndHubId(tenantId, request.hubId())
                 .orElseThrow(() -> new ResourceNotFoundException("Hub introuvable : " + request.hubId()));
 
+        // Phase 3 : validation complétude des colis
+        for (DemandeColisRequest c : request.colis()) {
+            if (c.poidsKg() == null || c.poidsKg().doubleValue() <= 0) {
+                throw new BusinessException("Le poids de chaque colis doit être supérieur à 0", 400);
+            }
+            if (c.volumeM3() == null || c.volumeM3().doubleValue() <= 0) {
+                throw new BusinessException("Le volume de chaque colis doit être supérieur à 0", 400);
+            }
+        }
+
         // Calculer le tarif via TarificationService (V16)
         TarificationService.ResultatTarification resultat = tarificationService
                 .calculerPourCreation(
@@ -118,6 +138,36 @@ public class DemandeService {
         demande.setTarif(resultat.tarif());
         demande.setDistanceKm(resultat.distanceKm());
         demande.setStatut(DemandeStatut.CREEE);
+
+        // V20 : calcul delai + date depart via TrajetService (OSRM ou Haversine fallback)
+        if (hub.getLatitude() != null && hub.getLongitude() != null
+                && request.latitudeCollecte() != null && request.longitudeCollecte() != null
+                && request.latitudeLivraison() != null && request.longitudeLivraison() != null) {
+            try {
+                TrajetService.TrajetResult trajet = trajetService.calculerTrajet(
+                        hub.getLatitude(), hub.getLongitude(),
+                        request.latitudeCollecte(), request.longitudeCollecte(),
+                        request.latitudeLivraison(), request.longitudeLivraison());
+                demande.setDureeTrajetHeures(trajet.distanceKm()); // distance deja set plus haut
+                // Utiliser la duree reelle du trajet
+                demande.setDureeTrajetHeures(java.math.BigDecimal.valueOf(trajet.dureeHeures())
+                        .setScale(2, java.math.RoundingMode.HALF_UP));
+                demande.setSourceDelai(trajet.source());
+                demande.setDelaiTransitJours(DelaiService.calculerDelai(
+                        java.math.BigDecimal.valueOf(trajet.dureeHeures())));
+                demande.setDateDepartCalculee(DelaiService.calculerDateDepart(
+                        request.dateSouhaitee(),
+                        demande.getDelaiTransitJours(),
+                        tenant.getMargeSecuritePct()));
+            } catch (Exception e) {
+                // Fallback : delai = 1 jour minimum
+                demande.setDelaiTransitJours(java.math.BigDecimal.ONE);
+                demande.setSourceDelai("HAVERSINE_FALLBACK");
+                if (request.dateSouhaitee() != null) {
+                    demande.setDateDepartCalculee(request.dateSouhaitee().minusDays(2));
+                }
+            }
+        }
 
         demande = demandeRepository.save(demande);
 
@@ -162,6 +212,23 @@ public class DemandeService {
             colisFeatureRepository.save(cf);
         }
 
+        // Phase 3 : traçabilité audit_log CREATION
+        CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
+        AuditLog audit = new AuditLog();
+        audit.setPmeCliente(tenant);
+        audit.setUtilisateur(currentUser != null ? currentUser.getUtilisateur() : null);
+        audit.setEntite("DemandeTransport");
+        audit.setEntiteId(demande.getDemandeId());
+        audit.setAction(AuditAction.CREATION);
+        double poidsTotal = colisList.stream().mapToDouble(c -> c.getPoidsKg().doubleValue()).sum();
+        double volumeTotal = colisList.stream().mapToDouble(c -> c.getVolumeM3().doubleValue()).sum();
+        audit.setDetails("{\"nbColis\":" + colisList.size()
+                + ",\"poidsTotalKg\":" + poidsTotal
+                + ",\"volumeTotalM3\":" + volumeTotal
+                + ",\"tarif\":" + (demande.getTarif() != null ? demande.getTarif() : 0)
+                + ",\"hubId\":\"" + hub.getHubId() + "\"}");
+        auditLogRepository.save(audit);
+
         return demande;
     }
 
@@ -169,7 +236,11 @@ public class DemandeService {
     // VALIDATION / REFUS
     // ========================================================================
 
-    public DemandeTransport valider(UUID tenantId, UUID demandeId) {
+    /**
+     * Phase 3bis : validation avec mode de livraison (défaut AGENCE).
+     * Garde-fou : colis sans catégorie → 409 (incohérence détectée, contacter support).
+     */
+    public DemandeTransport valider(UUID tenantId, UUID demandeId, String mode) {
         CustomUserDetails user = SecurityUtils.getCurrentUser();
         if (user == null) throw new BusinessException("Utilisateur non authentifié", 401);
 
@@ -178,10 +249,48 @@ public class DemandeService {
             throw new BusinessException(
                     "Seules les commandes au statut CREEE peuvent être validées (statut actuel : " + demande.getStatut() + ")", 409);
         }
-        demande.setStatut(DemandeStatut.VALIDEE);
-        demande.setValidePar(user.getUtilisateur());
+
+        // Garde-fou : vérifier que tous les colis ont une catégorie (Phase 3 inférence auto)
+        List<Colis> colisList = demande.getColis();
+        if (colisList != null) {
+            for (Colis c : colisList) {
+                if (c.getCategorie() == null) {
+                    throw new BusinessException(
+                            "Incohérence détectée : colis " + c.getColisId() + " sans catégorie. " +
+                            "Vérifier la configuration du tenant, contacter support.", 409);
+                }
+            }
+        }
+
+        // Appliquer le mode (défaut AGENCE si null/illégal)
+        ModeLivraison modeLivraison = ModeLivraison.AGENCE;
+        if (mode != null) {
+            try {
+                modeLivraison = ModeLivraison.valueOf(mode.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new BusinessException("Mode de livraison invalide : " + mode + " (valeurs attendues : AGENCE, FREELANCE)", 400);
+            }
+        }
+
+        demande.setModeLivraison(modeLivraison);
         demande.setStatut(DemandeStatut.EN_ATTENTE_GROUPAGE);
-        return demandeRepository.save(demande);
+        demande.setValidePar(user.getUtilisateur());
+        DemandeTransport saved = demandeRepository.save(demande);
+
+        // Audit VALIDATION (même transaction @Transactional → atomicité)
+        int nbColis = colisList != null ? colisList.size() : 0;
+        AuditLog audit = new AuditLog();
+        audit.setPmeCliente(demande.getPmeCliente());
+        audit.setUtilisateur(user.getUtilisateur());
+        audit.setEntite("DemandeTransport");
+        audit.setEntiteId(demande.getDemandeId());
+        audit.setAction(AuditAction.VALIDATION);
+        audit.setDetails("{\"modeLivraison\":\"" + modeLivraison.name()
+                + "\",\"nbColis\":" + nbColis
+                + ",\"validePar\":\"" + user.getUtilisateur().getUtilisateurId() + "\"}");
+        auditLogRepository.save(audit);
+
+        return saved;
     }
 
     public DemandeTransport refuser(UUID tenantId, UUID demandeId, String motif) {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { agencesService } from '../../services/agencesService'
 import { useAuth } from '../../hooks/useAuth'
@@ -318,6 +318,13 @@ function AttenteValidation({ data, reference, onBack, onCheckStatus }) {
   const [checking, setChecking] = useState(false)
   const [statusResult, setStatusResult] = useState(null)
   const [checkError, setCheckError] = useState(null)
+
+  // Vérification automatique au montage (si on revient sur la page)
+  useEffect(() => {
+    if (reference && !statusResult) {
+      handleCheck()
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCheck = async () => {
     if (!reference) return
@@ -752,8 +759,20 @@ const TOTAL_STEPS = 3
 
 function AgenceInscriptionFlow() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, loginWithToken } = useAuth()
   const goBack = () => navigate('/')
+
+  // Decode JWT payload to extract role
+  const extractRoleFromToken = (token) => {
+    try {
+      const base64 = token.split('.')[1]
+      const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'))
+      const payload = JSON.parse(json)
+      return payload?.role || null
+    } catch {
+      return null
+    }
+  }
 
   // Récupérer tenantId depuis URL params (deep link) ou localStorage
   const urlParams = new URLSearchParams(window.location.search)
@@ -762,12 +781,12 @@ function AgenceInscriptionFlow() {
 
   const initialScreen = deepLinkTenantId
     ? 'reprendre'
-    : (storedDossier ? 'reprendre' : 'form')
+    : (storedDossier?.tenantId ? 'attente' : (storedDossier ? 'reprendre' : 'form'))
 
   const [screen, setScreen] = useState(initialScreen) // form | attente | accepted | refused | reprendre | finalisation | done
   const [step, setStep] = useState(1)
   const [data, setData] = useState({
-    raisonSociale: '', nif: '', stat: '', email: '', telephone: '', site: '',
+    raisonSociale: storedDossier?.raisonSociale || '', nif: '', stat: '', email: '', telephone: '', site: '',
     adresse: '',
     kbis: null, attestation: null, assurance: null,
   })
@@ -800,6 +819,7 @@ function AgenceInscriptionFlow() {
     )
     setTenantId(result.tenantId)
     setReference(result.reference)
+    agencesService.sauvegarderDossier({ tenantId: result.tenantId, reference: result.reference, raisonSociale: data.raisonSociale })
     setScreen('attente')
   }
 
@@ -836,15 +856,27 @@ function AgenceInscriptionFlow() {
 
   // Finalisation du compte admin (appel API + auto-login via AuthContext)
   const handleFinalizeCompte = async (admin) => {
-    await agencesService.finaliserCompte({
+    const authResponse = await agencesService.finaliserCompte({
       tenantId,
       prenom: admin.prenom,
       nom: admin.nom,
       emailAdmin: admin.emailAdmin,
       password: admin.password,
     })
-    // Auto-login
-    await login(admin.emailAdmin, admin.password)
+    // Le backend retourne déjà un JWT + refresh cookie → auto-login direct
+    const rawToken = authResponse.token || authResponse.accessToken
+    if (rawToken) {
+      const role = extractRoleFromToken(rawToken)
+      const userData = {
+        utilisateurId: authResponse.utilisateurId,
+        tenantId: authResponse.tenantId,
+        email: authResponse.email,
+        name: authResponse.fullName,
+        role,
+        redirectPath: authResponse.redirectPath,
+      }
+      loginWithToken(rawToken, userData)
+    }
     setAdminName(`${admin.prenom} ${admin.nom}`)
     agencesService.effacerDossierEnCours()
     setScreen('done')

@@ -23,7 +23,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/agences/equipe/chauffeurs")
-@PreAuthorize("hasRole('DIRECTION')")
+@PreAuthorize("hasAnyRole('DIRECTION','GESTIONNAIRE')")
 public class AgenceEquipeController {
 
     private final EquipeService equipeService;
@@ -57,6 +57,7 @@ public class AgenceEquipeController {
      * Valide un dossier de chauffeur rattaché.
      */
     @PostMapping("/{chauffeurId}/valider")
+    @PreAuthorize("hasRole('DIRECTION')")
     public ResponseEntity<Map<String, String>> validerDossier(@PathVariable UUID chauffeurId) {
         equipeService.validerDossier(requireTenantId(), chauffeurId);
         return ResponseEntity.ok(Map.of("message", "Chauffeur valide avec succes"));
@@ -66,6 +67,7 @@ public class AgenceEquipeController {
      * Refuse un dossier de chauffeur rattaché avec motif.
      */
     @PostMapping("/{chauffeurId}/refuser")
+    @PreAuthorize("hasRole('DIRECTION')")
     public ResponseEntity<Map<String, String>> refuserDossier(@PathVariable UUID chauffeurId,
                                                               @RequestBody Map<String, String> body) {
         String motif = body.getOrDefault("motif", "Dossier non conforme");
@@ -77,6 +79,7 @@ public class AgenceEquipeController {
      * Desactive un chauffeur actif de l'agence.
      */
     @PostMapping("/{chauffeurId}/desactiver")
+    @PreAuthorize("hasRole('DIRECTION')")
     public ResponseEntity<Map<String, String>> desactiverDossier(@PathVariable UUID chauffeurId,
                                                                   @RequestBody Map<String, String> body) {
         String motif = body.getOrDefault("motif", "Desactive par l'agence");
@@ -88,6 +91,7 @@ public class AgenceEquipeController {
      * Reactive un chauffeur desactive de l'agence.
      */
     @PostMapping("/{chauffeurId}/reactiver")
+    @PreAuthorize("hasRole('DIRECTION')")
     public ResponseEntity<Map<String, String>> reactiverDossier(@PathVariable UUID chauffeurId) {
         equipeService.reactiverDossier(requireTenantId(), chauffeurId);
         return ResponseEntity.ok(Map.of("message", "Chauffeur reactive avec succes"));

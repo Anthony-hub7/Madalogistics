@@ -3,6 +3,7 @@ package com.example.Bakend.dto.demande;
 import com.example.Bakend.entity.Colis;
 import com.example.Bakend.entity.DemandeTransport;
 import com.example.Bakend.entity.enums.DemandeStatut;
+import com.example.Bakend.entity.enums.ModeLivraison;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ public record DemandeDetailResponse(
         String motifRefus,
         UUID valideParId,
         UUID grilleId,
+        ModeLivraison modeLivraison,
         List<ColisItem> colis,
         LocalDateTime createdAt
 ) {
@@ -85,6 +87,7 @@ public record DemandeDetailResponse(
                 d.getMotifRefus(),
                 d.getValidePar() != null ? d.getValidePar().getUtilisateurId() : null,
                 d.getGrilleUtilisee() != null ? d.getGrilleUtilisee().getGrilleId() : null,
+                d.getModeLivraison(),
                 colisItems,
                 d.getCreatedAt()
         );

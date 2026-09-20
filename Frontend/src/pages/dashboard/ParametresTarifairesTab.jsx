@@ -166,6 +166,30 @@ export default function ParametresTarifairesTab() {
         )}
       </div>
 
+      {/* Marge de sécurité */}
+      <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+        <h3 className="font-headline-md text-headline-md mb-2">Marge de sécurité</h3>
+        <p className="font-body-sm text-body-sm text-on-surface-variant mb-4">
+          Marge appliquée au calcul du délai de transit (ex: 15% = ajouter 15% au delai base).
+        </p>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={seuil}
+              disabled
+              className="w-24 rounded-lg border border-outline-variant bg-surface-container-low px-3 py-2 font-label-md text-label-md text-center opacity-60 cursor-not-allowed"
+            />
+            <span className="font-label-md text-label-md text-on-surface-variant">%</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant">
+              Paramètre fixe : 8h de conduite/jour (sécurité chauffeurs)
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Grilles tarifaires */}
       <div className="rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm overflow-hidden">
         <div className="flex items-center justify-between p-5 border-b border-outline-variant">

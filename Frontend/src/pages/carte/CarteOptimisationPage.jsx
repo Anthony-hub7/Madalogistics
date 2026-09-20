@@ -1,19 +1,12 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Marker, Popup, Polyline } from 'react-leaflet'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { Marker, Popup, Polyline, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import MapView from '../../map/MapView'
-import { getMeta } from '../../map/mapCache'
+import { mapsService } from '../../services/mapsService'
+import { tourneesService } from '../../services/tourneesService'
 
-const HUB_KEY = 'madalogistix_hubs'
 const DEFAULT_CENTER = [-18.914, 47.541]
-
-const mockStops = [
-  { id: 1, nom: 'Antananarivo Centre', lat: -18.913, lng: 47.516, client: 'Telma Madagascar', statut: 'livree' },
-  { id: 2, nom: 'Ankorondrano', lat: -18.914, lng: 47.541, client: 'Jovenna', statut: 'en_cours' },
-  { id: 3, nom: 'Analakely', lat: -18.920, lng: 47.517, client: 'Pharmacie Centrale', statut: 'a_venir' },
-  { id: 4, nom: 'Ivandry', lat: -18.900, lng: 47.525, client: 'Supermaki', statut: 'a_venir' },
-  { id: 5, nom: 'Ambohijatovo', lat: -18.927, lng: 47.523, client: 'Dépôt Logistique', statut: 'a_venir' },
-]
 
 const statutColors = {
   livree: '#16A34A',
@@ -27,9 +20,40 @@ const statutLabels = {
   a_venir: 'À venir',
 }
 
+const traceColors = {
+  collecte: '#16A34A',
+  aller: '#DC2626',
+  retour: '#F97316',
+}
+
+const traceLabels = {
+  collecte: 'Collecte',
+  aller: 'Aller',
+  retour: 'Retour',
+}
+
+function FitBounds({ bounds }) {
+  const map = useMap()
+  const prevRef = useRef(null)
+  useEffect(() => {
+    if (!bounds || bounds.length < 2) return
+    const key = bounds.flat().join(',')
+    if (prevRef.current === key) return
+    prevRef.current = key
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15, animate: false })
+  }, [map, bounds])
+  return null
+}
+
 function CarteOptimisationPage() {
-  const [hubs, setHubs] = useState([])
-  const [stops] = useState(mockStops)
+  const [searchParams] = useSearchParams()
+  const focusTourneeId = searchParams.get('tourneeId')
+  const embed = searchParams.get('embed') === '1'
+
+  const [tournees, setTournees] = useState([])
+  const [traces, setTraces] = useState({})
+  const [selectedTournee, setSelectedTournee] = useState(null)
+  const [collecteStops, setCollecteStops] = useState([])
 
   const makeIcon = useMemo(() => {
     const cache = {}
@@ -47,24 +71,6 @@ function CarteOptimisationPage() {
     }
   }, [])
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const stored = localStorage.getItem(HUB_KEY)
-        if (stored) { setHubs(JSON.parse(stored)); return }
-      } catch { /* fallback */ }
-      try {
-        const cached = await getMeta('hubs_list')
-        if (cached) { setHubs(cached); return }
-      } catch { /* noop */ }
-      setHubs([])
-    }
-    load()
-  }, [])
-
-  const activeHubs = useMemo(() => hubs.filter(h => h.statut === 'actif' && typeof h.lat === 'number' && typeof h.lng === 'number'), [hubs])
-  const center = useMemo(() => activeHubs.length > 0 ? [activeHubs[0].lat, activeHubs[0].lng] : DEFAULT_CENTER, [activeHubs])
-
   const hubIcon = useMemo(() => L.divIcon({
     className: '',
     html: `<div style="background:#E8433D;width:36px;height:36px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center"><span class="material-symbols-outlined" style="color:white;font-size:20px">warehouse</span></div>`,
@@ -73,99 +79,267 @@ function CarteOptimisationPage() {
     popupAnchor: [0, -36],
   }), [])
 
-  const route1 = useMemo(() => activeHubs.length > 0
-    ? [[activeHubs[0].lat, activeHubs[0].lng], ...stops.slice(0, 3).map(s => [s.lat, s.lng]), [activeHubs[0].lat, activeHubs[0].lng]]
-    : [],
-  [activeHubs, stops])
+  const collecteIcon = useMemo(() => L.divIcon({
+    className: '',
+    html: `<div style="background:#16A34A;width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center"><span class="material-symbols-outlined" style="color:white;font-size:16px">inventory_2</span></div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -14],
+  }), [])
 
-  const route2 = useMemo(() => activeHubs.length > 0
-    ? [[activeHubs[0].lat, activeHubs[0].lng], ...stops.slice(3).map(s => [s.lat, s.lng]), [activeHubs[0].lat, activeHubs[0].lng]]
-    : [],
-  [activeHubs, stops])
+  useEffect(() => {
+    async function loadTournees() {
+      try {
+        const data = await tourneesService.getAll()
+        if (Array.isArray(data)) setTournees(data)
+      } catch { /* noop */ }
+    }
+    loadTournees()
+  }, [])
 
-  const allRoutePoints = useMemo(() => [...route1, ...route2], [route1, route2])
+  const loadTrace = async (tourneeId) => {
+    if (traces[tourneeId]) {
+      setSelectedTournee(selectedTournee === tourneeId ? null : tourneeId)
+      return
+    }
+    try {
+      const data = await mapsService.getTrace(tourneeId)
+      setTraces(prev => ({ ...prev, [tourneeId]: data }))
+      setSelectedTournee(tourneeId)
+
+      // Extraire les stops de collecte depuis les données tournees
+      const tournee = tournees.find(t => t.tournee_id === tourneeId)
+      if (tournee && tournee.etapes) {
+        const seen = new Set()
+        const stops = []
+        tournee.etapes.forEach((e, ei) => {
+          if (e.collecte_latitude != null && e.collecte_longitude != null) {
+            const key = `${e.collecte_latitude}-${e.collecte_longitude}`
+            if (!seen.has(key)) {
+              seen.add(key)
+              stops.push({
+                id: `collecte-${tourneeId}-${ei}`,
+                lat: e.collecte_latitude,
+                lng: e.collecte_longitude,
+                client: `Collecte — Colis ${(e.colis_id || '').slice(0,8)}`,
+                address: e.adresse_collecte || '',
+                tourneeId,
+              })
+            }
+          }
+        })
+        setCollecteStops(stops)
+      }
+    } catch { /* noop */ }
+  }
+
+  // Auto-focus on tourneeId from URL
+  useEffect(() => {
+    if (!focusTourneeId) return
+    if (tournees.length === 0) return
+    const found = tournees.find(t => t.tournee_id === focusTourneeId)
+    if (found) loadTrace(focusTourneeId)
+  }, [focusTourneeId, tournees])
+
+  // Auto-load trace when only 1 tournee and no focus
+  useEffect(() => {
+    if (focusTourneeId) return
+    if (tournees.length !== 1) return
+    const t = tournees[0]
+    if (!traces[t.tournee_id]) loadTrace(t.tournee_id)
+  }, [tournees])
+
+  const allStops = useMemo(() => {
+    const stops = []
+    const tourneesToUse = focusTourneeId
+      ? tournees.filter(t => t.tournee_id === focusTourneeId)
+      : tournees
+
+    tourneesToUse.forEach((t) => {
+      if (t.etapes) {
+        t.etapes.forEach((e, ei) => {
+          if (e.latitude != null && e.longitude != null) {
+            stops.push({
+              id: `${t.tournee_id}-${ei}`,
+              lat: e.latitude,
+              lng: e.longitude,
+              client: e.colis_id ? `Colis ${e.colis_id.slice(0,8)}` : `Étape ${ei+1}`,
+              statut: ei === 0 ? 'en_cours' : 'a_venir',
+              tourneeId: t.tournee_id,
+              type_etape: e.type_etape,
+            })
+          }
+        })
+      }
+    })
+    return stops
+  }, [tournees, focusTourneeId])
+
+  // Hubs from tournées API (each tournée has t.hub)
+  const hubsFromTournees = useMemo(() => {
+    const seen = new Set()
+    const hubs = []
+    const tourneesToUse = focusTourneeId
+      ? tournees.filter(t => t.tournee_id === focusTourneeId)
+      : tournees
+
+    tourneesToUse.forEach(t => {
+      if (t.hub && t.hub.latitude != null && t.hub.longitude != null) {
+        const key = `${t.hub.latitude}-${t.hub.longitude}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          hubs.push({ ...t.hub, tourneeId: t.tournee_id })
+        }
+      }
+    })
+    return hubs
+  }, [tournees, focusTourneeId])
+
+  const fitBounds = useMemo(() => {
+    const pts = []
+    hubsFromTournees.forEach(h => pts.push([h.latitude, h.longitude]))
+    allStops.forEach(s => pts.push([s.lat, s.lng]))
+    collecteStops.forEach(s => pts.push([s.lat, s.lng]))
+    return pts.length >= 2 ? pts : null
+  }, [hubsFromTournees, allStops, collecteStops])
+
+  const filteredTournees = focusTourneeId
+    ? tournees.filter(t => t.tournee_id === focusTourneeId)
+    : tournees
+
+  const parseTraceCoords = (segment) => {
+    if (!segment) return []
+    const geoJson = segment.raw ? JSON.parse(segment.raw) : segment
+    if (!geoJson || !geoJson.routes || !geoJson.routes[0]) return []
+    const geom = geoJson.routes[0].geometry
+    if (!geom || !geom.coordinates) return []
+    return geom.coordinates.map(c => [c[1], c[0]])
+  }
+
+  const traceSegments = useMemo(() => {
+    if (!selectedTournee || !traces[selectedTournee]) return {}
+    const data = traces[selectedTournee]
+    return {
+      collecte: parseTraceCoords(data.collecte),
+      aller: parseTraceCoords(data.aller),
+      retour: parseTraceCoords(data.retour),
+    }
+  }, [selectedTournee, traces])
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Carte d'Optimisation</h2>
-        <p className="font-body-md text-body-md text-on-surface-variant">
-          Visualisation des tournées VRP et des points de livraison.
-        </p>
-      </div>
+    <div className={embed ? '' : 'space-y-4'}>
+      {!embed && (
+        <div>
+          <h2 className="font-headline-lg text-headline-lg text-on-surface">Carte d'Optimisation</h2>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Visualisation des tournées VRP et des points de livraison.
+          </p>
+        </div>
+      )}
 
-      <div className="rounded-xl overflow-hidden border border-outline-variant shadow-sm" style={{ height: '500px' }}>
-        <MapView center={center} zoom={13} style={{ height: '100%', width: '100%' }} routePoints={allRoutePoints}>
-          {activeHubs.map((hub) => (
-            <Marker key={hub.id} position={[hub.lat, hub.lng]} icon={hubIcon}>
-              <Popup><strong>{hub.nom}</strong><br/>{hub.adresse}</Popup>
+      <div className={`rounded-xl overflow-hidden border border-outline-variant shadow-sm ${embed ? '' : ''}`} style={{ height: embed ? '100%' : '500px' }}>
+        <MapView center={DEFAULT_CENTER} zoom={13} style={{ height: '100%', width: '100%' }}>
+          {fitBounds && <FitBounds bounds={fitBounds} />}
+
+          {hubsFromTournees.map((h, i) => (
+            <Marker key={`hub-${i}`} position={[h.latitude, h.longitude]} icon={hubIcon}>
+              <Popup><strong>{h.nom || 'Hub'}</strong></Popup>
             </Marker>
           ))}
 
-          {stops.map((stop) => (
-            <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={makeIcon(statutColors[stop.statut])}>
+          {collecteStops.map((stop) => (
+            <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={collecteIcon}>
               <Popup>
                 <div>
                   <strong>{stop.client}</strong><br/>
-                  {stop.nom}<br/>
-                  <span style={{ color: statutColors[stop.statut], fontWeight: 'bold' }}>{statutLabels[stop.statut]}</span>
+                  {stop.address && <span style={{ fontSize: '12px', color: '#666' }}>{stop.address}</span>}
                 </div>
               </Popup>
             </Marker>
           ))}
 
-          {route1.length > 0 && <Polyline positions={route1} pathOptions={{ color: '#2563EB', weight: 4, dashArray: '8 8', smoothFactor: 1 }} />}
-          {route2.length > 0 && <Polyline positions={route2} pathOptions={{ color: '#F97316', weight: 4, dashArray: '8 8', smoothFactor: 1 }} />}
+          {allStops.map((stop) => (
+            <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={makeIcon(statutColors[stop.statut])}>
+              <Popup>
+                <div>
+                  <strong>{stop.client}</strong><br/>
+                  <span style={{ color: '#F97316', fontWeight: 'bold' }}>{stop.type_etape || 'LIVRAISON'}</span>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+          {traceSegments.collecte && traceSegments.collecte.length > 0 && (
+            <Polyline positions={traceSegments.collecte} pathOptions={{ color: traceColors.collecte, weight: 4, smoothFactor: 1 }} />
+          )}
+          {traceSegments.aller && traceSegments.aller.length > 0 && (
+            <Polyline positions={traceSegments.aller} pathOptions={{ color: traceColors.aller, weight: 4, smoothFactor: 1 }} />
+          )}
+          {traceSegments.retour && traceSegments.retour.length > 0 && (
+            <Polyline positions={traceSegments.retour} pathOptions={{ color: traceColors.retour, weight: 4, smoothFactor: 1, dashArray: '8 4' }} />
+          )}
         </MapView>
       </div>
 
-      <div className="flex flex-wrap gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full" style={{ background: '#E8433D' }} />
-          <span className="font-label-md text-label-md">Hub</span>
-        </div>
-        {Object.entries(statutColors).map(([key, color]) => (
-          <div key={key} className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full" style={{ background: color }} />
-            <span className="font-label-md text-label-md">{statutLabels[key]}</span>
+      {!embed && (
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-full" style={{ background: '#E8433D' }} />
+            <span className="font-label-md text-label-md">Hub</span>
           </div>
-        ))}
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-1 rounded" style={{ background: '#2563EB', borderStyle: 'dashed' }} />
-          <span className="font-label-md text-label-md">Tournée 1</span>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-full" style={{ background: '#16A34A' }} />
+            <span className="font-label-md text-label-md">Collecte</span>
+          </div>
+          {Object.entries(statutColors).map(([key, color]) => (
+            <div key={key} className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full" style={{ background: color }} />
+              <span className="font-label-md text-label-md">{statutLabels[key]}</span>
+            </div>
+          ))}
+          {Object.entries(traceColors).map(([key, color]) => (
+            <div key={key} className="flex items-center gap-2">
+              {key === 'retour'
+                ? <div className="w-8 h-0 border-t-2 border-dashed" style={{ borderColor: color }} />
+                : <div className="w-8 h-1 rounded" style={{ background: color }} />
+              }
+              <span className="font-label-md text-label-md">{traceLabels[key]}</span>
+            </div>
+          ))}
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-1 rounded" style={{ background: '#F97316', borderStyle: 'dashed' }} />
-          <span className="font-label-md text-label-md">Tournée 2</span>
-        </div>
-      </div>
+      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-4">
-          <h4 className="font-label-md text-label-md font-bold mb-2">Tournée 1 (T-01)</h4>
-          <div className="space-y-1">
-            {stops.slice(0, 3).map((s, i) => (
-              <div key={s.id} className="flex items-center gap-2 text-sm">
-                <span className="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">{i + 1}</span>
-                <span className="font-label-md text-label-md">{s.client}</span>
-                <span className="text-on-surface-variant">— {s.nom}</span>
+      {!embed && filteredTournees.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredTournees.map((t, i) => (
+            <div key={t.tournee_id || i}
+                 className={`rounded-xl border bg-surface-container-lowest p-4 cursor-pointer transition-all ${selectedTournee === t.tournee_id ? 'border-primary shadow-md' : 'border-outline-variant'}`}
+                 onClick={() => loadTrace(t.tournee_id)}>
+              <h4 className="font-label-md text-label-md font-bold mb-2">
+                Tournée {(t.tournee_id || '').slice(0,8) || `T-${i+1}`}
+                {t.hub && <span className="ml-2 text-xs text-on-surface-variant font-normal">Hub: {t.hub.nom}</span>}
+                <span className="ml-2 text-xs text-on-surface-variant font-normal">{t.statut}</span>
+              </h4>
+              <div className="space-y-1">
+                {(t.etapes || []).map((e, ei) => (
+                  <div key={ei} className="flex items-center gap-2 text-sm">
+                    <span className="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">{e.ordre || ei+1}</span>
+                    <span className="font-label-md text-label-md">{e.type_etape || 'LIVRAISON'}</span>
+                    <span className="text-on-surface-variant">— {(e.colis_id || '').slice(0,8)}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-4">
-          <h4 className="font-label-md text-label-md font-bold mb-2">Tournée 2 (T-02)</h4>
-          <div className="space-y-1">
-            {stops.slice(3).map((s, i) => (
-              <div key={s.id} className="flex items-center gap-2 text-sm">
-                <span className="w-5 h-5 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center text-[10px] font-bold">{i + 1}</span>
-                <span className="font-label-md text-label-md">{s.client}</span>
-                <span className="text-on-surface-variant">— {s.nom}</span>
-              </div>
-            ))}
-          </div>
+      )}
+
+      {!embed && filteredTournees.length === 0 && (
+        <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-8 text-center">
+          <span className="material-symbols-outlined text-4xl text-outline mb-2">route</span>
+          <p className="text-on-surface-variant">Aucune tournée trouvée. Lancez un VRP depuis la page d'optimisation.</p>
         </div>
-      </div>
+      )}
     </div>
   )
 }

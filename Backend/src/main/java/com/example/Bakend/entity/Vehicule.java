@@ -1,5 +1,6 @@
 package com.example.Bakend.entity;
 
+import com.example.Bakend.entity.enums.TypeVehicule;
 import com.example.Bakend.entity.enums.VehiculeStatut;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,7 +18,8 @@ import java.util.UUID;
  * Table : vehicule
  */
 @Entity
-@Table(name = "vehicule")
+@Table(name = "vehicule",
+        uniqueConstraints = @UniqueConstraint(name = "uq_vehicule_tenant_immat", columnNames = {"tenant_id", "immatriculation"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -53,8 +55,9 @@ public class Vehicule {
     @Column(name = "marque_modele", length = 255)
     private String marqueModele;
 
-    @Column(name = "type_vehicule", length = 100)
-    private String typeVehicule;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_vehicule", length = 30)
+    private TypeVehicule typeVehicule;
 
     @Column(name = "annee")
     private Integer annee;

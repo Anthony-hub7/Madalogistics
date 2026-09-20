@@ -19,4 +19,11 @@ public class MapsCacheManualConfig {
                 props.getCacheMaxSizeRoute(),
                 props.getCacheTtlRoute().toMillis());
     }
+
+    @Bean("trajetCache")
+    public MapsManualCache<String, TrajetService.TrajetResult> trajetCache(MapsProperties props) {
+        return new MapsManualCache<>(
+                props.getCacheMaxSizeRoute(),
+                props.getCacheTtlRoute().toMillis());
+    }
 }

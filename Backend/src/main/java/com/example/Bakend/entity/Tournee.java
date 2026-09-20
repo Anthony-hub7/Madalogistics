@@ -47,6 +47,10 @@ public class Tournee {
     @Column(name = "statut", nullable = false, length = 30)
     private TourneeStatut statut = TourneeStatut.PLANIFIEE;
 
+    // V22 : date de depart prevue
+    @Column(name = "date_depart_prevue")
+    private LocalDateTime dateDepartPrevue;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

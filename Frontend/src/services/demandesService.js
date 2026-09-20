@@ -18,8 +18,8 @@ export const demandesService = {
     return apiClient.post('/demandes/devis', data)
   },
 
-  valider(id) {
-    return apiClient.post(`/demandes/${id}/valider`)
+  valider(id, modeLivraison) {
+    return apiClient.post(`/demandes/${id}/valider`, { modeLivraison: modeLivraison || null })
   },
 
   refuser(id, motif) {

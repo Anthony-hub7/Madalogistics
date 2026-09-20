@@ -1,6 +1,7 @@
 package com.example.Bakend.entity;
 
 import com.example.Bakend.entity.enums.DemandeStatut;
+import com.example.Bakend.entity.enums.ModeLivraison;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -82,9 +83,26 @@ public class DemandeTransport {
     @Column(name = "distance_km", precision = 10, scale = 2)
     private BigDecimal distanceKm;
 
+    // V20 : delais et date de depart
+    @Column(name = "delai_transit_jours", precision = 6, scale = 2)
+    private BigDecimal delaiTransitJours;
+
+    @Column(name = "duree_trajet_heures", precision = 8, scale = 2)
+    private BigDecimal dureeTrajetHeures;
+
+    @Column(name = "source_delai", length = 20)
+    private String sourceDelai;
+
+    @Column(name = "date_depart_calculee")
+    private LocalDate dateDepartCalculee;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false, length = 30)
     private DemandeStatut statut = DemandeStatut.CREEE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mode_livraison", length = 20)
+    private ModeLivraison modeLivraison;
 
     // Validation / refus
     @Column(name = "motif_refus", columnDefinition = "TEXT")

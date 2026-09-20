@@ -7,8 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Slf4j
@@ -20,6 +20,7 @@ public class RoutingController {
     private final MapsProperties props;
     private final MapsHttpClient httpClient;
     private final MapsManualCache<String, String> routeCache;
+    private final RoutingService routingService;
 
     @Data
     public static class RouteRequest {
@@ -42,20 +43,9 @@ public class RoutingController {
             return ResponseEntity.ok(cached);
         }
 
-        try {
-            String coords = pointsToCoords(points);
-            String uri = props.getRoutingUrl()
-                    + "/route/v1/" + profile + "/" + coords
-                    + "?overview=full&geometries=geojson&steps=true";
-
-            String body = httpClient.fetchString(uri, props.getUserAgent());
-            routeCache.put(cacheKey, body);
-            return ResponseEntity.ok(body);
-
-        } catch (Exception e) {
-            log.error("Routing failed: {}", e.getMessage());
-            return haversineRouteFallback(points, profile);
-        }
+        String body = routingService.getRoute(points, profile);
+        routeCache.put(cacheKey, body);
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping(value = "/distance-matrix", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -89,29 +79,7 @@ public class RoutingController {
         }
     }
 
-    // --- Fallbacks Haversine (StringBuilder, pas de Jackson) ---
-
-    private ResponseEntity<String> haversineRouteFallback(List<double[]> points, String profile) {
-        log.warn("Using Haversine fallback for route");
-        double totalDistance = 0;
-        double totalDuration = 0;
-
-        for (int i = 1; i < points.size(); i++) {
-            double d = HaversineUtil.distance(
-                    points.get(i - 1)[0], points.get(i - 1)[1],
-                    points.get(i)[0], points.get(i)[1]);
-            totalDistance += d;
-            totalDuration += d / 40.0 * 3600;
-        }
-
-        long distMeters = Math.round(totalDistance * 1000.0);
-        long durSeconds = Math.round(totalDuration);
-
-        String json = "{\"fallback\":true,\"code\":\"Ok\",\"routes\":[{\"distance\":"
-                + distMeters + ",\"duration\":" + durSeconds + "}]}";
-
-        return ResponseEntity.ok(json);
-    }
+    // --- Fallback Haversine matrice (conservé inline car spécifique au endpoint) ---
 
     private ResponseEntity<String> haversineMatrixFallback(List<double[]> points, String profile) {
         log.warn("Using Haversine fallback for distance matrix");

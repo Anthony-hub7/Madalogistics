@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,7 @@ public class Sac {
     @Column(name = "categorie_dominante", length = 20)
     private String categorieDominante;
 
-    @Column(name = "taux_remplissage", precision = 5, scale = 2)
+    @Column(name = "taux_remplissage", precision = 7, scale = 2)
     private BigDecimal tauxRemplissage;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -64,6 +65,13 @@ public class Sac {
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false, length = 30)
     private SacStatut statut = SacStatut.CONSTITUE;
+
+    // V22 : dates de depart
+    @Column(name = "date_depart_plafond")
+    private LocalDate dateDepartPlafond;
+
+    @Column(name = "date_depart_prevue")
+    private LocalDate dateDepartPrevue;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

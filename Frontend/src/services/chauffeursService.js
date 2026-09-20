@@ -10,11 +10,9 @@ export const chauffeursService = {
   async deposerDossier(dossier, fichierPermis) {
     const formData = new FormData()
 
-    // Part JSON du dossier
     const dossierBlob = new Blob([JSON.stringify(dossier)], { type: 'application/json' })
     formData.append('dossier', dossierBlob)
 
-    // Fichier permis
     if (fichierPermis) formData.append('permisScan', fichierPermis)
 
     const token = apiClient._getToken?.()
@@ -52,5 +50,30 @@ export const chauffeursService = {
    */
   async monStatutDossier() {
     return apiClient.get('/chauffeurs/mon-dossier/statut')
+  },
+
+  /**
+   * Liste les dossiers de chauffeurs rattaches a l'agence (GESTIONNAIRE / DIRECTION).
+   */
+  lister({ statut } = {}) {
+    const params = new URLSearchParams()
+    if (statut) params.set('statut', statut)
+    const qs = params.toString()
+    return apiClient.get(`/agences/equipe/chauffeurs${qs ? `?${qs}` : ''}`)
+  },
+
+  /**
+   * Detail d'un dossier chauffeur (GESTIONNAIRE / DIRECTION).
+   */
+  detail(chauffeurId) {
+    return apiClient.get(`/agences/equipe/chauffeurs/${chauffeurId}`)
+  },
+
+  /**
+   * URL de telechargement du scan du permis.
+   */
+  permisUrl(chauffeurId) {
+    const base = apiClient.defaults?.baseURL || ''
+    return `${base}/agences/equipe/chauffeurs/${chauffeurId}/permis`
   },
 }

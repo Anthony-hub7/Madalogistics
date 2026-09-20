@@ -1,5 +1,6 @@
 package com.example.Bakend.repository;
 
+import com.example.Bakend.entity.OptimisationRun;
 import com.example.Bakend.entity.Sac;
 import com.example.Bakend.entity.enums.SacStatut;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,6 +25,8 @@ public interface SacRepository extends JpaRepository<Sac, UUID> {
     List<Sac> findByVehiculeVehiculeId(UUID vehiculeId);
 
     List<Sac> findByChauffeurChauffeurId(UUID chauffeurId);
+
+    List<Sac> findByRunGroupage(OptimisationRun runGroupage);
 
     @Query("SELECT s FROM Sac s WHERE s.pmeCliente.tenantId = :tenantId AND s.hub.hubId = :hubId AND s.statut = :statut ORDER BY s.createdAt ASC")
     List<Sac> rechercherParHubEtStatut(@Param("tenantId") UUID tenantId, @Param("hubId") UUID hubId, @Param("statut") SacStatut statut);

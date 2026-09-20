@@ -64,9 +64,9 @@ FROM categorie_produit cp
 WHERE cp.tenant_id = '59018a1f-593b-4941-adbc-d6d2e415ea86'
   AND cp.classe_code = 'C';
 
--- 5. Repli global (categorie NULL) — fallback de sécurité
+-- 5. Repli global (categorie NULL) — fallback de sécurité (conditionnel : tenant existe)
 INSERT INTO grille_tarifaire (grille_id, tenant_id, libelle, prix_par_kg, prix_par_m3, prix_par_km, prix_minimum, actif, categorie_id, created_at)
-VALUES (
+SELECT
     uuid_generate_v4(),
     '59018a1f-593b-4941-adbc-d6d2e415ea86',
     'Repli global — Tana (V17)',
@@ -77,4 +77,6 @@ VALUES (
     true,
     NULL,
     now()
+WHERE EXISTS (
+    SELECT 1 FROM pme_cliente WHERE tenant_id = '59018a1f-593b-4941-adbc-d6d2e415ea86'
 );

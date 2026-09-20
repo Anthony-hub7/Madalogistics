@@ -24,11 +24,14 @@ public class EquipeService {
 
     private final ChauffeurRepository chauffeurRepository;
     private final PMEClienteRepository pmeClienteRepository;
+    private final CompatibiliteService compatibiliteService;
 
     public EquipeService(ChauffeurRepository chauffeurRepository,
-                         PMEClienteRepository pmeClienteRepository) {
+                         PMEClienteRepository pmeClienteRepository,
+                         CompatibiliteService compatibiliteService) {
         this.chauffeurRepository = chauffeurRepository;
         this.pmeClienteRepository = pmeClienteRepository;
+        this.compatibiliteService = compatibiliteService;
     }
 
     /**
@@ -67,6 +70,9 @@ public class EquipeService {
         chauffeur.setStatutDossier("VALIDEE");
         chauffeur.setMotifRefus(null);
         chauffeurRepository.save(chauffeur);
+
+        // Auto-creer les lignes de compatibilite avec tous les vehicules du tenant
+        compatibiliteService.initialiserPourChauffeur(tenantId, chauffeurId);
     }
 
     /**
@@ -112,6 +118,8 @@ public class EquipeService {
         chauffeur.setStatutDossier("VALIDEE");
         chauffeur.setMotifRefus(null);
         chauffeurRepository.save(chauffeur);
+
+        compatibiliteService.initialiserPourChauffeur(tenantId, chauffeurId);
     }
 
     /**

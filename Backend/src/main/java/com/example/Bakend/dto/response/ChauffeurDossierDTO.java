@@ -62,7 +62,8 @@ public class ChauffeurDossierDTO {
         if (entity.getVehicule() != null) {
             this.immatriculation = entity.getVehicule().getImmatriculation();
             this.marqueModele = entity.getVehicule().getMarqueModele();
-            this.typeVehicule = entity.getVehicule().getTypeVehicule();
+            this.typeVehicule = entity.getVehicule().getTypeVehicule() != null
+                    ? entity.getVehicule().getTypeVehicule().name() : null;
         } else {
             this.immatriculation = null;
             this.marqueModele = null;

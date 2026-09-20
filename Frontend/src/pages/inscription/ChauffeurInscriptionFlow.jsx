@@ -7,13 +7,19 @@ const BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 const CATEGORIES_PERMIS = ['B', 'C', 'C+E', 'D', 'D+E', 'BE']
 const TYPES_VEHICULE = [
-  'Camion léger (< 3.5T)',
-  'Camion porteur (3.5–19T)',
-  'Semi-remorque (> 19T)',
-  'Camion frigorifique',
-  'Camionnette / Pick-up',
-  'Moto-taxi (livraison légère)',
+  { value: 'FOURGON', label: 'Fourgon (≤ 3.5T)' },
+  { value: 'CAMION', label: 'Camion (> 3.5T)' },
+  { value: 'SEMI_REMORQUE', label: 'Semi-remorque (> 19T)' },
+  { value: 'PICKUP', label: 'Pick-up (≤ 3.5T)' },
+  { value: 'CITERNE', label: 'Camion citerne' },
+  { value: 'PLATEAU', label: 'Camion plateau' },
+  { value: 'MINIBUS', label: 'Minibus' },
+  { value: 'BUS', label: 'Bus' },
 ]
+
+function typeVehiculeLabel(value) {
+  return TYPES_VEHICULE.find(t => t.value === value)?.label || value || '—'
+}
 
 // ─── Shared UI ────────────────────────────────────────────────────────────────
 function PageBg({ children }) {
@@ -395,7 +401,7 @@ function Step3({ data, onChange, onNext, onSubmit, onBack, submitting }) {
             <FormSelect label="Type de véhicule *" id="typeVehicule" icon="local_shipping"
               value={data.typeVehicule} onChange={e => onChange('typeVehicule', e.target.value)}>
               <option value="">Sélectionner...</option>
-              {TYPES_VEHICULE.map(t => <option key={t} value={t}>{t}</option>)}
+              {TYPES_VEHICULE.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </FormSelect>
             <FormInput label="Marque / Modèle" id="marque" icon="directions_car" placeholder="Ex: Mercedes Actros"
               value={data.marque} onChange={e => onChange('marque', e.target.value)} />
@@ -891,7 +897,7 @@ function BienvenueScreen({ data, onAccess, onBack }) {
             <div className="flex items-center gap-3 py-2 border-b border-[#ECECEC]">
               <span className="material-symbols-outlined text-[20px] text-[#8A8A92]">local_shipping</span>
               <span className="license-plate-tag text-xs">{data.immatriculation}</span>
-              {data.typeVehicule && <span className="font-body text-xs text-[#8A8A92]">{data.typeVehicule}</span>}
+              {data.typeVehicule && <span className="font-body text-xs text-[#8A8A92]">{typeVehiculeLabel(data.typeVehicule)}</span>}
             </div>
           ) : null}
           {data.permisCategorie && (

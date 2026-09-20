@@ -4,6 +4,7 @@ import { categoriesService } from '../../services/categoriesService'
 import { demandesService } from '../../services/demandesService'
 import { agencesService } from '../../services/agencesService'
 import { mapsService } from '../../services/mapsService'
+import { useAuth } from '../../hooks/useAuth'
 import MapView from '../../map/MapView'
 import { Marker, Popup, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
@@ -98,6 +99,7 @@ function AdresseSearchInput({ label, value, onSelect }) {
 
 export default function NouvelleDemandePage() {
   const navigate = useNavigate()
+  const { loginWithToken } = useAuth()
   const [step, setStep] = useState(1)
   const [hubs, setHubs] = useState([])
   const [categories, setCategories] = useState([])
@@ -173,10 +175,30 @@ export default function NouvelleDemandePage() {
     updateForm('agencyId', ag.tenantId)
     updateForm('agencyName', ag.nom)
     if (ag.hubId) updateForm('hubId', ag.hubId)
-    try { await agencesService.changerAgence(ag.tenantId) } catch {}
     try {
-      const freshHubs = await demandesService.getHubs()
+      const authResponse = await agencesService.changerAgence(ag.tenantId)
+      const rawToken = authResponse?.token || authResponse?.accessToken
+      if (rawToken) {
+        try {
+          const payload = JSON.parse(atob(rawToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+          loginWithToken(rawToken, {
+            utilisateurId: authResponse.utilisateurId,
+            tenantId: authResponse.tenantId,
+            email: authResponse.email,
+            name: authResponse.fullName,
+            role: payload?.role || null,
+            redirectPath: authResponse.redirectPath,
+          })
+        } catch {}
+      }
+    } catch {}
+    try {
+      const [freshHubs, freshCategories] = await Promise.all([
+        demandesService.getHubs().catch(() => []),
+        categoriesService.listerActives().catch(() => []),
+      ])
       setHubs(freshHubs || [])
+      setCategories(freshCategories || [])
       if (!ag.hubId && freshHubs?.length) updateForm('hubId', freshHubs[0].hubId)
     } catch {}
     setStep(2)
@@ -184,6 +206,7 @@ export default function NouvelleDemandePage() {
 
   // ── PRÉDICTION CLASSE (par colis, backend) ──
   useEffect(() => {
+    if (!form.hubId) return
     const timers = colis.map((c, idx) => {
       const poids = parseFloat(c.poidsKg) || 0
       const volume = parseFloat(c.volumeM3) || 0
@@ -201,11 +224,15 @@ export default function NouvelleDemandePage() {
       return null
     })
     return () => timers.forEach(t => t && clearTimeout(t))
-  }, [colis, form.express])
+  }, [colis, form.express, form.hubId])
 
   // ── DEVIS (tout backend) ──
   const calculateDevis = useCallback(async () => {
     if (totalPoids <= 0 || !form.hubId) { setError('Veuillez remplir les colis et choisir un hub.'); return }
+    const hasValidColis = colis.some(c => (parseFloat(c.poidsKg) || 0) > 0 && (parseFloat(c.volumeM3) || 0) > 0)
+    if (!hasValidColis) { setError('Au moins un colis doit avoir poids et volume renseignés.'); return }
+    const hasCategorie = colis.some(c => c.categorieId || predictedParColis[colis.indexOf(c)]?.categorieId)
+    if (!hasCategorie) { setError('En attente de la prédiction de catégorie...'); return }
     setDevisLoading(true)
     try {
       const data = await demandesService.devis({
@@ -227,7 +254,11 @@ export default function NouvelleDemandePage() {
       setDevis(data)
       setError(null)
     } catch (e) {
-      setError(e?.message || 'Erreur calcul devis')
+      if (e?.status === 422) {
+        setError(e?.body?.message || 'Aucune grille tarifaire active pour cette catégorie. Contactez votre agence.')
+      } else {
+        setError(e?.message || 'Erreur calcul devis')
+      }
       setDevis(null)
     } finally {
       setDevisLoading(false)
@@ -235,16 +266,11 @@ export default function NouvelleDemandePage() {
   }, [colis, form, predictedParColis, totalPoids, totalVolume])
 
   useEffect(() => {
-    if (step === 3 && totalPoids > 0 && form.hubId) {
-      calculateDevis()
+    if ((step === 3 || step === 4) && totalPoids > 0 && form.hubId && colis.some(c => (parseFloat(c.poidsKg) || 0) > 0)) {
+      const t = setTimeout(() => calculateDevis(), 300)
+      return () => clearTimeout(t)
     }
-  }, [step, colis, form.hubId, form.assurance, form.express, form.latitudeLivraison, calculateDevis])
-
-  useEffect(() => {
-    if (step === 4 && totalPoids > 0 && form.hubId) {
-      calculateDevis()
-    }
-  }, [step, colis, form.assurance, form.express, calculateDevis])
+  }, [step, colis, form.hubId, form.assurance, form.express, form.latitudeLivraison, calculateDevis, totalPoids])
 
   const handlePointPlaced = async (mode, lat, lng) => {
     const rLat = parseFloat(lat.toFixed(6))
@@ -280,6 +306,8 @@ export default function NouvelleDemandePage() {
       setError('Le volume de chaque colis doit être supérieur à 0.'); return
     }
     if (!form.dateSouhaitee) { setError('La date souhaitée est requise.'); return }
+    const today = new Date().toISOString().slice(0, 10)
+    if (form.dateSouhaitee < today) { setError('La date souhaitée ne peut pas être dans le passé.'); return }
     setSubmitting(true); setError(null)
     try {
       const payload = {
@@ -517,6 +545,14 @@ export default function NouvelleDemandePage() {
                   </select>
                 </div>
               </div>
+              {(parseFloat(c.poidsKg) > 10000 || parseFloat(c.volumeM3) > 50) && (
+                <div className="flex items-start gap-2 rounded bg-orange-50 border border-orange-200 px-3 py-2">
+                  <span className="material-symbols-outlined text-orange-500 text-sm mt-0.5">warning</span>
+                  <p className="font-body text-[11px] text-orange-800">
+                    Poids ou volume anormalement élevé — votre agence n'a peut-être pas le véhicule adapté.
+                  </p>
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-mono text-[10px] uppercase font-bold text-[#1A1A1E] mb-1">Fragilité (0-10)</label>
@@ -701,6 +737,26 @@ export default function NouvelleDemandePage() {
                 {devis && (
                   <div className="pt-2 border-t border-[#ECECEC] space-y-2">
                     {devis.distanceKm > 0 && <div><span className="text-[#8A8A92] text-[11px] block">Distance :</span><span className="font-mono font-bold text-[#1A1A1E]">{Number(devis.distanceKm).toLocaleString()} km</span></div>}
+                    {devis.dureeTrajetHeures > 0 && (
+                      <div><span className="text-[#8A8A92] text-[11px] block">Duree trajet estimee :</span>
+                        <span className="font-mono font-bold text-[#1A1A1E]">{Number(devis.dureeTrajetHeures).toFixed(1)} h</span>
+                        {devis.sourceDelai && (
+                          <span className={`ml-1 inline-flex items-center rounded-full border px-1.5 py-0.5 font-mono text-[8px] font-bold ${
+                            devis.sourceDelai === 'OSRM' ? 'border-blue-400 bg-blue-50 text-blue-700' : 'border-amber-400 bg-amber-50 text-amber-700'
+                          }`}>{devis.sourceDelai === 'OSRM' ? 'OSRM' : 'Estime'}</span>
+                        )}
+                      </div>
+                    )}
+                    {devis.delaiTransitJours > 0 && (
+                      <div><span className="text-[#8A8A92] text-[11px] block">Delai transit :</span>
+                        <span className="font-mono font-bold text-[#1A1A1E]">{devis.delaiTransitJours} jour(s)</span>
+                      </div>
+                    )}
+                    {devis.dateDepartCalculee && (
+                      <div><span className="text-[#8A8A92] text-[11px] block">Date depart calculee :</span>
+                        <span className="font-mono font-bold text-[#E8433D]">{devis.dateDepartCalculee}</span>
+                      </div>
+                    )}
                     {devis.detailParCategorie?.length > 0 && (
                       <div className="space-y-1">
                         {devis.detailParCategorie.map((d, i) => (

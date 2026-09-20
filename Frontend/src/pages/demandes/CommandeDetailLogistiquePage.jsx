@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { demandesService } from '../../services/demandesService'
+import ValiderCommandeModal from '../../components/ValiderCommandeModal'
 import MapView from '../../map/MapView'
 import { Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
@@ -36,6 +37,7 @@ export default function CommandeDetailLogistiquePage() {
   const [error, setError] = useState(null)
   const [acting, setActing] = useState(false)
   const [showRefuse, setShowRefuse] = useState(false)
+  const [showValider, setShowValider] = useState(false)
   const [motif, setMotif] = useState('')
 
   useEffect(() => {
@@ -47,11 +49,12 @@ export default function CommandeDetailLogistiquePage() {
       .finally(() => setLoading(false))
   }, [id])
 
-  const handleValider = async () => {
+  const handleValider = async (modeLivraison) => {
     setActing(true)
     try {
-      await demandesService.valider(id)
-      setOrder(prev => ({ ...prev, statut: 'EN_ATTENTE_GROUPAGE' }))
+      await demandesService.valider(id, modeLivraison)
+      setOrder(prev => ({ ...prev, statut: 'EN_ATTENTE_GROUPAGE', modeLivraison: modeLivraison }))
+      setShowValider(false)
     } catch (e) { setError(e.message) }
     finally { setActing(false) }
   }
@@ -104,6 +107,8 @@ export default function CommandeDetailLogistiquePage() {
           </div>
         </div>
       )}
+      <ValiderCommandeModal open={showValider} nbColis={(order.colis || []).length}
+        onClose={() => setShowValider(false)} onConfirm={handleValider} acting={acting} />
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-[#ECECEC] pb-4">
         <div>
@@ -114,6 +119,11 @@ export default function CommandeDetailLogistiquePage() {
           <div className="flex items-center gap-3">
             <h1 className="font-mono text-2xl font-bold text-[#1A1A1E]">#{String(order.demandeId).slice(0, 8).toUpperCase()}</h1>
             <div className={`stamp-ink ${info.style}`}>{info.stamp}</div>
+            {order.modeLivraison && (
+              <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                order.modeLivraison === 'FREELANCE' ? 'border-purple-400 bg-purple-50 text-purple-700' : 'border-blue-400 bg-blue-50 text-blue-700'
+              }`}>{order.modeLivraison}</span>
+            )}
           </div>
           <p className="font-body text-xs text-[#8A8A92] mt-0.5">
             Client : <strong>{order.clientNom || '—'}</strong> &middot; Hub : <strong>{order.hubNom || '—'}</strong>
@@ -121,7 +131,7 @@ export default function CommandeDetailLogistiquePage() {
         </div>
         {isCree && (
           <div className="flex gap-2">
-            <button onClick={handleValider} disabled={acting}
+            <button onClick={() => setShowValider(true)} disabled={acting}
               className="bg-green-600 text-white rounded px-4 py-2 font-mono text-xs font-bold hover:bg-green-700 disabled:opacity-40">
               Valider
             </button>

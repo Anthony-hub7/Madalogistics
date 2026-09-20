@@ -33,6 +33,10 @@ public class PMECliente {
     @Column(name = "seuil_remplissage_min", nullable = false, precision = 5, scale = 2)
     private BigDecimal seuilRemplissageMin;
 
+    // V21 : marge de securite
+    @Column(name = "marge_securite_pct", nullable = false, precision = 5, scale = 2)
+    private BigDecimal margeSecuritePct = new BigDecimal("15.00");
+
     // ── V4 : inscription agence ──
     @Column(name = "nif", length = 50)
     private String nif;

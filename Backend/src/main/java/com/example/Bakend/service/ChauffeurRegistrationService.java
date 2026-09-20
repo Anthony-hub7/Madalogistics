@@ -35,17 +35,20 @@ public class ChauffeurRegistrationService {
     private final VehiculeRepository vehiculeRepository;
     private final PMEClienteRepository pmeClienteRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CompatibiliteService compatibiliteService;
 
     public ChauffeurRegistrationService(UtilisateurRepository utilisateurRepository,
                                          ChauffeurRepository chauffeurRepository,
                                          VehiculeRepository vehiculeRepository,
                                          PMEClienteRepository pmeClienteRepository,
-                                         PasswordEncoder passwordEncoder) {
+                                         PasswordEncoder passwordEncoder,
+                                         CompatibiliteService compatibiliteService) {
         this.utilisateurRepository = utilisateurRepository;
         this.chauffeurRepository = chauffeurRepository;
         this.vehiculeRepository = vehiculeRepository;
         this.pmeClienteRepository = pmeClienteRepository;
         this.passwordEncoder = passwordEncoder;
+        this.compatibiliteService = compatibiliteService;
     }
 
     /**
@@ -122,7 +125,7 @@ public class ChauffeurRegistrationService {
         chauffeur.setDisponible(true);
         chauffeur.setPermisNumero(permisNumero != null ? permisNumero.trim() : permisNumero);
         chauffeur.setPermisCategorie(permisCategorie != null ? permisCategorie.trim().toUpperCase() : permisCategorie);
-        chauffeur.setPermisCategories(permisCategories);
+        chauffeur.setPermisCategories(permisCategories != null ? permisCategories.trim().toUpperCase() : permisCategories);
         if (permisExpiration != null && !permisExpiration.isBlank()) {
             try {
                 chauffeur.setPermisExpiration(LocalDate.parse(permisExpiration));
@@ -157,7 +160,15 @@ public class ChauffeurRegistrationService {
             vehicule.setCapacitePoidsKg(BigDecimal.ZERO);
             vehicule.setStatut(VehiculeStatut.DISPONIBLE);
             vehicule.setMarqueModele(marqueModele);
-            vehicule.setTypeVehicule(typeVehicule);
+            if (typeVehicule != null && !typeVehicule.isBlank()) {
+                try {
+                    vehicule.setTypeVehicule(
+                            com.example.Bakend.entity.enums.TypeVehicule.valueOf(typeVehicule.trim().toUpperCase()));
+                } catch (IllegalArgumentException e) {
+                    throw new BusinessException("Type de vehicule invalide : " + typeVehicule
+                            + ". Valeurs acceptees : FOURGON, CAMION, SEMI_REMORQUE, PICKUP, MINIBUS, BUS, CITERNE, PLATEAU");
+                }
+            }
             vehicule.setAnnee(annee);
             if (ptacTonnes != null && !ptacTonnes.isBlank()) {
                 try {
@@ -169,6 +180,14 @@ public class ChauffeurRegistrationService {
 
             Vehicule savedVehicule = vehiculeRepository.save(vehicule);
             chauffeur.setVehicule(savedVehicule);
+
+            // Auto-creer les lignes de compatibilite pour ce vehicule
+            UUID vehiculeTenantId = chauffeur.getAgenceCible() != null
+                    ? chauffeur.getAgenceCible().getTenantId()
+                    : (chauffeur.getPmeCliente() != null ? chauffeur.getPmeCliente().getTenantId() : null);
+            if (vehiculeTenantId != null) {
+                compatibiliteService.initialiserPourVehicule(vehiculeTenantId, savedVehicule.getVehiculeId());
+            }
         }
 
         Chauffeur savedChauffeur = chauffeurRepository.save(chauffeur);
@@ -223,6 +242,14 @@ public class ChauffeurRegistrationService {
         chauffeur.setStatutDossier("VALIDEE");
         chauffeur.setMotifRefus(null);
         chauffeurRepository.save(chauffeur);
+
+        // Auto-creer les lignes de compatibilite avec les vehicules de l'agence cible
+        UUID tenantId = chauffeur.getAgenceCible() != null
+                ? chauffeur.getAgenceCible().getTenantId()
+                : (chauffeur.getPmeCliente() != null ? chauffeur.getPmeCliente().getTenantId() : null);
+        if (tenantId != null) {
+            compatibiliteService.initialiserPourChauffeur(tenantId, chauffeurId);
+        }
     }
 
     /**
@@ -286,5 +313,12 @@ public class ChauffeurRegistrationService {
         chauffeur.setStatutDossier("VALIDEE");
         chauffeur.setMotifRefus(null);
         chauffeurRepository.save(chauffeur);
+
+        UUID tenantId = chauffeur.getAgenceCible() != null
+                ? chauffeur.getAgenceCible().getTenantId()
+                : (chauffeur.getPmeCliente() != null ? chauffeur.getPmeCliente().getTenantId() : null);
+        if (tenantId != null) {
+            compatibiliteService.initialiserPourChauffeur(tenantId, chauffeurId);
+        }
     }
 }

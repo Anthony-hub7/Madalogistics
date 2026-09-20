@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { demandesService } from '../../services/demandesService'
+import ValiderCommandeModal from '../../components/ValiderCommandeModal'
 
 const STATUT_MAP = {
   CREEE: { label: 'Créée', dot: 'bg-yellow-400', badge: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
@@ -63,6 +64,9 @@ export default function DemandesListPage() {
 
   // Refuse modal
   const [refuseTarget, setRefuseTarget] = useState(null)
+  // Valider modal (Phase 3bis)
+  const [validerTarget, setValiderTarget] = useState(null)
+  const [validerNbColis, setValiderNbColis] = useState(0)
   const [acting, setActing] = useState(false)
 
   useEffect(() => { loadOrders() }, [])
@@ -93,7 +97,7 @@ export default function DemandesListPage() {
     return true
   })
 
-  const selectable = filtered.filter(o => o.statut === 'CREEE')
+  const selectable = filtered.filter(o => o.statut === 'EN_ATTENTE_GROUPAGE')
   const allSelected = selectable.length > 0 && selectable.every(o => selectedIds.includes(o.demandeId))
 
   const toggleAll = () => setSelectedIds(allSelected ? [] : selectable.map(o => o.demandeId))
@@ -104,16 +108,22 @@ export default function DemandesListPage() {
     navigate('/logistics/optimisation', { state: { selectedOrders: selected } })
   }
 
-  const handleValider = async (demandeId) => {
+  const handleValider = async (demandeId, modeLivraison) => {
     setActing(true)
     try {
-      await demandesService.valider(demandeId)
+      await demandesService.valider(demandeId, modeLivraison)
+      setValiderTarget(null)
       await loadOrders()
     } catch (e) {
       setError(e.message)
     } finally {
       setActing(false)
     }
+  }
+
+  const openValiderModal = (o) => {
+    setValiderTarget(o.demandeId)
+    setValiderNbColis(getNbColis(o))
   }
 
   const handleRefuser = async (motif) => {
@@ -136,11 +146,14 @@ export default function DemandesListPage() {
     catch { return d }
   }
 
+  const getNbColis = (o) => Array.isArray(o.colis) ? o.colis.length : (o.nbColis ?? 0)
   const countByStatut = (s) => orders.filter(o => o.statut === s).length
 
   return (
     <div className="space-y-6">
       <RefuseModal open={!!refuseTarget} onClose={() => setRefuseTarget(null)} onConfirm={handleRefuser} />
+      <ValiderCommandeModal open={!!validerTarget} nbColis={validerNbColis}
+        onClose={() => setValiderTarget(null)} onConfirm={(mode) => handleValider(validerTarget, mode)} acting={acting} />
 
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end border-b border-[#ECECEC] pb-5">
         <div>
@@ -160,15 +173,20 @@ export default function DemandesListPage() {
       </div>
 
       {selectedIds.length > 0 && (
-        <div className="flex items-center justify-between rounded border-2 border-[#E8433D] bg-[#E8433D]/5 p-4">
-          <span className="font-display text-sm font-bold uppercase text-[#E8433D]">
-            {selectedIds.length} commande(s) sélectionnée(s)
-          </span>
-          <button onClick={handleOptimisation}
-            className="flex items-center gap-2 rounded bg-[#E8433D] px-4 py-2 font-display text-xs uppercase font-bold text-white hover:bg-[#B82823] transition-colors">
-            <span className="material-symbols-outlined text-[18px]">auto_graph</span>
-            Envoyer vers Optimisation
-          </button>
+        <div className="rounded border-2 border-[#E8433D] bg-[#E8433D]/5 p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="font-display text-sm font-bold uppercase text-[#E8433D]">
+              {selectedIds.length} commande(s) sélectionnée(s)
+            </span>
+            <button onClick={handleOptimisation}
+              className="flex items-center gap-2 rounded bg-[#E8433D] px-4 py-2 font-display text-xs uppercase font-bold text-white hover:bg-[#B82823] transition-colors">
+              <span className="material-symbols-outlined text-[18px]">auto_graph</span>
+              Optimiser la sélection
+            </button>
+          </div>
+          <p className="font-body text-[11px] text-[#E8433D]/80">
+            Le groupage porte sur le hub des commandes sélectionnées — toutes les commandes en attente de ce hub seront incluses.
+          </p>
         </div>
       )}
 
@@ -226,6 +244,7 @@ export default function DemandesListPage() {
                     <th className="hidden sm:table-cell px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Colis</th>
                     <th className="hidden sm:table-cell px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Tarif</th>
                     <th className="hidden lg:table-cell px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Date souhaitée</th>
+                    <th className="hidden lg:table-cell px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Urgence</th>
                     <th className="px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Statut</th>
                     <th className="px-4 py-3 font-mono text-[10px] uppercase text-[#8A8A92]">Actions</th>
                   </tr>
@@ -234,11 +253,12 @@ export default function DemandesListPage() {
                   {filtered.map(o => {
                     const st = STATUT_MAP[o.statut] || STATUT_MAP.CREEE
                     const isCree = o.statut === 'CREEE'
+                    const isSelectable = o.statut === 'EN_ATTENTE_GROUPAGE'
                     return (
                       <tr key={o.demandeId} className="hover:bg-[#F7F7F8]/60 transition-colors">
                         <td className="px-4 py-3 md:px-6">
                           <input type="checkbox" checked={selectedIds.includes(o.demandeId)}
-                            onChange={() => toggleOne(o.demandeId)} disabled={!isCree}
+                            onChange={() => toggleOne(o.demandeId)} disabled={!isSelectable}
                             className="w-4 h-4 rounded disabled:opacity-30" />
                         </td>
                         <td className="px-4 py-3 font-mono text-xs font-bold text-[#E8433D] cursor-pointer hover:underline"
@@ -247,23 +267,47 @@ export default function DemandesListPage() {
                         </td>
                         <td className="px-4 py-3 font-body text-xs">{o.clientNom || '—'}</td>
                         <td className="hidden md:table-cell px-4 py-3 font-body text-xs text-[#8A8A92] max-w-[200px] truncate">{o.adresseLivraison || '—'}</td>
-                        <td className="hidden sm:table-cell px-4 py-3 font-mono text-xs">{o.nbColis || 0}</td>
+                        <td className="hidden sm:table-cell px-4 py-3 font-mono text-xs">{getNbColis(o)}</td>
                         <td className="hidden sm:table-cell px-4 py-3 font-mono text-xs font-bold">
                           {o.tarif ? `${new Intl.NumberFormat('fr-MG').format(o.tarif)} Ar` : '—'}
                         </td>
                         <td className="hidden lg:table-cell px-4 py-3 font-mono text-xs text-[#8A8A92]">
                           {o.dateSouhaitee || '—'} {o.creneau ? `(${o.creneau})` : ''}
                         </td>
+                        <td className="hidden lg:table-cell px-4 py-3">
+                          {(() => {
+                            if (!o.dateDepartCalculee) return <span className="text-[10px] text-[#8A8A92]">—</span>
+                            const today = new Date(); today.setHours(0,0,0,0)
+                            const target = new Date(o.dateDepartCalculee); target.setHours(0,0,0,0)
+                            const diff = Math.ceil((target - today) / 86400000)
+                            const forced = o.departForceDelai || diff <= 0
+                            const urgent = diff <= 2 && diff > 0
+                            const cls = forced ? 'bg-red-100 text-red-700 border-red-300'
+                              : urgent ? 'bg-amber-100 text-amber-700 border-amber-300'
+                              : 'bg-green-100 text-green-700 border-green-300'
+                            return (
+                              <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] ${cls}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${forced ? 'bg-red-500' : urgent ? 'bg-amber-500' : 'bg-green-500'}`}></span>
+                                {forced ? 'DEPART FORCE' : `J-${diff}`}
+                              </span>
+                            )
+                          })()}
+                        </td>
                         <td className="px-4 py-3">
                           <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[10px] ${st.badge}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`}></span>
                             {st.label}
                           </span>
+                          {o.modeLivraison && (
+                            <span className={`ml-1 inline-flex items-center rounded-full border px-1.5 py-0.5 font-mono text-[9px] font-bold ${
+                              o.modeLivraison === 'FREELANCE' ? 'border-purple-400 bg-purple-50 text-purple-700' : 'border-blue-400 bg-blue-50 text-blue-700'
+                            }`}>{o.modeLivraison}</span>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           {isCree && (
                             <div className="flex items-center gap-1.5">
-                              <button onClick={() => handleValider(o.demandeId)} disabled={acting}
+                              <button onClick={() => openValiderModal(o)} disabled={acting}
                                 className="bg-green-600 text-white rounded px-2 py-1 font-mono text-[10px] hover:bg-green-700 disabled:opacity-40 cursor-pointer"
                                 title="Valider">
                                 Valider

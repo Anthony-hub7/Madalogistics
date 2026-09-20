@@ -51,6 +51,8 @@ services:
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-900000}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      MAPS_ROUTING_URL: ${MAPS_ROUTING_URL:-https://router.project-osrm.org}
+      VRP_MATRIX_PROVIDER: ${VRP_MATRIX_PROVIDER:-osrm}
     depends_on:
       db:
         condition: service_healthy

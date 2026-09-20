@@ -31,6 +31,12 @@ app:
     expiration-ms: ${JWT_EXPIRATION_MS:900000}
   refresh:
     token-expiration-days: 7
+  vrp:
+    time-limit-seconds: ${VRP_TIME_LIMIT_SECONDS:10}
+    matrix-provider: ${VRP_MATRIX_PROVIDER:osrm}
+  maps:
+    routing-url: ${MAPS_ROUTING_URL:https://router.project-osrm.org}
+    routing-timeout: ${MAPS_ROUTING_TIMEOUT:5s}
 
 management:
   endpoints:

@@ -5,9 +5,10 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:17-jre-alpine AS runtime
-RUN addgroup -S spring && adduser -S spring -G spring \
-    && apk add --no-cache curl
+FROM eclipse-temurin:17-jre-jammy AS runtime
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r spring && useradd -r -g spring spring
 USER spring:spring
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar

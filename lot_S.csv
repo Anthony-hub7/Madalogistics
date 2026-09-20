@@ -1,0 +1,31 @@
+colis_id,poids_kg,volume_m3,fragilite_0_10,valeur_estimee_ar,delai_express,categorie_declaree,designation,profil_source
+11f56d68-d2ba-498f-9175-0c47e8e74991,2.36,0.034,7,342911,1,B,Colis pharmacie de garde,express_petit
+b5b0eea4-7ac7-4d76-892d-fbdb16bb526c,63.11,0.797,1,229467,0,C,Sacs de riz,lourd_robuste
+dcce5304-7c22-46d5-933a-15f75c3d1e0f,51.45,0.535,2,155162,0,C,Sacs de riz,lourd_robuste
+4d5f553b-4464-4544-a8b3-3e51b9e68529,4.44,0.032,9,1546963,1,A,Documents admin Tana,leger_valeur
+78eb7672-a932-4218-a232-903b2135705c,57.86,0.726,2,128876,0,C,Briques et materiaux,lourd_robuste
+5cc645d5-41fd-47f2-a6b5-f3de1bb72f36,1.18,0.015,4,277138,1,B,Colis pharmacie de garde,express_petit
+31b71192-c02d-4166-887c-015d77662dbc,47.64,0.676,3,206345,0,C,Sacs de riz,lourd_robuste
+107aceea-0ed9-4b2c-b5bf-c9978bdb8535,11.99,0.781,2,198332,0,B,Textile lamba et tissus,volumineux_moyen
+bff0d4f4-aded-41f8-bbcc-ecf3b9029ec6,1.95,0.04,5,68485,1,B,Colis pharmacie de garde,express_petit
+d3c7bff8-652b-462e-9bb5-d9fda170e065,9.55,0.132,9,4399220,0,A,Bijouterie artisanale,leger_valeur
+5f657e51-1272-4feb-a777-26289efd5054,22.41,0.474,6,114286,1,B,Chaussures en carton,volumineux_moyen
+fbf948ed-dd2e-4551-b779-02f8c24eccfb,78.37,1.33,1,124975,0,C,Toles galvanisees,lourd_robuste
+1198fb31-9d4a-42d9-9573-30a7585a2245,7.15,0.101,9,1304335,1,A,Composants electroniques,leger_valeur
+059055d8-52d5-418b-9b32-77503a02f8b5,44.28,1.035,0,249387,0,C,Sacs de riz,lourd_robuste
+6c9f39a1-bbfe-4eba-8fbe-40058593aeba,2.64,0.048,8,1606612,0,A,Documents admin Tana,leger_valeur
+220a14e5-ccd6-4431-a022-d168131945d0,23.58,0.816,3,173429,0,B,Chaussures en carton,volumineux_moyen
+75646d8e-93af-4ee2-b449-e9f4fe788cb0,10.45,0.486,2,84986,0,B,Textile lamba et tissus,volumineux_moyen
+6c3f81e1-2b95-417f-b03e-ae88eca88f66,2.99,0.051,7,648883,0,A,Documents admin Tana,leger_valeur
+fa96426e-4de4-45e4-a9f4-b137c0e4e9c8,9.08,0.13,7,4513054,1,A,Bijouterie artisanale,leger_valeur
+c9ac5d34-1c6a-4f00-8e6f-5cc1ddb7ec83,15.78,0.793,6,257815,0,B,Chaussures en carton,volumineux_moyen
+1e734c41-831b-4f6c-9b5b-bfa2cc1fe709,6.24,0.213,5,112876,0,B,Textile lamba et tissus,volumineux_moyen
+2496bd35-42d9-41c3-8332-865c4a510aee,0.42,0.034,3,41778,1,B,Colis pharmacie de garde,express_petit
+8eec87e6-cf6c-4cbb-8d24-b8383d33455b,2.71,0.033,10,1375934,1,A,Bijouterie artisanale,leger_valeur
+4b89c5ec-1d19-4a66-8be5-3598895d7340,8.78,0.016,7,624365,0,A,Bijouterie artisanale,leger_valeur
+941892e1-f58f-4af2-b524-aed358ba1c19,24.38,0.945,3,97194,0,B,Chaussures en carton,volumineux_moyen
+7aaff16a-73ea-46cd-a110-f5718fe62a35,18.34,0.257,2,122346,0,B,Textile lamba et tissus,volumineux_moyen
+4e1d3824-0095-49af-8760-b7a152b182f1,65.69,1.227,2,187577,0,C,Briques et materiaux,lourd_robuste
+8307a17b-e1e6-43a1-b231-4fb8bdca0509,5.92,0.084,9,679537,1,A,Bijouterie artisanale,leger_valeur
+4f63e603-fc11-4287-9703-6a0cd18538d1,0.65,0.048,3,456348,1,B,Colis pharmacie de garde,express_petit
+a712b48c-dc95-4744-adea-d296ceb36d19,2.2,0.023,7,139087,1,B,Colis pharmacie de garde,express_petit

@@ -57,4 +57,8 @@ export const mapsService = {
       () => apiClient.post('/maps/distance-matrix', { points, profile })
     )
   },
+
+  async getTrace(tourneeId) {
+    return apiClient.get(`/tournees/${tourneeId}/trace`)
+  },
 }

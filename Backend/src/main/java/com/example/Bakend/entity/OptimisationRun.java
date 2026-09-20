@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,9 +42,11 @@ public class OptimisationRun {
     @Column(name = "type_algorithme", nullable = false, length = 30)
     private TypeAlgorithme typeAlgorithme;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "parametres", columnDefinition = "jsonb")
     private String parametres;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "resultat", columnDefinition = "jsonb")
     private String resultat;
 

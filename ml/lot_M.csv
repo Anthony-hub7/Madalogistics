@@ -1,0 +1,121 @@
+colis_id,poids_kg,volume_m3,fragilite_0_10,valeur_estimee_ar,delai_express,categorie_declaree,designation,profil_source
+LOT-M-0000,68.17,0.938,1,117780,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0001,2.94,0.062,7,605156,0,A,Documents admin Tana,leger_valeur
+LOT-M-0002,0.65,0.048,3,456348,1,B,Colis pharmacie de garde,express_petit
+LOT-M-0003,2.2,0.023,7,139087,1,B,Colis pharmacie de garde,express_petit
+LOT-M-0004,74.1,1.986,5,1196354,0,C,Instrument de musique,outlier
+LOT-M-0005,3.72,0.027,8,774471,0,A,Documents admin Tana,leger_valeur
+LOT-M-0006,7.5,0.113,8,2222188,0,A,Composants electroniques,leger_valeur
+LOT-M-0007,6.47,0.41,4,79445,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0008,58.48,0.674,2,210347,0,C,Sacs de riz,lourd_robuste
+LOT-M-0009,45.27,1.235,2,67154,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0010,8.93,0.113,8,2484622,1,A,Bijouterie artisanale,leger_valeur
+LOT-M-0011,2.43,0.08,9,2419839,1,A,Composants electroniques,leger_valeur
+LOT-M-0012,44.61,0.966,2,61557,1,C,Sacs de riz,lourd_robuste
+LOT-M-0013,79.29,0.645,2,152115,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0014,4.57,0.048,8,1721611,0,A,Documents admin Tana,leger_valeur
+LOT-M-0015,11.17,0.924,2,197595,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0016,3.73,0.086,10,1496487,0,A,Bijouterie artisanale,leger_valeur
+LOT-M-0017,9.77,0.123,10,407923,1,A,Bijouterie artisanale,leger_valeur
+LOT-M-0018,94.12,1.378,0,129941,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0019,97.97,1.373,0,112316,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0020,16.95,0.716,3,26203,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0021,17.69,0.778,4,112050,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0022,1.03,0.006,5,103620,1,B,Colis pharmacie de garde,express_petit
+LOT-M-0023,45.42,0.978,2,164398,0,C,Sacs de riz,lourd_robuste
+LOT-M-0024,18.29,0.274,2,205803,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0025,1.81,0.047,4,200956,1,B,Colis pharmacie de garde,express_petit
+LOT-M-0026,84.27,1.197,0,138727,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0027,9.84,0.342,3,70289,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0028,71.18,0.657,3,118892,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0029,65.78,0.987,2,144475,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0030,15.22,0.845,3,54457,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0031,1.04,0.042,4,362738,1,B,Colis pharmacie de garde,express_petit
+LOT-M-0032,41.22,0.769,3,210241,0,C,Sacs de riz,lourd_robuste
+LOT-M-0033,7.2,0.073,10,1910522,1,A,Composants electroniques,leger_valeur
+LOT-M-0034,3.59,0.072,7,1391596,1,A,Documents admin Tana,leger_valeur
+LOT-M-0035,63.13,0.545,1,71813,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0036,63.59,1.003,2,156017,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0037,59.94,1.316,2,81722,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0038,15.78,0.696,4,220753,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0039,10.49,0.308,4,132942,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0040,0.86,0.021,8,1955318,1,A,Documents admin Tana,leger_valeur
+LOT-M-0041,3.85,0.07,9,561161,1,A,Composants electroniques,leger_valeur
+LOT-M-0042,2.38,0.006,7,209429,1,B,Colis pharmacie de garde,express_petit
+LOT-M-0043,91.44,1.368,1,117812,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0044,1.2,0.047,10,1995827,0,A,Composants electroniques,leger_valeur
+LOT-M-0045,89.04,1.088,3,205161,0,C,Sacs de riz,lourd_robuste
+LOT-M-0046,102.14,1.204,4,481113,1,C,Instrument de musique,outlier
+LOT-M-0047,14.09,0.503,5,155886,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0048,95.92,1.023,2,73653,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0049,0.81,0.077,7,565074,0,A,Documents admin Tana,leger_valeur
+LOT-M-0050,6.33,0.04,10,1159568,0,A,Bijouterie artisanale,leger_valeur
+LOT-M-0051,1.65,0.036,9,1773490,0,A,Documents admin Tana,leger_valeur
+LOT-M-0052,88.24,0.619,0,131777,0,C,Sacs de riz,lourd_robuste
+LOT-M-0053,71.82,1.244,0,123661,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0054,66.01,0.609,3,50766,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0055,4.17,0.571,2,242711,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0056,19.33,0.563,5,205416,1,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0057,4.84,0.029,9,1513967,0,A,Documents admin Tana,leger_valeur
+LOT-M-0058,54.39,1.267,1,113119,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0059,4.99,0.084,9,420376,1,A,Composants electroniques,leger_valeur
+LOT-M-0060,2.48,0.098,9,1472972,0,A,Composants electroniques,leger_valeur
+LOT-M-0061,80.57,1.065,0,82442,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0062,1.97,0.036,6,244972,1,B,Colis pharmacie de garde,express_petit
+LOT-M-0063,4.22,0.04,9,4169996,0,A,Bijouterie artisanale,leger_valeur
+LOT-M-0064,2.98,0.035,8,1068152,1,A,Documents admin Tana,leger_valeur
+LOT-M-0065,1.37,0.018,9,1947377,1,A,Documents admin Tana,leger_valeur
+LOT-M-0066,2.94,0.075,10,2803121,1,A,Composants electroniques,leger_valeur
+LOT-M-0067,3.17,0.057,9,318685,0,A,Bijouterie artisanale,leger_valeur
+LOT-M-0068,9.75,0.085,8,4317788,1,A,Bijouterie artisanale,leger_valeur
+LOT-M-0069,84.22,1.718,3,486638,0,C,Instrument de musique,outlier
+LOT-M-0070,1.8,0.017,9,610723,0,A,Composants electroniques,leger_valeur
+LOT-M-0071,7.98,0.672,4,54659,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0072,5.24,0.097,8,2491828,1,A,Composants electroniques,leger_valeur
+LOT-M-0073,97.31,1.491,1,75789,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0074,71.28,0.791,0,91171,0,C,Sacs de riz,lourd_robuste
+LOT-M-0075,5.05,0.588,6,256369,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0076,1.77,0.07,7,1941550,1,A,Documents admin Tana,leger_valeur
+LOT-M-0077,3.15,0.066,7,1391581,1,A,Documents admin Tana,leger_valeur
+LOT-M-0078,9.11,0.125,7,700280,1,A,Bijouterie artisanale,leger_valeur
+LOT-M-0079,4.21,0.074,8,760788,0,A,Documents admin Tana,leger_valeur
+LOT-M-0080,7.6,0.065,9,2136093,1,A,Composants electroniques,leger_valeur
+LOT-M-0081,91.6,1.483,3,154242,1,C,Instrument de musique,outlier
+LOT-M-0082,65.55,0.519,3,110650,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0083,63.53,1.217,2,97576,0,C,Sacs de riz,lourd_robuste
+LOT-M-0084,19.47,0.456,5,107374,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0085,3.5,0.106,9,3559236,0,A,Bijouterie artisanale,leger_valeur
+LOT-M-0086,4.5,0.314,2,222518,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0087,18.15,0.657,5,38418,1,B,Chaussures en carton,volumineux_moyen
+LOT-M-0088,13.63,0.644,3,90007,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0089,98.45,1.036,0,122730,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0090,5.66,0.019,7,4070905,0,A,Bijouterie artisanale,leger_valeur
+LOT-M-0091,14.97,0.787,6,153353,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0092,7.14,0.508,5,69967,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0093,22.28,0.457,5,188192,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0094,10.66,0.474,6,266712,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0095,8.87,0.509,5,139365,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0096,53.36,0.845,2,51441,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0097,9.56,0.581,3,149847,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0098,1.99,0.017,8,709110,0,A,Documents admin Tana,leger_valeur
+LOT-M-0099,0.62,0.044,4,49231,1,B,Colis pharmacie de garde,express_petit
+LOT-M-0100,84.28,0.958,0,146131,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0101,102.48,1.164,1,69410,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0102,4.64,0.08,9,689539,0,A,Documents admin Tana,leger_valeur
+LOT-M-0103,3.67,0.017,7,1955425,1,A,Documents admin Tana,leger_valeur
+LOT-M-0104,86.22,1.084,3,886098,0,C,Instrument de musique,outlier
+LOT-M-0105,4.96,0.097,8,1034294,1,A,Composants electroniques,leger_valeur
+LOT-M-0106,68.91,0.948,3,77517,0,C,Toles galvanisees,lourd_robuste
+LOT-M-0107,7.34,0.156,5,95400,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0108,7.62,0.119,9,2979903,0,A,Composants electroniques,leger_valeur
+LOT-M-0109,17.37,0.279,5,243696,0,B,Textile lamba et tissus,volumineux_moyen
+LOT-M-0110,2.12,0.031,9,1119143,1,A,Documents admin Tana,leger_valeur
+LOT-M-0111,65.1,1.109,2,72856,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0112,92.67,0.807,1,117410,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0113,1.96,0.04,4,339382,1,B,Colis pharmacie de garde,express_petit
+LOT-M-0114,11.18,0.581,6,201292,0,B,Chaussures en carton,volumineux_moyen
+LOT-M-0115,3.29,0.056,8,854318,0,A,Composants electroniques,leger_valeur
+LOT-M-0116,79.2,1.422,0,127363,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0117,91.06,0.905,0,182770,0,C,Briques et materiaux,lourd_robuste
+LOT-M-0118,8.64,0.11,10,4875077,1,A,Bijouterie artisanale,leger_valeur
+LOT-M-0119,53.22,0.636,2,226377,0,C,Sacs de riz,lourd_robuste

@@ -31,6 +31,7 @@ const SupportClientPage = lazy(() => import('../pages/client/SupportClientPage')
 const ParametresClientPage = lazy(() => import('../pages/client/ParametresClientPage'))
 const FlottePage = lazy(() => import('../pages/flotte/FlottePage'))
 const OptimisationPage = lazy(() => import('../pages/optimisation/OptimisationPage'))
+const PlanificationPage = lazy(() => import('../pages/planification/PlanificationPage'))
 const MissionsProposeesPage = lazy(() => import('../pages/chauffeur/MissionsProposeesPage'))
 const MesMissionsPage = lazy(() => import('../pages/chauffeur/MesMissionsPage'))
 const DetailLivraisonPage = lazy(() => import('../pages/chauffeur/DetailLivraisonPage'))
@@ -73,6 +74,7 @@ export const ROLE_CONFIG = {
       chauffeurs_rattaches: { component: ChauffeursRattachesPage },
       chauffeur_detail: { component: ChauffeurDetailPage },
       optimisation: { component: OptimisationPage },
+      planification: { component: PlanificationPage },
       flotte: { component: FlottePage },
       carte_optimisation: { component: CarteOptimisationPage },
       demo: { component: DemoPreviewPage },
@@ -82,6 +84,7 @@ export const ROLE_CONFIG = {
       { key: 'commandes', label: 'Commandes', icon: 'calendar_today' },
       { key: 'chauffeurs_rattaches', label: 'Chauffeurs', icon: 'badge' },
       { key: 'optimisation', label: 'Optimisation', icon: 'auto_graph' },
+      { key: 'planification', label: 'Planification', icon: 'calendar_month' },
       { key: 'flotte', label: 'Flotte', icon: 'local_shipping' },
       { key: 'carte_optimisation', label: 'Carte', icon: 'map' },
       { key: 'demo', label: 'Design Preview', icon: 'palette' },

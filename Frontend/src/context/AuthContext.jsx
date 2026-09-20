@@ -103,7 +103,14 @@ export function AuthProvider({ children }) {
         tokenRef.current = newToken
         forceUpdate((n) => n + 1)
         if (user) {
-          saveAuthToStorage(newToken, user)
+          const payload = decodeJwtPayload(newToken)
+          const updatedUser = {
+            ...user,
+            tenantId: payload?.tenant_id || user.tenantId,
+            role: payload?.role || user.role,
+          }
+          setUser(updatedUser)
+          saveAuthToStorage(newToken, updatedUser)
         }
         return newToken
       }
@@ -162,18 +169,27 @@ export function AuthProvider({ children }) {
     apiClient.setRefreshFn(refreshAccessToken)
   }, [getAccessToken, refreshAccessToken])
 
+  const loginWithToken = useCallback((rawToken, userData) => {
+    tokenRef.current = rawToken
+    setUser(userData)
+    forceUpdate((n) => n + 1)
+    saveAuthToStorage(rawToken, userData)
+    return userData
+  }, [])
+
   const value = useMemo(() => ({
     user,
     getAccessToken,
     getRoleFromToken,
     login,
+    loginWithToken,
     register,
     logout,
     refreshAccessToken,
     refreshMonStatut,
     isTokenExpired,
     isAuthenticated: !!user,
-  }), [user, getAccessToken, getRoleFromToken, login, register, logout, refreshAccessToken, refreshMonStatut, isTokenExpired])
+  }), [user, getAccessToken, getRoleFromToken, login, loginWithToken, register, logout, refreshAccessToken, refreshMonStatut, isTokenExpired])
 
   return (
     <AuthContext.Provider value={value}>
