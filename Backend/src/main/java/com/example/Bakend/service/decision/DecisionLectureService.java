@@ -1,5 +1,6 @@
 package com.example.Bakend.service.decision;
 
+import com.example.Bakend.dto.direction.DecisionResponse;
 import com.example.Bakend.entity.OptimisationRun;
 import com.example.Bakend.entity.enums.TypeAlgorithme;
 import com.example.Bakend.exception.ResourceNotFoundException;
@@ -24,25 +25,27 @@ public class DecisionLectureService {
         this.pmeClienteRepository = pmeClienteRepository;
     }
 
-    public List<OptimisationRun> lister(UUID tenantId, UUID hubId, TypeAlgorithme type) {
+    public List<DecisionResponse> lister(UUID tenantId, UUID hubId, TypeAlgorithme type) {
         verifierTenant(tenantId);
 
+        List<OptimisationRun> runs;
         if (hubId != null && type != null) {
-            List<OptimisationRun> runs = optimisationRunRepository.findByPmeClienteTenantIdAndHubHubId(tenantId, hubId);
-            return runs.stream()
+            runs = optimisationRunRepository.findByPmeClienteTenantIdAndHubHubId(tenantId, hubId)
+                    .stream()
                     .filter(r -> r.getTypeAlgorithme() == type)
                     .toList();
+        } else if (hubId != null) {
+            runs = optimisationRunRepository.findByPmeClienteTenantIdAndHubHubId(tenantId, hubId);
+        } else if (type != null) {
+            runs = optimisationRunRepository.findByPmeClienteTenantIdAndTypeAlgorithme(tenantId, type);
+        } else {
+            runs = optimisationRunRepository.rechercherParTenant(tenantId);
         }
 
-        if (hubId != null) {
-            return optimisationRunRepository.findByPmeClienteTenantIdAndHubHubId(tenantId, hubId);
-        }
-
-        if (type != null) {
-            return optimisationRunRepository.findByPmeClienteTenantIdAndTypeAlgorithme(tenantId, type);
-        }
-
-        return optimisationRunRepository.rechercherParTenant(tenantId);
+        // Mapping DTO dans la transaction : les relations lazy (hub) sont initialisables ici.
+        return runs.stream()
+                .map(DecisionResponse::new)
+                .toList();
     }
 
     private void verifierTenant(UUID tenantId) {

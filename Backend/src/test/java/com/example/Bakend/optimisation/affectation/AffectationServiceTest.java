@@ -83,7 +83,7 @@ class AffectationServiceTest {
         ch.setPermisCategories(permis);
         ch.setPermisExpiration(LocalDate.now().plusYears(2));
         ch.setDisponible(disponible);
-        ch.setStatutDossier("VALIDE");
+        ch.setStatutDossier("VALIDEE");
         Utilisateur u = new Utilisateur();
         u.setHabiliteValeur(habilite);
         u.setNom("Test Chauffeur");
@@ -108,7 +108,7 @@ class AffectationServiceTest {
         Chauffeur ch = makeChauffeur("B", true, true);
         Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("3.0"));
 
-        when(sacRepository.rechercherParHubEtStatut(tenantId, hubId, SacStatut.CONSTITUE))
+        when(sacRepository.rechercherParHubEtStatutHorsMode(tenantId, hubId, SacStatut.CONSTITUE, ModeLivraison.FREELANCE))
                 .thenReturn(new ArrayList<>(List.of(sac)));
         when(chauffeurRepository.findByPmeClienteTenantIdAndDisponibleTrue(tenantId))
                 .thenReturn(new ArrayList<>(List.of(ch)));
@@ -131,7 +131,7 @@ class AffectationServiceTest {
         Chauffeur ch = makeChauffeur("B", true, true);
         Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("3.0"));
 
-        when(sacRepository.rechercherParHubEtStatut(tenantId, hubId, SacStatut.CONSTITUE))
+        when(sacRepository.rechercherParHubEtStatutHorsMode(tenantId, hubId, SacStatut.CONSTITUE, ModeLivraison.FREELANCE))
                 .thenReturn(new ArrayList<>(List.of(sac)));
         when(chauffeurRepository.findByPmeClienteTenantIdAndDisponibleTrue(tenantId))
                 .thenReturn(new ArrayList<>(List.of(ch)));
@@ -163,7 +163,7 @@ class AffectationServiceTest {
     void refuse_sans_chauffeur() {
         Sac sac = makeSac(3);
 
-        when(sacRepository.rechercherParHubEtStatut(tenantId, hubId, SacStatut.CONSTITUE))
+        when(sacRepository.rechercherParHubEtStatutHorsMode(tenantId, hubId, SacStatut.CONSTITUE, ModeLivraison.FREELANCE))
                 .thenReturn(new ArrayList<>(List.of(sac)));
         when(chauffeurRepository.findByPmeClienteTenantIdAndDisponibleTrue(tenantId))
                 .thenReturn(new ArrayList<>());
@@ -185,7 +185,7 @@ class AffectationServiceTest {
         ch.setPermisExpiration(LocalDate.of(2024, 1, 1)); // expire
         Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("3.0"));
 
-        when(sacRepository.rechercherParHubEtStatut(tenantId, hubId, SacStatut.CONSTITUE))
+        when(sacRepository.rechercherParHubEtStatutHorsMode(tenantId, hubId, SacStatut.CONSTITUE, ModeLivraison.FREELANCE))
                 .thenReturn(new ArrayList<>(List.of(sac)));
         when(chauffeurRepository.findByPmeClienteTenantIdAndDisponibleTrue(tenantId))
                 .thenReturn(new ArrayList<>(List.of(ch)));
@@ -200,45 +200,12 @@ class AffectationServiceTest {
     }
 
     @Test
-    void habilite_valeur_manquant_pour_categorie_A() {
-        Sac sac = makeSac(3);
-        sac.setCategorieDominante("A");
-        Chauffeur ch = makeChauffeur("B", false, true); // non habilite
-        Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("3.0"));
-
-        when(sacRepository.rechercherParHubEtStatut(tenantId, hubId, SacStatut.CONSTITUE))
-                .thenReturn(new ArrayList<>(List.of(sac)));
-        when(chauffeurRepository.findByPmeClienteTenantIdAndDisponibleTrue(tenantId))
-                .thenReturn(new ArrayList<>(List.of(ch)));
-        when(vehiculeRepository.rechercherDisponiblesParHub(tenantId, hubId, VehiculeStatut.DISPONIBLE))
-                .thenReturn(new ArrayList<>(List.of(v)));
-        when(chauffeurRepository.findById(ch.getChauffeurId()))
-                .thenReturn(Optional.of(ch));
-        when(vehiculeRepository.findById(v.getVehiculeId()))
-                .thenReturn(Optional.of(v));
-
-        CompatibiliteChauffeurVehicule compat = new CompatibiliteChauffeurVehicule();
-        compat.setChauffeurId(ch.getChauffeurId());
-        compat.setVehiculeId(v.getVehiculeId());
-        compat.setCompatible(true);
-        compat.setPmeCliente(tenant);
-        when(compatibiliteRepository.findByPmeClienteTenantId(tenantId))
-                .thenReturn(new ArrayList<>(List.of(compat)));
-
-        AffectationService.AffectationResult result = service.affecter(tenantId, hubId);
-
-        assertEquals(0, result.nbSacsAffectes());
-        assertNotNull(result.affectations().get(0).motifRefus());
-        assertFalse(result.affectations().get(0).affecte());
-    }
-
-    @Test
     void persiste_run_affectation() {
         Sac sac = makeSac(3);
         Chauffeur ch = makeChauffeur("B", true, true);
         Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("3.0"));
 
-        when(sacRepository.rechercherParHubEtStatut(tenantId, hubId, SacStatut.CONSTITUE))
+        when(sacRepository.rechercherParHubEtStatutHorsMode(tenantId, hubId, SacStatut.CONSTITUE, ModeLivraison.FREELANCE))
                 .thenReturn(new ArrayList<>(List.of(sac)));
         when(chauffeurRepository.findByPmeClienteTenantIdAndDisponibleTrue(tenantId))
                 .thenReturn(new ArrayList<>(List.of(ch)));
@@ -270,12 +237,88 @@ class AffectationServiceTest {
 
     @Test
     void ran_retourne_si_aucun_sac() {
-        when(sacRepository.rechercherParHubEtStatut(tenantId, hubId, SacStatut.CONSTITUE))
+        when(sacRepository.rechercherParHubEtStatutHorsMode(tenantId, hubId, SacStatut.CONSTITUE, ModeLivraison.FREELANCE))
                 .thenReturn(new ArrayList<>());
 
         AffectationService.AffectationResult result = service.affecter(tenantId, hubId);
 
         assertEquals(0, result.nbSacsAffectes());
         assertNull(result.runId());
+    }
+
+    @Test
+    void un_vehicule_ne_peut_servir_deux_sacs() {
+        Sac sac1 = makeSac(5);
+        Sac sac2 = makeSac(4);
+        Chauffeur ch1 = makeChauffeur("B", true, true);
+        Chauffeur ch2 = makeChauffeur("B", true, true);
+        Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("3.0"));
+
+        Map<UUID, Chauffeur> chMap = new HashMap<>();
+        chMap.put(ch1.getChauffeurId(), ch1);
+        chMap.put(ch2.getChauffeurId(), ch2);
+
+        when(sacRepository.rechercherParHubEtStatutHorsMode(tenantId, hubId, SacStatut.CONSTITUE, ModeLivraison.FREELANCE))
+                .thenReturn(new ArrayList<>(List.of(sac1, sac2)));
+        when(chauffeurRepository.findByPmeClienteTenantIdAndDisponibleTrue(tenantId))
+                .thenReturn(new ArrayList<>(List.of(ch1, ch2)));
+        when(vehiculeRepository.rechercherDisponiblesParHub(tenantId, hubId, VehiculeStatut.DISPONIBLE))
+                .thenReturn(new ArrayList<>(List.of(v)));
+        when(chauffeurRepository.findById(any(UUID.class)))
+                .thenAnswer(inv -> Optional.ofNullable(chMap.get(inv.getArgument(0, UUID.class))));
+        when(vehiculeRepository.findById(v.getVehiculeId()))
+                .thenReturn(Optional.of(v));
+
+        List<CompatibiliteChauffeurVehicule> compats = new ArrayList<>();
+        for (Chauffeur ch : List.of(ch1, ch2)) {
+            CompatibiliteChauffeurVehicule c = new CompatibiliteChauffeurVehicule();
+            c.setChauffeurId(ch.getChauffeurId());
+            c.setVehiculeId(v.getVehiculeId());
+            c.setCompatible(true);
+            c.setPmeCliente(tenant);
+            compats.add(c);
+        }
+        when(compatibiliteRepository.findByPmeClienteTenantId(tenantId)).thenReturn(compats);
+
+        AffectationService.AffectationResult result = service.affecter(tenantId, hubId);
+
+        // 1 seul vehicule → 2e sac refuse
+        assertEquals(1, result.nbSacsAffectes());
+        assertEquals(1, result.nbSacsNonAffectes());
+        assertEquals(VehiculeStatut.AFFECTE, v.getStatut());
+    }
+
+    @Test
+    void affectation_marque_chauffeur_et_vehicule_indisponibles() {
+        Sac sac = makeSac(5);
+        Chauffeur ch = makeChauffeur("B", true, true);
+        Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("3.0"));
+
+        when(sacRepository.rechercherParHubEtStatutHorsMode(tenantId, hubId, SacStatut.CONSTITUE, ModeLivraison.FREELANCE))
+                .thenReturn(new ArrayList<>(List.of(sac)));
+        when(chauffeurRepository.findByPmeClienteTenantIdAndDisponibleTrue(tenantId))
+                .thenReturn(new ArrayList<>(List.of(ch)));
+        when(vehiculeRepository.rechercherDisponiblesParHub(tenantId, hubId, VehiculeStatut.DISPONIBLE))
+                .thenReturn(new ArrayList<>(List.of(v)));
+        when(chauffeurRepository.findById(ch.getChauffeurId()))
+                .thenReturn(Optional.of(ch));
+        when(vehiculeRepository.findById(v.getVehiculeId()))
+                .thenReturn(Optional.of(v));
+
+        CompatibiliteChauffeurVehicule compat = new CompatibiliteChauffeurVehicule();
+        compat.setChauffeurId(ch.getChauffeurId());
+        compat.setVehiculeId(v.getVehiculeId());
+        compat.setCompatible(true);
+        compat.setPmeCliente(tenant);
+        when(compatibiliteRepository.findByPmeClienteTenantId(tenantId))
+                .thenReturn(new ArrayList<>(List.of(compat)));
+
+        AffectationService.AffectationResult result = service.affecter(tenantId, hubId);
+
+        assertEquals(1, result.nbSacsAffectes());
+        // 1 sac = 1 chauffeur + 1 vehicule indisponibles des l'affectation
+        assertFalse(sac.getChauffeur().isDisponible());
+        assertEquals(VehiculeStatut.AFFECTE, v.getStatut());
+        assertEquals(SacStatut.AFFECTE, sac.getStatut());
     }
 }

@@ -44,13 +44,15 @@ public class KnapsackSolverService {
         long[] capacities = {capPoids, capVolume};
 
         KnapsackSolver solver = new KnapsackSolver(
-                KnapsackSolver.SolverType.KNAPSACK_DYNAMIC_PROGRAMMING_SOLVER,
+                // 2 contraintes (poids + volume) : le solveur DP n'accepte qu'UNE
+                // dimension et fait un CHECK fatalement (abort JVM) sinon.
+                KnapsackSolver.SolverType.KNAPSACK_MULTIDIMENSION_BRANCH_AND_BOUND_SOLVER,
                 "MadaLogistix_Knapsack");
 
         solver.init(valeurs, contraintes, capacities);
 
         long valeurOptimale = solver.solve();
-        log.info("Knapsack OR-Tools : valeur optimale = {}", valeurOptimale);
+        log.debug("Knapsack OR-Tools : valeur optimale = {}", valeurOptimale);
 
         List<Integer> indices = new ArrayList<>();
         long poidsTotal = 0;

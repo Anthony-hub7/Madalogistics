@@ -36,4 +36,13 @@ public interface EtapeLivraisonRepository extends JpaRepository<EtapeLivraison, 
     List<Object[]> findDatesDelaiParHub(@Param("tenantId") UUID tenantId,
                                         @Param("hubId") UUID hubId,
                                         @Param("typeEtape") TypeEtape typeEtape);
+
+    /**
+     * Nombre d'etapes avec photo de preuve, groupees par demande (facturation historique).
+     * Une seule requete pour eviter le N+1 sur la liste des factures.
+     */
+    @Query("SELECT e.colis.demande.demandeId, COUNT(e) FROM EtapeLivraison e " +
+           "WHERE e.pmeCliente.tenantId = :tenantId AND e.photoPreuve IS NOT NULL " +
+           "GROUP BY e.colis.demande.demandeId")
+    List<Object[]> compterPreuvesParDemande(@Param("tenantId") UUID tenantId);
 }

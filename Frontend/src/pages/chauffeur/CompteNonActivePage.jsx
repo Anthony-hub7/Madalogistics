@@ -45,7 +45,7 @@ export default function CompteNonActivePage() {
     setChecking(false)
     // Si le dossier est maintenant active, rediriger vers les missions
     if (data?.statutDossier === 'VALIDEE') {
-      navigate('/driver/missions_proposees', { replace: true })
+      navigate('/driver/missions', { replace: true })
     }
   }
 

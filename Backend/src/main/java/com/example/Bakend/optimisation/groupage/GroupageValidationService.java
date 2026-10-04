@@ -2,6 +2,7 @@ package com.example.Bakend.optimisation.groupage;
 
 import com.example.Bakend.entity.*;
 import com.example.Bakend.entity.enums.DemandeStatut;
+import com.example.Bakend.entity.enums.ModeLivraison;
 import com.example.Bakend.entity.enums.SacStatut;
 import com.example.Bakend.entity.enums.TypeAlgorithme;
 import com.example.Bakend.entity.enums.VehiculeStatut;
@@ -122,7 +123,7 @@ public class GroupageValidationService {
 
     private ValidationResult executerFfd(PMECliente tenant, UUID tenantId, UUID hubId, OptimisationRun run) {
         List<DemandeTransport> demandes = demandeRepository
-                .rechercherParHubEtStatutOrderByDateDepart(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE);
+                .rechercherDemandesGroupage(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE, ModeLivraison.AGENCE);
 
         if (demandes.isEmpty()) {
             return new ValidationResult(run.getRunId(), 0, 0, 0, "Aucune demande en attente.");
@@ -178,7 +179,7 @@ public class GroupageValidationService {
 
     private ValidationResult executerKnapsack(PMECliente tenant, UUID tenantId, UUID hubId, OptimisationRun run) {
         List<DemandeTransport> demandes = demandeRepository
-                .rechercherParHubEtStatutOrderByDateDepart(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE);
+                .rechercherDemandesGroupage(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE, ModeLivraison.AGENCE);
 
         if (demandes.isEmpty()) {
             return new ValidationResult(run.getRunId(), 0, 0, 0, "Aucune demande en attente.");

@@ -16,9 +16,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.Bakend.entity.enums.TypeVehicule;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -82,6 +87,75 @@ public class ChauffeurRegistrationService {
                     || typeVehicule == null || typeVehicule.isBlank()) {
                 throw new BusinessException(
                         "Un chauffeur freelance doit declarer son vehicule : immatriculation et type sont obligatoires");
+            }
+        }
+
+        // ── Validations coherences vehicule/permis ──
+        List<String> errors = new ArrayList<>();
+
+        if (Boolean.TRUE.equals(aVehiculeAssigne) && typeVehicule != null && !typeVehicule.isBlank()) {
+            TypeVehicule typeV;
+            try {
+                typeV = TypeVehicule.valueOf(typeVehicule.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                typeV = null;
+            }
+
+            // PTAC fourni mais capacite poids = 0
+            BigDecimal ptacParsed = null;
+            if (ptacTonnes != null && !ptacTonnes.isBlank()) {
+                try {
+                    ptacParsed = new BigDecimal(ptacTonnes.trim().replace(',', '.'));
+                    if (ptacParsed.compareTo(BigDecimal.ZERO) <= 0) {
+                        errors.add("ptacTonnes: Le PTAC doit etre superieur a 0 tonne.");
+                    } else if (ptacParsed.compareTo(new BigDecimal("60")) > 0) {
+                        errors.add("ptacTonnes: PTAC aberrant (" + ptacParsed + "t, 60t max) — verifiez l'unite : saisir en tonnes, pas en kg (ex. 1000 kg = 1 tonne).");
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+
+            // Capacite poids = 0 avec vehicule declare
+            if (capaciteVolumeM3 != null && !capaciteVolumeM3.isBlank()) {
+                try {
+                    double vol = Double.parseDouble(capaciteVolumeM3.trim().replace(',', '.'));
+                    if (vol <= 0) {
+                        errors.add("capaciteVolumeM3: La capacite en volume doit etre superieure a 0.");
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+
+            // Verifier coherence permis <-> type vehicule
+            if (permisCategories != null && !permisCategories.isBlank()) {
+                Set<String> cats = com.example.Bakend.optimisation.affectation.PermisService.parsePermisCategories(permisCategories);
+
+                if (typeV != null) {
+                    if (typeV.necessitePermisD() && !cats.contains("D")) {
+                        errors.add("permisCategories: Le type " + typeV + " exige la classe de permis D (transport personnes). Classes requises : "
+                                + (typeV == TypeVehicule.BUS ? "C + D" : "B ou C + D") + ".");
+                    }
+                    if (typeV.necessitePermisE() && !cats.contains("E")) {
+                        errors.add("permisCategories: Le type " + typeV + " exige la classe de permis E (remorque).");
+                    }
+                }
+
+                // PTAC > 3.5t exige C
+                if (ptacParsed != null && ptacParsed.compareTo(new BigDecimal("3.5")) > 0 && !cats.contains("C")) {
+                    errors.add("permisCategories: PTAC " + ptacParsed + "t > 3.5t exige la classe de permis C.");
+                }
+            }
+
+            // Permis expiration dans le futur
+            if (permisExpiration != null && !permisExpiration.isBlank()) {
+                try {
+                    LocalDate exp = LocalDate.parse(permisExpiration);
+                    if (exp.isBefore(LocalDate.now())) {
+                        errors.add("permisExpiration: Le permis est expire depuis le " + exp + ". Un permis valide est requis.");
+                    }
+                } catch (java.time.format.DateTimeParseException ignored) {}
+            }
+
+            if (!errors.isEmpty()) {
+                throw new BusinessException(String.join(" — ", errors));
             }
         }
 
@@ -157,7 +231,17 @@ public class ChauffeurRegistrationService {
             } catch (NumberFormatException e) {
                 throw new BusinessException("Capacite volume invalide : " + capaciteVolumeM3);
             }
-            vehicule.setCapacitePoidsKg(BigDecimal.ZERO);
+            // Capacite poids : convertir PTAC (tonnes) en kg si disponible
+            if (ptacTonnes != null && !ptacTonnes.isBlank()) {
+                try {
+                    BigDecimal ptacT = new BigDecimal(ptacTonnes.trim().replace(',', '.'));
+                    vehicule.setCapacitePoidsKg(ptacT.multiply(new BigDecimal("1000")));
+                } catch (NumberFormatException e2) {
+                    vehicule.setCapacitePoidsKg(BigDecimal.ZERO);
+                }
+            } else {
+                vehicule.setCapacitePoidsKg(BigDecimal.ZERO);
+            }
             vehicule.setStatut(VehiculeStatut.DISPONIBLE);
             vehicule.setMarqueModele(marqueModele);
             if (typeVehicule != null && !typeVehicule.isBlank()) {

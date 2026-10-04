@@ -1,0 +1,83 @@
+{
+  "S": {
+    "baseline": {
+      "distanceKm": 86.77706871909,
+      "tempsH": 2.1694267179772497,
+      "vehicules": 10,
+      "carburantL": 6.9421654975272,
+      "co2Kg": 18.605003533372898,
+      "coutAr": 40958.77643541048
+    },
+    "optimise": {
+      "distanceKm": 59.39,
+      "tempsH": 1.48475,
+      "vehicules": 3,
+      "carburantL": 4.7512,
+      "co2Kg": 12.733216,
+      "coutAr": 28032.079999999998
+    },
+    "perimetre": {
+      "nbDemandes": 10,
+      "nbTournees": 3,
+      "nbTourneesFallback": 0
+    },
+    "taux_remplissage": {
+      "baseline_pct": 2.28,
+      "optimise_pct": 22.77
+    }
+  },
+  "M": {
+    "baseline": {
+      "distanceKm": 325.83677125633574,
+      "tempsH": 8.145919281408393,
+      "vehicules": 40,
+      "carburantL": 26.06694170050686,
+      "co2Kg": 69.8594037573584,
+      "coutAr": 153794.95603299048
+    },
+    "optimise": {
+      "distanceKm": 159.82,
+      "tempsH": 3.9955,
+      "vehicules": 4,
+      "carburantL": 12.785599999999999,
+      "co2Kg": 34.265408,
+      "coutAr": 75435.04
+    },
+    "perimetre": {
+      "nbDemandes": 40,
+      "nbTournees": 4,
+      "nbTourneesFallback": 0
+    },
+    "taux_remplissage": {
+      "baseline_pct": 2.71,
+      "optimise_pct": 81.36
+    }
+  },
+  "L": {
+    "baseline": {
+      "distanceKm": 1030.6712200483475,
+      "tempsH": 25.76678050120869,
+      "vehicules": 130,
+      "carburantL": 82.45369760386781,
+      "co2Kg": 220.97590957836573,
+      "coutAr": 486476.8158628201
+    },
+    "optimise": {
+      "distanceKm": 665.1899999999999,
+      "tempsH": 16.629749999999998,
+      "vehicules": 13,
+      "carburantL": 53.215199999999996,
+      "co2Kg": 142.616736,
+      "coutAr": 313969.68
+    },
+    "perimetre": {
+      "nbDemandes": 130,
+      "nbTournees": 13,
+      "nbTourneesFallback": 0
+    },
+    "taux_remplissage": {
+      "baseline_pct": 2.73,
+      "optimise_pct": 82.52
+    }
+  }
+}

@@ -1,0 +1,39 @@
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant F as Frontend
+    participant A as Backend
+    participant D as PostgreSQL
+    participant M as MoteurOpti
+    participant G as Gestionnaire
+    participant H as Chauffeur
+
+    Note over A,M: Suite Partie 1 - sacs constitues (groupage D1-P4)
+
+    Note over A,M: 5 - Affectation (D1-P5/P5bis)
+    A->>M: Scoring freelance si mode FREELANCE
+    M->>D: INSERT optimisation_run (SCORING_FREELANCE)
+    A->>M: Affectation bipartite sac vers (chauffeur, vehicule)
+    M->>D: UPDATE sac SET chauffeur_id, vehicule_id
+    M->>D: INSERT optimisation_run (AFFECTATION)
+
+    Note over A,M: 6 - Tournees VRP (D1-P6)
+    A->>M: VRP (Nearest Neighbor + 2-opt)
+    M->>D: INSERT tournee + etape_livraison
+    M->>D: INSERT optimisation_run (VRP)
+
+    Note over C,G: 7/8 - Suivi et execution (D1-P7/P8)
+    A->>G: Notification commande assignee
+    G->>A: PUT /commandes/valider (depart)
+    A->>D: UPDATE sac/colis EN_TRANSIT
+    C->>F: Suit statuts expedition
+    F->>A: GET /commandes/:id (statuts, ETA)
+    H->>A: PUT /livrer (photo + signature, offline-first)
+    A->>D: UPDATE colis LIVREE + date_heure_reelle
+
+    Note over C,A: 9 - Cloture et facture (D1-P9)
+    A->>D: UPDATE sac LIVRE, tournee TERMINEE, demande LIVREE
+    A->>D: INSERT facture (EMISE) + audit_log
+    A->>C: Notification livraison + facture
+    C->>F: Consulte facture
+    F->>A: GET /factures

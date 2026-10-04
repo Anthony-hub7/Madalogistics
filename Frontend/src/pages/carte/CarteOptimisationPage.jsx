@@ -32,6 +32,47 @@ const traceLabels = {
   retour: 'Retour',
 }
 
+const TRACE_KEYS = ['collecte', 'aller', 'retour']
+const VISIBLE_TRACES_KEY = 'carte-opti-traces'
+
+function readVisibleTraces() {
+  try {
+    const raw = localStorage.getItem(VISIBLE_TRACES_KEY)
+    if (raw) return { collecte: true, aller: true, retour: true, ...JSON.parse(raw) }
+  } catch { /* noop */ }
+  return { collecte: true, aller: true, retour: true }
+}
+
+function TraceToggles({ visible, onToggle, className = '' }) {
+  return (
+    <div className={`flex flex-wrap gap-2 ${className}`}>
+      {TRACE_KEYS.map((key) => {
+        const color = traceColors[key]
+        const on = !!visible[key]
+        return (
+          <button
+            key={key}
+            type="button"
+            onClick={() => onToggle(key)}
+            aria-pressed={on}
+            title={`${on ? 'Masquer' : 'Afficher'} : ${traceLabels[key]}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border font-label-md text-label-md transition-all cursor-pointer ${
+              on
+                ? 'border-outline-variant bg-surface-container-lowest text-on-surface shadow-sm'
+                : 'border-dashed border-outline bg-surface-container-low text-on-surface-variant opacity-70'
+            }`}
+          >
+            {key === 'retour'
+              ? <span className="w-8 h-0 border-t-2 border-dashed" style={{ borderColor: color, opacity: on ? 1 : 0.4 }} />
+              : <span className="w-8 h-1 rounded" style={{ background: color, opacity: on ? 1 : 0.4 }} />}
+            <span style={{ textDecoration: on ? 'none' : 'line-through' }}>{traceLabels[key]}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 function FitBounds({ bounds }) {
   const map = useMap()
   const prevRef = useRef(null)
@@ -54,6 +95,17 @@ function CarteOptimisationPage() {
   const [traces, setTraces] = useState({})
   const [selectedTournee, setSelectedTournee] = useState(null)
   const [collecteStops, setCollecteStops] = useState([])
+  const [visibleTraces, setVisibleTraces] = useState(readVisibleTraces)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(VISIBLE_TRACES_KEY, JSON.stringify(visibleTraces))
+    } catch { /* noop */ }
+  }, [visibleTraces])
+
+  const toggleTrace = (key) => {
+    setVisibleTraces(prev => ({ ...prev, [key]: !prev[key] }))
+  }
 
   const makeIcon = useMemo(() => {
     const cache = {}
@@ -199,9 +251,9 @@ function CarteOptimisationPage() {
     const pts = []
     hubsFromTournees.forEach(h => pts.push([h.latitude, h.longitude]))
     allStops.forEach(s => pts.push([s.lat, s.lng]))
-    collecteStops.forEach(s => pts.push([s.lat, s.lng]))
+    if (visibleTraces.collecte) collecteStops.forEach(s => pts.push([s.lat, s.lng]))
     return pts.length >= 2 ? pts : null
-  }, [hubsFromTournees, allStops, collecteStops])
+  }, [hubsFromTournees, allStops, collecteStops, visibleTraces])
 
   const filteredTournees = focusTourneeId
     ? tournees.filter(t => t.tournee_id === focusTourneeId)
@@ -237,7 +289,7 @@ function CarteOptimisationPage() {
         </div>
       )}
 
-      <div className={`rounded-xl overflow-hidden border border-outline-variant shadow-sm ${embed ? '' : ''}`} style={{ height: embed ? '100%' : '500px' }}>
+      <div className={`relative rounded-xl overflow-hidden border border-outline-variant shadow-sm ${embed ? '' : ''}`} style={{ height: embed ? '100%' : '500px' }}>
         <MapView center={DEFAULT_CENTER} zoom={13} style={{ height: '100%', width: '100%' }}>
           {fitBounds && <FitBounds bounds={fitBounds} />}
 
@@ -247,7 +299,7 @@ function CarteOptimisationPage() {
             </Marker>
           ))}
 
-          {collecteStops.map((stop) => (
+          {visibleTraces.collecte && collecteStops.map((stop) => (
             <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={collecteIcon}>
               <Popup>
                 <div>
@@ -269,27 +321,29 @@ function CarteOptimisationPage() {
             </Marker>
           ))}
 
-          {traceSegments.collecte && traceSegments.collecte.length > 0 && (
+          {visibleTraces.collecte && traceSegments.collecte && traceSegments.collecte.length > 0 && (
             <Polyline positions={traceSegments.collecte} pathOptions={{ color: traceColors.collecte, weight: 4, smoothFactor: 1 }} />
           )}
-          {traceSegments.aller && traceSegments.aller.length > 0 && (
+          {visibleTraces.aller && traceSegments.aller && traceSegments.aller.length > 0 && (
             <Polyline positions={traceSegments.aller} pathOptions={{ color: traceColors.aller, weight: 4, smoothFactor: 1 }} />
           )}
-          {traceSegments.retour && traceSegments.retour.length > 0 && (
+          {visibleTraces.retour && traceSegments.retour && traceSegments.retour.length > 0 && (
             <Polyline positions={traceSegments.retour} pathOptions={{ color: traceColors.retour, weight: 4, smoothFactor: 1, dashArray: '8 4' }} />
           )}
         </MapView>
+
+        {embed && (
+          <div className="absolute top-2 right-2 z-[1000] rounded-lg border border-outline-variant bg-white/95 shadow-md p-2">
+            <TraceToggles visible={visibleTraces} onToggle={toggleTrace} />
+          </div>
+        )}
       </div>
 
       {!embed && (
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full" style={{ background: '#E8433D' }} />
             <span className="font-label-md text-label-md">Hub</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full" style={{ background: '#16A34A' }} />
-            <span className="font-label-md text-label-md">Collecte</span>
           </div>
           {Object.entries(statutColors).map(([key, color]) => (
             <div key={key} className="flex items-center gap-2">
@@ -297,15 +351,7 @@ function CarteOptimisationPage() {
               <span className="font-label-md text-label-md">{statutLabels[key]}</span>
             </div>
           ))}
-          {Object.entries(traceColors).map(([key, color]) => (
-            <div key={key} className="flex items-center gap-2">
-              {key === 'retour'
-                ? <div className="w-8 h-0 border-t-2 border-dashed" style={{ borderColor: color }} />
-                : <div className="w-8 h-1 rounded" style={{ background: color }} />
-              }
-              <span className="font-label-md text-label-md">{traceLabels[key]}</span>
-            </div>
-          ))}
+          <TraceToggles visible={visibleTraces} onToggle={toggleTrace} />
         </div>
       )}
 

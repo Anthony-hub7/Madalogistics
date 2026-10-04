@@ -115,8 +115,9 @@ class GroupageSimulationServiceKnapsackTest {
                 makeColis(catB, 1, 3)
         );
 
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande));
         when(colisRepository.findByDemandeDemandeId(demande.getDemandeId()))
                 .thenReturn(colisList);
@@ -166,8 +167,9 @@ class GroupageSimulationServiceKnapsackTest {
                 makeColis(catC, 15, 2)
         );
 
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande));
         when(colisRepository.findByDemandeDemandeId(demande.getDemandeId()))
                 .thenReturn(colisList);
@@ -205,8 +207,9 @@ class GroupageSimulationServiceKnapsackTest {
                 makeColis(catC, 15, 2)
         );
 
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande));
         when(colisRepository.findByDemandeDemandeId(demande.getDemandeId()))
                 .thenReturn(colisList);

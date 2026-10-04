@@ -2,6 +2,7 @@ package com.example.Bakend.optimisation.groupage;
 
 import com.example.Bakend.entity.*;
 import com.example.Bakend.entity.enums.DemandeStatut;
+import com.example.Bakend.entity.enums.ModeLivraison;
 import com.example.Bakend.entity.enums.TypeAlgorithme;
 import com.example.Bakend.entity.enums.VehiculeStatut;
 import com.example.Bakend.optimisation.delai.DelaiService;
@@ -103,7 +104,7 @@ public class GroupageFfdClusterService {
 
         // 1. Charger les demandes en attente
         List<DemandeTransport> demandes = demandeRepository
-                .rechercherParHubEtStatutOrderByDateDepart(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE);
+                .rechercherDemandesGroupage(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE, ModeLivraison.AGENCE);
 
         if (demandes.isEmpty()) {
             return buildEmptyResult("Aucune demande en attente de groupage.");

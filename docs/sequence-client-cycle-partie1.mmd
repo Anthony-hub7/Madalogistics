@@ -1,0 +1,54 @@
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant F as Frontend
+    participant A as Backend
+    participant D as PostgreSQL
+    participant M as MoteurOpti
+    participant G as Gestionnaire
+    participant H as Chauffeur
+
+    Note over C,F: 1 - Inscription et choix agence (D1-P1)
+    C->>F: Accede plateforme, choisit agence
+    F->>A: GET /agences
+    A->>D: SELECT pme_cliente + grille_tarifaire
+    D-->>A: Liste agences
+    A-->>F: Agences + tarifs
+    F-->>C: Liste avec scoring
+    C->>F: Formulaire inscription
+    F->>A: POST /clients
+    A->>D: INSERT INTO client_final
+    D-->>A: client_final_id
+
+    Note over C,A: 2 - Demande et devis (D1-P2/P3)
+    C->>F: Nouvelle expedition (hub, poids, volume, categories)
+    F->>A: GET /hubs + GET /categories
+    A->>D: SELECT hub, categorie_produit
+    D-->>A: Hubs + categories
+    F->>A: POST /devis
+    A->>D: SELECT grille_tarifaire
+    A->>A: tarif = MAX(min, poids x prix_kg + vol x prix_m3) x options
+    A-->>F: Estimation
+    F-->>C: Affiche devis
+    C->>F: Confirme commande
+    F->>A: POST /commandes
+    A->>D: INSERT demande_transport (CREEE) + colis
+    A->>D: UPDATE statut=EN_ATTENTE_GROUPAGE + audit_log
+
+    Note over A,G: 3 - Validation agence (D1-P3bis)
+    G->>A: PUT /commandes/valider
+    A->>A: Controle colis + choix mode AGENCE / FREELANCE
+    A->>D: UPDATE statut=VALIDEE + mode_livraison + audit_log
+
+    Note over A,M: 4 - Groupage (D1-P4 detail Phase 4)
+    A->>M: Clustering K-Means (features colis)
+    M->>D: INSERT optimisation_run (CLUSTERING)
+    alt Option A - FFD par cluster
+        A->>M: FFD par cluster (tri poids decroissant, first-fit)
+        M->>D: INSERT optimisation_run (BIN_PACKING)
+    else Option B - Knapsack iteratif
+        A->>M: Knapsack OR-Tools iteratif par cluster
+        M->>D: INSERT optimisation_run (KNAPSACK)
+    end
+    M->>D: INSERT sac + UPDATE colis.sac_id
+    A->>D: Filtre seuil_remplissage OU depart_force + audit_log

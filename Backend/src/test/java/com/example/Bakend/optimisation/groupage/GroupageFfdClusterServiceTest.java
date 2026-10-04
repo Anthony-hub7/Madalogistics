@@ -129,8 +129,9 @@ class GroupageFfdClusterServiceTest {
 
     @Test
     void ffdParClusterFormeSacsHomogenes() {
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1, demande2, demande3));
         when(colisRepository.findByDemandeDemandeId(demande1.getDemandeId()))
                 .thenReturn(List.of(c1, c2));
@@ -188,8 +189,9 @@ class GroupageFfdClusterServiceTest {
 
     @Test
     void ffdParClusterRetourneVideSiAucuneDemande() {
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of());
         when(pmeClienteRepository.findByTenantId(tenantId))
                 .thenReturn(Optional.of(tenant));
@@ -203,8 +205,9 @@ class GroupageFfdClusterServiceTest {
 
     @Test
     void ffdParClusterGereColisSansCategorie() {
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1));
         when(colisRepository.findByDemandeDemandeId(demande1.getDemandeId()))
                 .thenReturn(List.of(c1)); // c1 a catA mais on enleve la categorie
@@ -238,8 +241,9 @@ class GroupageFfdClusterServiceTest {
         tenant.setSeuilRemplissageMin(new BigDecimal("90.00"));
         demande1.setDateDepartCalculee(LocalDate.now().plusDays(10)); // pas departForce
 
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1));
         when(colisRepository.findByDemandeDemandeId(demande1.getDemandeId()))
                 .thenReturn(List.of(c1));
@@ -272,8 +276,9 @@ class GroupageFfdClusterServiceTest {
         // dateDepartCalculee dans le futur → departForce = false
         demande1.setDateDepartCalculee(LocalDate.now().plusDays(10));
 
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1));
         when(colisRepository.findByDemandeDemandeId(demande1.getDemandeId()))
                 .thenReturn(List.of(c1, c2));
@@ -306,8 +311,9 @@ class GroupageFfdClusterServiceTest {
 
     @Test
     void ffdParClusterResultatPurSimulation() {
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1));
         when(colisRepository.findByDemandeDemandeId(demande1.getDemandeId()))
                 .thenReturn(List.of(c1));

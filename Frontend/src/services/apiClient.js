@@ -134,6 +134,25 @@ class ApiClient {
   delete(endpoint, options = {}) {
     return this.request(endpoint, { method: 'DELETE', ...options })
   }
+
+  /**
+   * Telecharge un binaire (ex. photo de preuve) avec le Bearer token.
+   * Le navigateur ne met pas le header Authorization sur <img src>,
+   * donc les preuves passent par ce fetch authentifie → blob.
+   */
+  async blob(endpoint) {
+    const token = this._getToken?.() ?? null
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    })
+    if (!response.ok) {
+      const err = new Error(`Erreur telechargement: ${response.status}`)
+      err.status = response.status
+      throw err
+    }
+    return response.blob()
+  }
 }
 
 export const apiClient = new ApiClient()

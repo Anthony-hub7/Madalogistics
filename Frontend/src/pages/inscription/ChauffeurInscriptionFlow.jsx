@@ -415,6 +415,63 @@ function Step3({ data, onChange, onNext, onSubmit, onBack, submitting }) {
             type="number" min="0" max="100" step="0.5" placeholder="Ex : 12.5"
             hint="Volume utile approximatif de votre véhicule"
             value={data.capacite} onChange={e => onChange('capacite', e.target.value)} />
+
+          {/* ── Alertes de cohérence temps réel ── */}
+          {(() => {
+            const warnings = []
+            const typeV = data.typeVehicule
+            const ptac = parseFloat(data.ptac)
+            const capacite = parseFloat(data.capacite)
+            const cats = (data.permisCategories || '').split(/[,;/\s]+/).flatMap(t => t.trim().toUpperCase().split('+')).flatMap(p => {
+              const c = (p || '').trim().toUpperCase()
+              if (!c) return []
+              if (c === 'BE') return ['B', 'E']
+              if (/^[BCDE]{2}$/.test(c)) return c.split('')
+              return [c]
+            }).filter(Boolean)
+
+            if (typeV && cats.length > 0) {
+              if ((typeV === 'BUS' || typeV === 'MINIBUS') && !cats.includes('D')) {
+                warnings.push({ icon: 'warning', color: 'amber', text: `Le type ${typeV === 'BUS' ? 'Bus' : 'Minibus'} exige la classe de permis D (transport de personnes). Vous n'avez pas déclaré D dans vos catégories.` })
+              }
+              if (typeV === 'SEMI_REMORQUE' && !cats.includes('E')) {
+                warnings.push({ icon: 'warning', color: 'amber', text: 'Le type Semi-remorque exige la classe de permis E (remorque). Vous n\'avez pas déclaré E dans vos catégories.' })
+              }
+            }
+
+            if (!isNaN(ptac) && ptac > 3.5 && cats.length > 0 && !cats.includes('C')) {
+              warnings.push({ icon: 'warning', color: 'amber', text: `PTAC ${ptac}t > 3.5t : permis classe C requis. Vous n'avez pas déclaré C dans vos catégories.` })
+            }
+
+            if (!isNaN(capacite) && capacite <= 0) {
+              warnings.push({ icon: 'error', color: 'red', text: 'La capacité de chargement doit être supérieure à 0 m³.' })
+            }
+
+            if (!isNaN(ptac) && ptac <= 0) {
+              warnings.push({ icon: 'error', color: 'red', text: 'Le PTAC doit être supérieur à 0 tonne.' })
+            }
+
+            if (!isNaN(ptac) && ptac > 60) {
+              warnings.push({ icon: 'error', color: 'red', text: `PTAC ${ptac}t aberrant (60t max) — vérifiez l'unité : saisir en tonnes, pas en kg (1000 kg = 1 tonne).` })
+            } else if (!isNaN(ptac) && ptac > 44) {
+              warnings.push({ icon: 'warning', color: 'amber', text: `PTAC ${ptac}t inhabituel (> 44t) — vérifiez la valeur saisie.` })
+            }
+
+            if (warnings.length === 0) return null
+
+            return (
+              <div className="space-y-2 mt-2">
+                {warnings.map((w, i) => (
+                  <div key={i} className={`flex items-start gap-2 rounded-lg p-3 text-xs ${
+                    w.color === 'red' ? 'bg-red-50 border border-red-200 text-red-800' : 'bg-amber-50 border border-amber-200 text-amber-800'
+                  }`}>
+                    <span className="material-symbols-outlined text-[16px] mt-0.5">{w.icon}</span>
+                    <span>{w.text}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </>
       )}
 

@@ -57,7 +57,7 @@ class PermisServiceTest {
     void autorise_B_sur_pickup_3t5() {
         Chauffeur ch = makeChauffeur("B", LocalDate.now().plusYears(2), true, true);
         Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("3.0"));
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), "B", null, null);
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
         assertTrue(auth.autorise());
     }
 
@@ -65,7 +65,7 @@ class PermisServiceTest {
     void refuse_B_sur_camion_5t() {
         Chauffeur ch = makeChauffeur("B", LocalDate.now().plusYears(2), true, true);
         Vehicule v = makeVehicule(TypeVehicule.CAMION, new BigDecimal("5.0"));
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), "B", null, null);
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
         assertFalse(auth.autorise());
         assertTrue(auth.motifRefus().contains("C"));
     }
@@ -74,7 +74,7 @@ class PermisServiceTest {
     void autorise_BC_sur_camion_5t() {
         Chauffeur ch = makeChauffeur("B,C", LocalDate.now().plusYears(1), true, true);
         Vehicule v = makeVehicule(TypeVehicule.CAMION, new BigDecimal("5.0"));
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), "B", null, null);
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
         assertTrue(auth.autorise());
     }
 
@@ -82,7 +82,7 @@ class PermisServiceTest {
     void refuse_BCD_sur_semi_remorque_sans_E() {
         Chauffeur ch = makeChauffeur("B,C,D", LocalDate.now().plusYears(1), true, true);
         Vehicule v = makeVehicule(TypeVehicule.SEMI_REMORQUE, new BigDecimal("10.0"));
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), "B", null, null);
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
         assertFalse(auth.autorise());
         assertTrue(auth.motifRefus().contains("E"));
     }
@@ -91,7 +91,7 @@ class PermisServiceTest {
     void autorise_BCE_sur_semi_remorque() {
         Chauffeur ch = makeChauffeur("B,C,E", LocalDate.now().plusYears(1), true, true);
         Vehicule v = makeVehicule(TypeVehicule.SEMI_REMORQUE, new BigDecimal("10.0"));
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), "B", null, null);
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
         assertTrue(auth.autorise());
     }
 
@@ -99,7 +99,7 @@ class PermisServiceTest {
     void refuse_permis_expire() {
         Chauffeur ch = makeChauffeur("B,C", LocalDate.of(2024, 1, 1), true, true);
         Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("2.0"));
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), "B", null, null);
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
         assertFalse(auth.autorise());
         assertTrue(auth.motifRefus().contains("expire"));
     }
@@ -108,7 +108,7 @@ class PermisServiceTest {
     void refuse_chauffeur_non_disponible() {
         Chauffeur ch = makeChauffeur("B", LocalDate.now().plusYears(2), true, false);
         Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("2.0"));
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), "B", null, null);
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
         assertFalse(auth.autorise());
         assertTrue(auth.motifRefus().contains("non disponible"));
     }
@@ -117,26 +117,9 @@ class PermisServiceTest {
     void refuse_matrice_absente() {
         Chauffeur ch = makeChauffeur("B", LocalDate.now().plusYears(2), true, true);
         Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("2.0"));
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matriceVide(), "B", null, null);
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matriceVide(), null, null);
         assertFalse(auth.autorise());
         assertTrue(auth.motifRefus().contains("compatibilite"));
-    }
-
-    @Test
-    void refuse_habilite_valeur_manquant_pour_categorie_A() {
-        Chauffeur ch = makeChauffeur("B", LocalDate.now().plusYears(2), false, true);
-        Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("2.0"));
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), "A", null, null);
-        assertFalse(auth.autorise());
-        assertTrue(auth.motifRefus().contains("habilite"));
-    }
-
-    @Test
-    void autorise_habilite_valeur_pour_categorie_B() {
-        Chauffeur ch = makeChauffeur("B", LocalDate.now().plusYears(2), false, true);
-        Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("2.0"));
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), "B", null, null);
-        assertTrue(auth.autorise());
     }
 
     @Test
@@ -144,7 +127,7 @@ class PermisServiceTest {
         Chauffeur ch = makeChauffeur("B", LocalDate.now().plusYears(2), true, true);
         Vehicule v = makeVehicule(TypeVehicule.PICKUP, new BigDecimal("2.0"));
         v.setStatut(VehiculeStatut.MAINTENANCE);
-        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), "B", null, null);
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
         assertFalse(auth.autorise());
         assertTrue(auth.motifRefus().contains("non disponible"));
     }
@@ -170,5 +153,46 @@ class PermisServiceTest {
         Set<String> cats = PermisService.parsePermisCategories("b, c");
         assertTrue(cats.contains("B"));
         assertTrue(cats.contains("C"));
+    }
+
+    @Test
+    void parsePermisCategories_composite_plus() {
+        Set<String> cats = PermisService.parsePermisCategories("C+E");
+        assertTrue(cats.contains("C"));
+        assertTrue(cats.contains("E"));
+        assertEquals(2, cats.size());
+    }
+
+    @Test
+    void parsePermisCategories_BE_seul() {
+        Set<String> cats = PermisService.parsePermisCategories("BE");
+        assertTrue(cats.contains("B"));
+        assertTrue(cats.contains("E"));
+    }
+
+    @Test
+    void parsePermisCategories_mixte() {
+        Set<String> cats = PermisService.parsePermisCategories("B, C+E, D");
+        assertTrue(cats.contains("B"));
+        assertTrue(cats.contains("C"));
+        assertTrue(cats.contains("D"));
+        assertTrue(cats.contains("E"));
+    }
+
+    @Test
+    void autorise_CplusE_sur_camion_10t_regression_1000t() {
+        // Regression : chauffeur "C+E" refuse a tort sur PTAC > 3.5t
+        Chauffeur ch = makeChauffeur("C+E", LocalDate.now().plusYears(1), true, true);
+        Vehicule v = makeVehicule(TypeVehicule.CAMION, new BigDecimal("10.0"));
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
+        assertTrue(auth.autorise(), "C+E doit couvrir le requis C, refus: " + auth.motifRefus());
+    }
+
+    @Test
+    void autorise_CplusE_sur_semi_remorque() {
+        Chauffeur ch = makeChauffeur("C+E", LocalDate.now().plusYears(1), true, true);
+        Vehicule v = makeVehicule(TypeVehicule.SEMI_REMORQUE, new BigDecimal("10.0"));
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
+        assertTrue(auth.autorise(), "C+E doit couvrir C+E, refus: " + auth.motifRefus());
     }
 }

@@ -1,5 +1,7 @@
 import { apiClient } from './apiClient'
 
+const BASE_URL = import.meta.env.VITE_API_URL || '/api'
+
 export const demandesService = {
   getAll(statut = null) {
     const params = statut ? `?statut=${statut}` : ''
@@ -60,5 +62,12 @@ export const demandesService = {
       express: params.express,
     }).toString()
     return apiClient.get(`/demandes/recommandation-hubs?${qs}`)
+  },
+
+  /**
+   * URL de la photo de preuve pour une etape liee a une demande (multi-roles).
+   */
+  photoPreuveDemandeUrl(demandeId, etapeId) {
+    return `${BASE_URL}/demandes/${demandeId}/preuves/${etapeId}/photo`
   },
 }

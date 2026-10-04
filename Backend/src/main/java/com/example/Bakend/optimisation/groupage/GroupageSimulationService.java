@@ -79,7 +79,7 @@ public class GroupageSimulationService {
 
         // 1. Charger les demandes en attente
         List<DemandeTransport> demandes = demandeRepository
-                .rechercherParHubEtStatutOrderByDateDepart(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE);
+                .rechercherDemandesGroupage(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE, ModeLivraison.AGENCE);
 
         if (demandes.isEmpty()) {
             return buildEmptyPreview(hubId, algo, "Aucune demande en attente de groupage.");
@@ -206,7 +206,7 @@ public class GroupageSimulationService {
         Map<UUID, Colis> colisMap = new HashMap<>();
         Map<UUID, DemandeTransport> demandeParColis = new LinkedHashMap<>();
         List<DemandeTransport> demandes = demandeRepository
-                .rechercherParHubEtStatutOrderByDateDepart(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE);
+                .rechercherDemandesGroupage(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE, ModeLivraison.AGENCE);
 
         for (DemandeTransport d : demandes) {
             List<Colis> colisDemande = colisRepository.findByDemandeDemandeId(d.getDemandeId());

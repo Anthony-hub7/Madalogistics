@@ -1,0 +1,9 @@
+flowchart LR
+    DATA[Mêmes données de départ<br/>commandes, points de livraison<br/>véhicules, chauffeurs, capacités]
+    DATA --> BASE[Scénario SANS optimisation<br/>organisation artisanale]
+    DATA --> ML[MadaLogistix<br/>catégorisation - groupage<br/>affectation - VRP]
+    BASE --> IND[Indicateurs<br/>baseline]
+    ML --> INDOPT[Indicateurs<br/>optimisés]
+    IND --> COMP[Comparaison<br/>écarts absolus et relatifs]
+    INDOPT --> COMP
+    COMP --> VERDICT[Confrontation à H3]

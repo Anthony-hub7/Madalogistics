@@ -53,7 +53,12 @@ export default function CommandeDetailLogistiquePage() {
     setActing(true)
     try {
       await demandesService.valider(id, modeLivraison)
-      setOrder(prev => ({ ...prev, statut: 'EN_ATTENTE_GROUPAGE', modeLivraison: modeLivraison }))
+      setOrder(prev => ({
+        ...prev,
+        // FREELANCE : la commande devient directement un sac propose (GROUPEE)
+        statut: modeLivraison === 'FREELANCE' ? 'GROUPEE' : 'EN_ATTENTE_GROUPAGE',
+        modeLivraison,
+      }))
       setShowValider(false)
     } catch (e) { setError(e.message) }
     finally { setActing(false) }

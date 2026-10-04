@@ -1,6 +1,135 @@
 # MadaLogistix — Documentation des Phases des Diagrammes de Séquence
 
-Ce document détaille chaque phase des deux diagrammes de séquence du projet MadaLogistix : le **parcours de commande client** (Diagramme 1) et **l'onboarding d'une agence** (Diagramme 2). Pour chaque phase : objectif, caractéristiques techniques, et formules/algorithmes utilisés.
+Ce document détaille chaque phase des deux diagrammes de séquence du projet MadaLogistix : le **parcours de commande client** (Diagramme 1) et **l'onboarding d'une agence** (Diagramme 2), avec en tête une **vue condensée du cycle principal vu Client**. Pour chaque phase : objectif, caractéristiques techniques, et formules/algorithmes utilisés.
+
+---
+
+## Diagramme de séquence — Cycle principal vu Client
+
+Vue condensée du cycle complet centrée sur le client : tout ce que le client voit
+(inscription, devis, commande, suivi, facture), avec les coulisses
+(groupage, affectation, VRP) en participants secondaires.
+Découpée en **2 parties** pour rester lisible en pleine page (livre/mémoire) :
+**Partie 1** de l'inscription au groupage (sacs constitués),
+**Partie 2** de l'affectation à la facture.
+Version exhaustive : `diagramme-sequence.md` (Diagramme 1).
+Détail des algorithmes : Phase 4 ci-dessous.
+
+### Partie 1/2 — De l'inscription au groupage (D1-P1 à P4)
+
+![Cycle client partie 1 - inscription au groupage](docs/sequence-client-cycle-partie1.png)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant F as Frontend
+    participant A as Backend
+    participant D as PostgreSQL
+    participant M as MoteurOpti
+    participant G as Gestionnaire
+    participant H as Chauffeur
+
+    Note over C,F: 1 - Inscription et choix agence (D1-P1)
+    C->>F: Accede plateforme, choisit agence
+    F->>A: GET /agences
+    A->>D: SELECT pme_cliente + grille_tarifaire
+    D-->>A: Liste agences
+    A-->>F: Agences + tarifs
+    F-->>C: Liste avec scoring
+    C->>F: Formulaire inscription
+    F->>A: POST /clients
+    A->>D: INSERT INTO client_final
+    D-->>A: client_final_id
+
+    Note over C,A: 2 - Demande et devis (D1-P2/P3)
+    C->>F: Nouvelle expedition (hub, poids, volume, categories)
+    F->>A: GET /hubs + GET /categories
+    A->>D: SELECT hub, categorie_produit
+    D-->>A: Hubs + categories
+    F->>A: POST /devis
+    A->>D: SELECT grille_tarifaire
+    A->>A: tarif = MAX(min, poids x prix_kg + vol x prix_m3) x options
+    A-->>F: Estimation
+    F-->>C: Affiche devis
+    C->>F: Confirme commande
+    F->>A: POST /commandes
+    A->>D: INSERT demande_transport (CREEE) + colis
+    A->>D: UPDATE statut=EN_ATTENTE_GROUPAGE + audit_log
+
+    Note over A,G: 3 - Validation agence (D1-P3bis)
+    G->>A: PUT /commandes/valider
+    A->>A: Controle colis + choix mode AGENCE / FREELANCE
+    A->>D: UPDATE statut=VALIDEE + mode_livraison + audit_log
+
+    Note over A,M: 4 - Groupage (D1-P4 detail Phase 4)
+    A->>M: Clustering K-Means (features colis)
+    M->>D: INSERT optimisation_run (CLUSTERING)
+    alt Option A - FFD par cluster
+        A->>M: FFD par cluster (tri poids decroissant, first-fit)
+        M->>D: INSERT optimisation_run (BIN_PACKING)
+    else Option B - Knapsack iteratif
+        A->>M: Knapsack OR-Tools iteratif par cluster
+        M->>D: INSERT optimisation_run (KNAPSACK)
+    end
+    M->>D: INSERT sac + UPDATE colis.sac_id
+    A->>D: Filtre seuil_remplissage OU depart_force + audit_log
+```
+
+### Partie 2/2 — De l'affectation à la facture (D1-P5 à P9)
+
+![Cycle client partie 2 - affectation a la facture](docs/sequence-client-cycle-partie2.png)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant F as Frontend
+    participant A as Backend
+    participant D as PostgreSQL
+    participant M as MoteurOpti
+    participant G as Gestionnaire
+    participant H as Chauffeur
+
+    Note over A,M: Suite Partie 1 - sacs constitues (groupage D1-P4)
+
+    Note over A,M: 5 - Affectation (D1-P5/P5bis)
+    A->>M: Scoring freelance si mode FREELANCE
+    M->>D: INSERT optimisation_run (SCORING_FREELANCE)
+    A->>M: Affectation bipartite sac vers (chauffeur, vehicule)
+    M->>D: UPDATE sac SET chauffeur_id, vehicule_id
+    M->>D: INSERT optimisation_run (AFFECTATION)
+
+    Note over A,M: 6 - Tournees VRP (D1-P6)
+    A->>M: VRP (Nearest Neighbor + 2-opt)
+    M->>D: INSERT tournee + etape_livraison
+    M->>D: INSERT optimisation_run (VRP)
+
+    Note over C,G: 7/8 - Suivi et execution (D1-P7/P8)
+    A->>G: Notification commande assignee
+    G->>A: PUT /commandes/valider (depart)
+    A->>D: UPDATE sac/colis EN_TRANSIT
+    C->>F: Suit statuts expedition
+    F->>A: GET /commandes/:id (statuts, ETA)
+    H->>A: PUT /livrer (photo + signature, offline-first)
+    A->>D: UPDATE colis LIVREE + date_heure_reelle
+
+    Note over C,A: 9 - Cloture et facture (D1-P9)
+    A->>D: UPDATE sac LIVRE, tournee TERMINEE, demande LIVREE
+    A->>D: INSERT facture (EMISE) + audit_log
+    A->>C: Notification livraison + facture
+    C->>F: Consulte facture
+    F->>A: GET /factures
+```
+
+**Légende :** le client n'interagit qu'avec `Frontend` ; `MoteurOpti` (clustering,
+FFD/Knapsack, affectation, VRP) et `PostgreSQL` sont les coulisses.
+`Gestionnaire` intervient en validation (P3bis) et départ (P7),
+`Chauffeur` en exécution terrain (P8, PWA offline-first).
+La numérotation recommence à 1 dans chaque partie (limite Mermaid) :
+citer les figures comme « Partie 1/2 » et « Partie 2/2 ».
+Sources exportables : `docs/sequence-client-cycle-partie1.mmd`,
+`docs/sequence-client-cycle-partie2.mmd
 
 ---
 
@@ -103,36 +232,91 @@ valider_commande(commande, mode_livraison) →
 
 ---
 
-### Phase 4 — Optimisation du groupage (Knapsack / Bin Packing)
-**Objectif** : regrouper les colis en `sacs` pour maximiser le taux de remplissage des véhicules.
+### Phase 4 — Optimisation du groupage (Clustering + FFD / Knapsack itératif)
+**Objectif** : regrouper les colis en `sacs` homogènes pour maximiser le taux de remplissage des véhicules.
 
 **Caractéristiques**
-- Problème d'optimisation combinatoire classique : **Bin Packing / Knapsack multi-contraintes**
-- Contraintes doubles : capacité poids ET capacité volume
-- Seuil de remplissage minimum configurable par agence (`seuil_remplissage_min`, ex. 80%)
+- Pipeline en 3 temps : **clustering (4.0)** → **remplissage (4.1 FFD ou 4.2 Knapsack)** → **filtre départ**
+- Contraintes doubles partout : capacité poids ET capacité volume (plus grand véhicule `DISPONIBLE` du hub, défaut `5000 kg / 20 m³`)
+- Filtre de départ double, identique pour les deux options : sac retenu si `taux ≥ seuil_remplissage_min` (tenant, ex. 80%) **OU** `depart_force` (`today ≥ date_depart_calculee`, `min` des demandes du sac)
+- `taux_remplissage = max(Σ poids / cap_poids, Σ volume / cap_volume) × 100`
+- Traçabilité : un `optimisation_run` par étape (`CLUSTERING`, puis `BIN_PACKING` ou `KNAPSACK`)
 
-**Formule d'objectif**
+#### 4.0 — Clustering non supervisé en amont (K-Means)
+Regroupe les colis par similarité **avant** le remplissage, pour ne jamais mélanger
+dans un même sac des colis incompatibles (ex. fragile + robuste) même quand la capacité le permettrait.
+Implémentation : `CategorisationService`, `ColisFeatureExtractor`, `ClusteringMetrics` (lib Smile).
+
 ```
-maximiser  Σ (valeur_colis_i × x_i)
+features_colis = [poids_kg, volume_m3, log1p(valeur_estimee_Ar), fragilite_0_10, delai_express_0_1]
+                 # lus depuis colis_features (BDD tenant), standardisation z-score (moyenne 0, variance 1)
+matrice_std = standardize(features_colis)
+k ∈ [n, min(n+2, 8)]  avec n = nb categories actives ML-activables du tenant (dynamique, cf. Phase 1)
+pour k testé : labels, centroides = KMeans(matrice_std, k)
+bestK = argmax(silhouette)   # + inertie (elbow), Davies-Bouldin, purete / confusion vs categories declarees
+clusters = KMeans(matrice_std, k=bestK)
+```
+
+- `k` évolue avec le référentiel de catégories (Phase 1/2) : le clustering suit la croissance organique du catalogue, tenant par tenant
+- Matching centroïdes vs `seuils_ml` de `categorie_produit` (distance euclidienne normalisée) : chaque cluster est rattaché à une classe (A/B/C/…)
+- Double usage : **contraindre** le remplissage (un sac = un seul cluster → homogénéité garantie) et **proposer** une nouvelle catégorie (cluster sans correspondant → candidat à `categorie_produit`)
+- Tracé dans `optimisation_run` (type `CLUSTERING`) avec `k` testés, silhouette, Davies-Bouldin, pureté, `referentiel_version`
+- En pratique le groupage partitionne ensuite par `categorie.classe_code` (fallback `STANDARD`) : c'est la projection opérationnelle du clustering
+
+#### 4.1 — Option A : FFD par cluster (heuristique gloutonne)
+Implémentation : `GroupageFfdClusterService` + `BinPackingService`. Simulation pure
+(aucun `Sac` persisté, seul l'`OptimisationRun` est créé ; la persistance a lieu au `/valider`).
+
+```
+partitionner colis EN_ATTENTE_GROUPAGE par cluster (classe_code, TreeMap deterministe)
+capacite = PLUS GRAND vehicule DISPONIBLE du hub (poids_kg, volume_m3, SCALE=100)
+pour chaque cluster :
+    trier colis par poids decroissant                      # Decreasing
+    pour chaque colis : le mettre dans le PREMIER sac qui tient (poids ET volume)  # First Fit
+                        sinon ouvrir un nouveau sac
+    pour chaque sac FFD :
+        taux = max(poids_sac/cap_poids, volume_sac/cap_volume) x 100
+        garder si taux >= seuil_remplissage_min OU depart_force
+```
+
+- Garantie théorique : `11/9 × OPT + 1` (Johnson 1973) — rapide, adaptée aux gros volumes
+- Complexité quasi-linéaire : l'option par défaut quand la vitesse prime ou en fallback (voir 4.2)
+- Justification auto générée : capacité, seuil, clusters, taux par sac, `[DEPART FORCE]`
+
+#### 4.2 — Option B : Knapsack itératif par cluster (exact, OR-Tools)
+Implémentation : `GroupageKnapsackService` + `KnapsackSolverService`
+(`KNAPSACK_DYNAMIC_PROGRAMMING_SOLVER`, 2 contraintes). Même partition par cluster,
+puis **boucle itérative** : chaque résolution donne le meilleur sac possible,
+les colis retenus sont retirés, on recommence jusqu'à épuisement du cluster.
+
+```
+maximiser  Σ (poids_i × x_i)            # valeur = poids (proxy remplissage)
 sous contrainte :
   Σ (poids_i × x_i) ≤ capacite_poids_kg
   Σ (volume_i × x_i) ≤ capacite_volume_m3
-  taux_remplissage = Σ(volume_i × x_i) / capacite_volume_m3 ≥ seuil_remplissage_min
-```
-- `x_i ∈ {0,1}` : colis i inclus ou non dans le sac
-- Résultat tracé dans `optimisation_run` (type `KNAPSACK`) pour audit et réexécution
-
-**Enrichissement par clustering non supervisé**
-En plus des contraintes poids/volume, une catégorisation par ML non supervisé (ex. K-Means ou DBSCAN) regroupe les colis par similarité avant/pendant le Knapsack, pour éviter par exemple de mélanger des colis incompatibles (fragile + robuste) dans un même sac même quand la capacité le permettrait.
-
-```
-features_colis = [poids, volume, categorie_declarée (Phase 1/2), fragilité, valeur_estimée, ...]
-clusters = KMeans(features_colis, k=nb_categories_dynamique)
+  x_i ∈ {0,1}
+répéter : resoudre → sac (si taux >= seuil OU depart_force) → retirer colis → recommencer
 ```
 
-- `k` (nombre de clusters) peut évoluer avec le référentiel de catégories créé progressivement en Phase 1
-- Le clustering peut soit **proposer** une nouvelle catégorie (colis qui ne rentre dans aucun cluster existant → candidat à `categorie_produit`), soit **contraindre** le Knapsack en n'autorisant le regroupement qu'au sein d'un même cluster
-- Résultat de clustering journalisable dans `optimisation_run` (nouveau type possible : `CLUSTERING`), en amont du run `KNAPSACK`
+- Bornes de sécurité (mémoire/temps) : `SCALE` adaptatif `100 → 10 → 1` selon
+  `capacite_poids × capacite_volume ≤ DP_TABLE_MAX (10M)` ; `MAX_COLIS_PAR_CLUSTER = 200` → **fallback FFD** automatique au-delà
+- Garantie exacte sur l'instance donnée (programmation dynamique) — optimal sac par sac, à privilégier sur petits/moyens lots
+- `valeur_optimale` du solveur + flag `fallback_ffd` conservés par sac dans le JSON de résultat
+
+#### 4.3 — Comparatif et choix
+
+| Critère | Option A — FFD par cluster | Option B — Knapsack itératif |
+|---|---|---|
+| Type | Heuristique gloutonne | Exact (prog. dynamique OR-Tools) |
+| Garantie | `11/9·OPT+1` | Optimal par itération |
+| Vitesse | Très rapide, gros volumes | Plus lent, borné (`SCALE` adaptatif, max 200 colis/cluster) |
+| Sac | Homogène (1 cluster) | Homogène (1 cluster) |
+| Dépasse capacité cluster | N/A (FFD passe à l'échelle) | Fallback FFD automatique |
+| Trace | `BIN_PACKING` + justification FR | `KNAPSACK` + `valeur_optimale` + justification FR |
+| Quand l'utiliser | Défaut temps réel, pics (>200/cluster) | Lots modestes, recherche du meilleur remplissage |
+
+- Les deux options partagent capacité, partition, taux `max(poids, volume)` et règle seuil/départ forcé : elles sont donc comparables sac à sac (écran `OptimisationPage` : `FFD BinPacking` vs `Knapsack`)
+- Résultat commun : `INSERT INTO sac`, `UPDATE colis SET sac_id`, demandes candidates → `GROUPEE`, `audit_log`
 
 ---
 
@@ -384,7 +568,7 @@ sous contrainte :
 
 | Phase | Algorithme | Type de problème | Objectif |
 |---|---|---|---|
-| D1-P4 | Knapsack / Bin Packing | Combinatoire, NP-difficile | Maximiser remplissage sous contraintes poids/volume |
+| D1-P4 | Clustering K-Means + FFD par cluster / Knapsack itératif OR-Tools | Non supervisé + combinatoire, NP-difficile | Sacs homogènes, maximiser remplissage sous poids/volume, seuil OU départ forcé |
 | D1-P5 | Affectation bipartite | Matching | Assigner sac → (chauffeur, véhicule) compatible |
 | D1-P6 | VRP (Vehicle Routing Problem) | Combinatoire, NP-difficile | Minimiser distance sous fenêtres horaires |
 | D1-P1 (proposé) | Scoring pondéré | Aide à la décision | Recommander la meilleure agence au client |

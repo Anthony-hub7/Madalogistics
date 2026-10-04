@@ -26,9 +26,7 @@ public class DecisionDirectionController {
     public List<DecisionResponse> lister(
             @RequestParam(required = false) UUID hubId,
             @RequestParam(required = false) TypeAlgorithme type) {
-        return decisionLectureService.lister(requireTenantId(), hubId, type).stream()
-                .map(DecisionResponse::new)
-                .toList();
+        return decisionLectureService.lister(requireTenantId(), hubId, type);
     }
 
     private UUID requireTenantId() {

@@ -1,5 +1,6 @@
 package com.example.Bakend.dto.optimisation;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,14 +19,19 @@ public record AffectationPreviewResponse(
         UUID chauffeurIdAffecte,
         UUID vehiculeIdAffecte,
         double poidsKg,
-        double volumeM3
+        double volumeM3,
+        LocalDate dateLivraison,
+        LocalDate dateDepartPrevue,
+        int delaiJours,
+        String sourceDelai
     ) {}
 
     public record ChauffeurCandidate(
         UUID chauffeurId,
         String nom,
         String prenom,
-        List<String> permis
+        List<String> permis,
+        boolean disponible
     ) {}
 
     public record VehiculeCandidate(
@@ -34,7 +40,9 @@ public record AffectationPreviewResponse(
         String type,
         double capacitePoidsKg,
         double capaciteVolumeM3,
-        double ptac
+        double ptac,
+        boolean vehiculePerso,
+        UUID chauffeurProprietaireId
     ) {}
 
     public record AffectationMeta(

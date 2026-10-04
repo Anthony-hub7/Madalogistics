@@ -1,0 +1,350 @@
+{
+  "lot": "S",
+  "horodatage": "2026-09-29T13:51:05",
+  "tenant_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+  "algorithme_groupage": "auto",
+  "seuil_remplissage_min": 10.0,
+  "hypotheses": {
+    "vitesseKmh": 40,
+    "consoL100km": 8,
+    "prixFuelArParL": 5900,
+    "facteurCo2KgParL": 2.68,
+    "coutHoraireAr": 0
+  },
+  "donnees_entree": {
+    "demandes": 10,
+    "colis": 30,
+    "poids_total_kg": 603.59,
+    "volume_total_m3": 11.93,
+    "par_hub": {
+      "Hub Antananarivo (RN7)": {
+        "demandes": 2,
+        "colis": 6
+      },
+      "Hub Antsirabe": {
+        "demandes": 1,
+        "colis": 3
+      },
+      "Hub Fianarantsoa": {
+        "demandes": 7,
+        "colis": 21
+      }
+    }
+  },
+  "capacites_hub_kg_m3": {
+    "Hub Fianarantsoa": [
+      3500.0,
+      15.0
+    ],
+    "Hub Antananarivo (RN7)": [
+      10000.0,
+      30.0
+    ],
+    "Hub Antsirabe": [
+      5000.0,
+      20.0
+    ]
+  },
+  "scenario_sans_optimisation": {
+    "reference": "aller-retour individuel (README-Phases §3), 1 contenant par colis (§15)",
+    "distance_km": 86.78,
+    "nb_livraisons": 10,
+    "par_hub_km": {
+      "Hub Antananarivo (RN7)": 19.58,
+      "Hub Antsirabe": 8.09,
+      "Hub Fianarantsoa": 59.1
+    },
+    "nb_contenants": 30,
+    "nb_contenants_perimetre": 30,
+    "taux_remplissage_moyen_pct": 2.28,
+    "taux_par_hub": {
+      "Hub Antananarivo (RN7)": {
+        "nb_contenants": 6,
+        "taux_moyen_pct": 1.83
+      },
+      "Hub Antsirabe": {
+        "nb_contenants": 3,
+        "taux_moyen_pct": 0.25
+      },
+      "Hub Fianarantsoa": {
+        "nb_contenants": 21,
+        "taux_moyen_pct": 2.7
+      }
+    },
+    "perimetre": "demandes couvertes par les tournées (protocole §21)",
+    "t_manuel_hypothese_s": 300.0,
+    "t_manuel_hypothese_par_colis": 10.0
+  },
+  "scenario_madalogistix": {
+    "categorisation": {
+      "meilleur_k": 3,
+      "nb_colis": 30,
+      "silhouette": [
+        0.4067,
+        0.3373,
+        0.3056
+      ],
+      "davies_bouldin": [
+        0.92,
+        0.88,
+        1.01
+      ],
+      "purete": 0.8,
+      "inertie": [
+        47.5,
+        41.19,
+        30.69
+      ],
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          9
+        ],
+        [
+          6,
+          7,
+          0
+        ],
+        [
+          8,
+          0,
+          0
+        ]
+      ],
+      "categories_uniques": [
+        "B",
+        "C",
+        "A"
+      ],
+      "duree_calcul_ms": 36,
+      "referentiel_version": 1
+    },
+    "groupage": {
+      "Hub Antananarivo (RN7)": {
+        "ffd": {
+          "nb_sacs": 0,
+          "nb_colis_groupes": 0,
+          "nb_colis_totaux": 6,
+          "taux_moyen": 0.0,
+          "duree_ms": 11
+        },
+        "knapsack": {
+          "nb_sacs": 0,
+          "nb_colis_groupes": 0,
+          "nb_colis_totaux": 6,
+          "taux_moyen": 0.0,
+          "duree_ms": 10,
+          "scale": 1,
+          "fallback_ffd": false
+        },
+        "gagnant": "EQUAL",
+        "delta_taux_moyen": 0.0,
+        "delta_nb_sacs": 0,
+        "algo_retenu": "BIN_PACKING",
+        "preview": {
+          "nb_sacs": 1,
+          "nb_colis_groupes": 6,
+          "nb_colis_totaux": 6,
+          "capacite_poids_kg": 10000,
+          "capacite_volume_m3": 30,
+          "seuil_remplissage": 10.0,
+          "duree_calcul_ms": 16,
+          "taux_moyen_pct": 10.97
+        },
+        "valider": {
+          "sacs_crees": 1,
+          "colis_lies": 6,
+          "demandes_groupees": 2,
+          "justification": "Validation groupage BIN_PACKING : 1 sacs, 6 colis lies, 2 demandes groupees."
+        }
+      },
+      "Hub Antsirabe": {
+        "ffd": {
+          "nb_sacs": 2,
+          "nb_colis_groupes": 3,
+          "nb_colis_totaux": 3,
+          "taux_moyen": 0.38,
+          "duree_ms": 19
+        },
+        "knapsack": {
+          "nb_sacs": 2,
+          "nb_colis_groupes": 3,
+          "nb_colis_totaux": 3,
+          "taux_moyen": 0.07,
+          "duree_ms": 8,
+          "scale": 10,
+          "fallback_ffd": false
+        },
+        "gagnant": "EQUAL",
+        "delta_taux_moyen": -0.3,
+        "delta_nb_sacs": 0,
+        "algo_retenu": "BIN_PACKING",
+        "preview": {
+          "nb_sacs": 1,
+          "nb_colis_groupes": 3,
+          "nb_colis_totaux": 3,
+          "capacite_poids_kg": 5000,
+          "capacite_volume_m3": 20,
+          "seuil_remplissage": 10.0,
+          "duree_calcul_ms": 8,
+          "taux_moyen_pct": 0.75
+        },
+        "valider": {
+          "sacs_crees": 1,
+          "colis_lies": 3,
+          "demandes_groupees": 1,
+          "justification": "Validation groupage BIN_PACKING : 1 sacs, 3 colis lies, 1 demandes groupees."
+        }
+      },
+      "Hub Fianarantsoa": {
+        "ffd": {
+          "nb_sacs": 2,
+          "nb_colis_groupes": 15,
+          "nb_colis_totaux": 21,
+          "taux_moyen": 27.1,
+          "duree_ms": 40
+        },
+        "knapsack": {
+          "nb_sacs": 2,
+          "nb_colis_groupes": 15,
+          "nb_colis_totaux": 21,
+          "taux_moyen": 7.78,
+          "duree_ms": 30,
+          "scale": 10,
+          "fallback_ffd": false
+        },
+        "gagnant": "FFD",
+        "delta_taux_moyen": -19.32,
+        "delta_nb_sacs": 0,
+        "algo_retenu": "BIN_PACKING",
+        "preview": {
+          "nb_sacs": 1,
+          "nb_colis_groupes": 21,
+          "nb_colis_totaux": 21,
+          "capacite_poids_kg": 3500,
+          "capacite_volume_m3": 15,
+          "seuil_remplissage": 10.0,
+          "duree_calcul_ms": 34,
+          "taux_moyen_pct": 56.6
+        },
+        "valider": {
+          "sacs_crees": 1,
+          "colis_lies": 21,
+          "demandes_groupees": 7,
+          "justification": "Validation groupage BIN_PACKING : 1 sacs, 21 colis lies, 7 demandes groupees."
+        }
+      }
+    },
+    "groupage_sacs_totaux": 3,
+    "groupage_taux_moyen_pct": 22.77,
+    "groupage_colis_groupes": 30,
+    "affectation": {
+      "Hub Antananarivo (RN7)": {
+        "nb_sacs": 1,
+        "nb_affectes": 1,
+        "nb_non_affectes": 0,
+        "motifs_refus": [],
+        "affectations": [
+          {
+            "sac_id": "edf14461-6638-4684-add4-30c3f311111c",
+            "chauffeur": "Chauffeur Demo 06",
+            "immatriculation": "T-1234-AB"
+          }
+        ],
+        "justification": "=== Phase 5 : Affectation bipartite chauffeur x vehicule ===\n\nAlgorithme : glouton V1 (meilleure paire autorisee)\nFormule : max ΣΣ compat(s,p)·y(s,p) - λ·ecart_charge\nλ = 0.1\n\nSacs : 1 total\nAffectes : 1\nNon affectes : 0\n\nSac edf14461-6638-4684-add4-30c3f311111c : CHAUFFEUR=Chauffeur Demo 06 (4b3cfb77-6638-4bb3-a626-546c74e7b83a) / VEHICULE=T-1234-AB (b0000001-0000-4000-8000-000000000001)\n"
+      },
+      "Hub Antsirabe": {
+        "nb_sacs": 1,
+        "nb_affectes": 1,
+        "nb_non_affectes": 0,
+        "motifs_refus": [],
+        "affectations": [
+          {
+            "sac_id": "bd82b985-4a57-475f-a6e8-ab566778f25d",
+            "chauffeur": "Chauffeur Demo 07",
+            "immatriculation": "T-DEMO-ANTSA01"
+          }
+        ],
+        "justification": "=== Phase 5 : Affectation bipartite chauffeur x vehicule ===\n\nAlgorithme : glouton V1 (meilleure paire autorisee)\nFormule : max ΣΣ compat(s,p)·y(s,p) - λ·ecart_charge\nλ = 0.1\n\nSacs : 1 total\nAffectes : 1\nNon affectes : 0\n\nSac bd82b985-4a57-475f-a6e8-ab566778f25d : CHAUFFEUR=Chauffeur Demo 07 (dc3b8998-ff8b-4efc-8ee8-4dc473527246) / VEHICULE=T-DEMO-ANTSA01 (a5e58a1c-2078-4d2b-a2fe-2d82dd71c2ff)\n"
+      },
+      "Hub Fianarantsoa": {
+        "nb_sacs": 1,
+        "nb_affectes": 1,
+        "nb_non_affectes": 0,
+        "motifs_refus": [],
+        "affectations": [
+          {
+            "sac_id": "b66d8ba9-4400-45e0-9bbd-4d87863f837c",
+            "chauffeur": "Chauffeur Demo 08",
+            "immatriculation": "T-DEMO-FIANA02"
+          }
+        ],
+        "justification": "=== Phase 5 : Affectation bipartite chauffeur x vehicule ===\n\nAlgorithme : glouton V1 (meilleure paire autorisee)\nFormule : max ΣΣ compat(s,p)·y(s,p) - λ·ecart_charge\nλ = 0.1\n\nSacs : 1 total\nAffectes : 1\nNon affectes : 0\n\nSac b66d8ba9-4400-45e0-9bbd-4d87863f837c : CHAUFFEUR=Chauffeur Demo 08 (ca652af1-132f-46ec-b17c-1dec22867786) / VEHICULE=T-DEMO-FIANA02 (272918d9-0006-4783-b591-d9efeb68f72f)\n"
+      },
+      "_total": {
+        "sacs": 3,
+        "affectes": 3,
+        "non_affectes": 0
+      }
+    },
+    "vrp": {
+      "nb_sacs": 3,
+      "nb_tournees": 3,
+      "distance_totale_km": 59.39,
+      "solve_time_ms": [
+        10023,
+        10012,
+        10003
+      ],
+      "erreurs": []
+    },
+    "t_ml_ms": 36
+  },
+  "gains_service": {
+    "perimetre": {
+      "hubId": null,
+      "hubNom": null,
+      "nbDemandes": 10,
+      "nbDemandesIgnorees": 0,
+      "nbTournees": 3,
+      "nbTourneesIgnorees": 0,
+      "nbTourneesFallback": 0
+    },
+    "baseline": {
+      "distanceKm": 86.77706871909,
+      "tempsH": 2.1694267179772497,
+      "carburantL": 6.9421654975272,
+      "co2Kg": 18.605003533372898,
+      "coutAr": 40958.77643541048,
+      "vehicules": 10
+    },
+    "optimise": {
+      "distanceKm": 59.39,
+      "tempsH": 1.48475,
+      "carburantL": 4.7512,
+      "co2Kg": 12.733216,
+      "coutAr": 28032.079999999998,
+      "vehicules": 3
+    },
+    "gains": {
+      "distanceKm": 27.387068719089996,
+      "distancePct": 31.56026024311322,
+      "tempsH": 0.6846767179772497,
+      "tempsPct": 31.560260243113213,
+      "carburantL": 2.1909654975272,
+      "co2Kg": 5.871787533372897,
+      "coutAr": 12926.696435410482,
+      "coutPct": 31.560260243113227,
+      "vehicules": 7
+    },
+    "hypotheses": {
+      "vitesseKmh": 40.0,
+      "consoL100km": 8.0,
+      "prixFuelArParL": 5900.0,
+      "facteurCo2KgParL": 2.68,
+      "coutHoraireAr": 0.0
+    },
+    "avertissement": null
+  }
+}

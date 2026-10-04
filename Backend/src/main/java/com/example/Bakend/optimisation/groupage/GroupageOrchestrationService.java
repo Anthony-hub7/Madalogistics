@@ -2,6 +2,7 @@ package com.example.Bakend.optimisation.groupage;
 
 import com.example.Bakend.entity.*;
 import com.example.Bakend.entity.enums.DemandeStatut;
+import com.example.Bakend.entity.enums.ModeLivraison;
 import com.example.Bakend.entity.enums.SacStatut;
 import com.example.Bakend.entity.enums.TypeAlgorithme;
 import com.example.Bakend.entity.enums.VehiculeStatut;
@@ -74,7 +75,7 @@ public class GroupageOrchestrationService {
 
         // 1. Charger les demandes en attente, triees par urgence
         List<DemandeTransport> demandes = demandeRepository
-                .rechercherParHubEtStatutOrderByDateDepart(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE);
+                .rechercherDemandesGroupage(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE, ModeLivraison.AGENCE);
 
         if (demandes.isEmpty()) {
             return new GroupageResult(null, List.of(), 0, "Aucune demande en attente de groupage.");

@@ -1,6 +1,7 @@
 package com.example.Bakend.optimisation.affectation;
 
 import com.example.Bakend.entity.*;
+import com.example.Bakend.entity.enums.ModeLivraison;
 import com.example.Bakend.entity.enums.SacStatut;
 import com.example.Bakend.entity.enums.TypeAlgorithme;
 import com.example.Bakend.entity.enums.VehiculeStatut;
@@ -24,8 +25,9 @@ import java.util.stream.Collectors;
  *   2. Pour chaque sac, trouver toutes les paires (chauffeur, vehicule) autorisees
  *      via PermisService (permis, PTAC, type, matrice, habilite, dispo)
  *   3. Choisir la paire qui maximise compat(s,p) - λ * |ecart_charge|
- *   4. Marquer le chauffeur comme utilise (1 chauffeur = 1 sac max)
+ *   4. Marquer chauffeur + vehicule comme utilises (1 chauffeur = 1 vehicule = 1 sac max)
  *   5. Persister : sac.chauffeur, sac.vehicule, sac.runAffectation, sac.statut = AFFECTE
+ *      + chauffeur.disponible = false, vehicule.statut = AFFECTE (indispo des l'affectation)
  *
  * Formule : max ΣΣ compat(s,p)·y(s,p) - λ·ecart_charge
  *   s.c. Σ_p y(s,p) = 1 par sac ; Σ_s y(s,p) ≤ 1 par paire ; y=0 si non autorise
@@ -90,7 +92,7 @@ public class AffectationService {
                 .orElseThrow(() -> new NoSuchElementException("Tenant introuvable : " + tenantId));
 
         // 1. Charger les sacs CONSTITUE du hub
-        List<Sac> sacs = sacRepository.rechercherParHubEtStatut(tenantId, hubId, SacStatut.CONSTITUE);
+        List<Sac> sacs = sacRepository.rechercherParHubEtStatutHorsMode(tenantId, hubId, SacStatut.CONSTITUE, ModeLivraison.FREELANCE);
         if (sacs.isEmpty()) {
             return new AffectationResult(null, List.of(), 0, 0,
                     "Aucun sac en attente d'affectation pour ce hub.");
@@ -112,8 +114,9 @@ public class AffectationService {
         // 5. Trier les sacs par nbColis descendant (sacs les plus pleins d'abord)
         sacs.sort(Comparator.comparingInt((Sac s) -> s.getColis().size()).reversed());
 
-        // 6. Glouton : affecter chaque sac
+        // 6. Glouton : affecter chaque sac (1 chauffeur = 1 vehicule = 1 sac max)
         Set<UUID> chauffeursUtilises = new HashSet<>();
+        Set<UUID> vehiculesUtilises = new HashSet<>();
         List<AffectationDetail> details = new ArrayList<>();
         int nbAffectes = 0;
         int nbNonAffectes = 0;
@@ -121,8 +124,6 @@ public class AffectationService {
         double chargeTotaleMoyenne = calculerChargeMoyenne(sacs);
 
         for (Sac sac : sacs) {
-            String catDom = sac.getCategorieDominante() != null ? sac.getCategorieDominante() : "STANDARD";
-
             // Calculer poids/volume total du sac
             Double poidsSac = null;
             Double volumeSac = null;
@@ -136,13 +137,16 @@ public class AffectationService {
             // Trouver la meilleure paire autorisee
             Optional<AffectationDetail> meilleur = Optional.empty();
             double meilleurScore = Double.NEGATIVE_INFINITY;
+            double meilleurUtilisation = Double.NEGATIVE_INFINITY;
 
             for (Chauffeur ch : chauffeurs) {
                 if (chauffeursUtilises.contains(ch.getChauffeurId())) continue;
 
                 for (Vehicule v : vehicules) {
+                    if (vehiculesUtilises.contains(v.getVehiculeId())) continue;
+
                     PermisService.Autorisation auth = PermisService.verifier(
-                            ch, v, matrice, catDom, poidsSac, volumeSac);
+                            ch, v, matrice, poidsSac, volumeSac);
 
                     if (!auth.autorise()) continue;
 
@@ -151,8 +155,23 @@ public class AffectationService {
                     double ecartCharge = Math.abs(sac.getColis().size() - chargeTotaleMoyenne);
                     double score = compat - LAMBDA * ecartCharge;
 
-                    if (score > meilleurScore) {
+                    // En cas d'egalite de score, best-fit : le vehicule dont
+                    // l'occupation (max poids/volume) est la plus proche de 1,
+                    // pour ne pas consommer le seul grand vehicule pour un petit sac.
+                    double utilisation = utilisation(sac, poidsSac, volumeSac, v);
+
+                    boolean retenu;
+                    if (meilleur.isEmpty() || score > meilleurScore) {
+                        retenu = true;
+                    } else if (score < meilleurScore) {
+                        retenu = false;
+                    } else {
+                        retenu = utilisation > meilleurUtilisation;
+                    }
+
+                    if (retenu) {
                         meilleurScore = score;
+                        meilleurUtilisation = utilisation;
                         meilleur = Optional.of(new AffectationDetail(
                                 sac.getSacId(),
                                 ch.getChauffeurId(),
@@ -169,13 +188,26 @@ public class AffectationService {
                 AffectationDetail d = meilleur.get();
                 details.add(d);
 
-                // Persiste l'affectation
-                sac.setChauffeur(chauffeurRepository.findById(d.chauffeurId()).orElse(null));
-                sac.setVehicule(vehiculeRepository.findById(d.vehiculeId()).orElse(null));
+                // Persiste l'affectation + indisponibilite immediate (1 sac = 1 ressource)
+                Chauffeur chAffecte = chauffeurRepository.findById(d.chauffeurId()).orElse(null);
+                Vehicule vAffecte = vehiculeRepository.findById(d.vehiculeId()).orElse(null);
+
+                sac.setChauffeur(chAffecte);
+                sac.setVehicule(vAffecte);
                 sac.setStatut(SacStatut.AFFECTE);
                 sacRepository.save(sac);
 
+                if (chAffecte != null) {
+                    chAffecte.setDisponible(false);
+                    chauffeurRepository.save(chAffecte);
+                }
+                if (vAffecte != null) {
+                    vAffecte.setStatut(VehiculeStatut.AFFECTE);
+                    vehiculeRepository.save(vAffecte);
+                }
+
                 chauffeursUtilises.add(d.chauffeurId());
+                vehiculesUtilises.add(d.vehiculeId());
                 nbAffectes++;
             } else {
                 details.add(new AffectationDetail(
@@ -222,6 +254,23 @@ public class AffectationService {
                     .put(c.getVehiculeId(), c.isCompatible());
         }
         return matrice;
+    }
+
+    /**
+     * Occupation du vehicule par le sac : max(poids/capacite_poids, volume/capacite_volume).
+     * Sert de critere de best-fit lorsqu'un score egal autorise plusieurs vehicules.
+     */
+    private double utilisation(Sac sac, Double poidsSac, Double volumeSac, Vehicule v) {
+        double occupation = 0;
+        if (poidsSac != null && v.getCapacitePoidsKg() != null
+                && v.getCapacitePoidsKg().doubleValue() > 0) {
+            occupation = Math.max(occupation, poidsSac / v.getCapacitePoidsKg().doubleValue());
+        }
+        if (volumeSac != null && v.getCapaciteVolumeM3() != null
+                && v.getCapaciteVolumeM3().doubleValue() > 0) {
+            occupation = Math.max(occupation, volumeSac / v.getCapaciteVolumeM3().doubleValue());
+        }
+        return occupation;
     }
 
     private double calculerChargeMoyenne(List<Sac> sacs) {

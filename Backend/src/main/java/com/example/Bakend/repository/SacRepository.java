@@ -2,12 +2,16 @@ package com.example.Bakend.repository;
 
 import com.example.Bakend.entity.OptimisationRun;
 import com.example.Bakend.entity.Sac;
+import com.example.Bakend.entity.enums.ModeLivraison;
 import com.example.Bakend.entity.enums.SacStatut;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -30,6 +34,29 @@ public interface SacRepository extends JpaRepository<Sac, UUID> {
 
     @Query("SELECT s FROM Sac s WHERE s.pmeCliente.tenantId = :tenantId AND s.hub.hubId = :hubId AND s.statut = :statut ORDER BY s.createdAt ASC")
     List<Sac> rechercherParHubEtStatut(@Param("tenantId") UUID tenantId, @Param("hubId") UUID hubId, @Param("statut") SacStatut statut);
+
+    /**
+     * Sacs du hub au statut donne, HORS mode de livraison donne.
+     * Utilise par l'affectation agence pour ne jamais affecter un sac freelance
+     * (celui-ci est attribue par le freelance lui-meme, en first-accept).
+     */
+    @Query("SELECT s FROM Sac s WHERE s.pmeCliente.tenantId = :tenantId AND s.hub.hubId = :hubId AND s.statut = :statut AND NOT EXISTS (SELECT c FROM Colis c WHERE c.sac = s AND c.demande.modeLivraison = :modeExclu) ORDER BY s.createdAt ASC")
+    List<Sac> rechercherParHubEtStatutHorsMode(@Param("tenantId") UUID tenantId,
+                                               @Param("hubId") UUID hubId,
+                                               @Param("statut") SacStatut statut,
+                                               @Param("modeExclu") ModeLivraison modeExclu);
+
+    /**
+     * Missions ouvertes aux freelances : sacs CONSTITUE issus d'une demande FREELANCE,
+     * toutes agences confondues (place de marché multi-tenants, acces CHAUFFEUR valide).
+     */
+    @Query("SELECT DISTINCT s FROM Sac s JOIN s.colis c WHERE s.statut = :statut AND c.demande.modeLivraison = :mode ORDER BY s.createdAt ASC")
+    List<Sac> rechercherProposees(@Param("statut") SacStatut statut, @Param("mode") ModeLivraison mode);
+
+    /** Chargement sous verrou pessimiste (first-accept : une seule attribution possible). */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM Sac s WHERE s.sacId = :sacId")
+    Optional<Sac> findByIdForUpdate(@Param("sacId") UUID sacId);
 
     @Query("SELECT COUNT(s) FROM Sac s WHERE s.pmeCliente.tenantId = :tenantId AND s.statut = :statut")
     long compterParStatut(@Param("tenantId") UUID tenantId, @Param("statut") SacStatut statut);

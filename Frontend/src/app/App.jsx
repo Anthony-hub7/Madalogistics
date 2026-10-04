@@ -9,6 +9,8 @@ import LoginPage from '../pages/auth/LoginPage'
 const InscriptionClientPage = lazy(() => import('../pages/auth/InscriptionClientPage'))
 const AgenceInscriptionFlow = lazy(() => import('../pages/inscription/AgenceInscriptionFlow'))
 const ChauffeurInscriptionFlow = lazy(() => import('../pages/inscription/ChauffeurInscriptionFlow'))
+const MaTourneePage = lazy(() => import('../pages/chauffeur/MaTourneePage'))
+const DetailLivraisonPage = lazy(() => import('../pages/chauffeur/DetailLivraisonPage'))
 
 function PageLoader() {
   return (
@@ -92,6 +94,26 @@ export default function App() {
                   />
                 )
               })}
+              {role === 'driver' && (
+                <>
+                  <Route
+                    path="ma_tournee/:sacId"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <MaTourneePage />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="detail_livraison/:sacId"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <DetailLivraisonPage />
+                      </Suspense>
+                    }
+                  />
+                </>
+              )}
               <Route index element={<Navigate to={config.defaultPage} replace />} />
             </Route>
           ))}

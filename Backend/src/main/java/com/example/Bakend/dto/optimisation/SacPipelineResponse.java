@@ -21,5 +21,7 @@ public record SacPipelineResponse(
         String immatriculation,
         boolean hasTournee,
         UUID tourneeId,
-        String dateDepartPlafond
+        String dateDepartPlafond,
+        /** Sac issu d'une commande FREELANCE (1 commande = 1 sac, appele d'offres). */
+        boolean freelance
 ) {}

@@ -4,6 +4,7 @@ import { demandesService } from '../../services/demandesService'
 
 const STATUT_CONFIG = {
   DISPONIBLE:    { label: 'Disponible',   dot: 'bg-secondary', bg: 'bg-secondary-container/20 text-secondary border-secondary-container/50' },
+  AFFECTE:       { label: 'Affecté',      dot: 'bg-primary',   bg: 'bg-primary-container/20 text-primary border-primary-container/50' },
   EN_TOURNEE:    { label: 'En mission',   dot: 'bg-tertiary',  bg: 'bg-tertiary-container/20 text-on-tertiary-container border-tertiary-container/50' },
   MAINTENANCE:   { label: 'Maintenance',  dot: 'bg-error',     bg: 'bg-error/10 text-error border-error/50' },
   HORS_SERVICE:  { label: 'Hors service', dot: 'bg-outline-variant', bg: 'bg-outline-variant/20 text-on-surface-variant border-outline-variant/50' },
@@ -107,8 +108,8 @@ function AjouterVehiculeModal({ open, onClose, onAdd, hubs }) {
               <input type="number" value={form.annee} onChange={(e) => setForm({ ...form, annee: e.target.value })} className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5 font-label-md text-label-md focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10" placeholder="2020" />
             </div>
             <div className="space-y-1.5">
-              <label className="font-label-md text-label-md text-on-surface-variant">PTAC (tonnes)</label>
-              <input type="number" step="0.01" value={form.ptacTonnes} onChange={(e) => setForm({ ...form, ptacTonnes: e.target.value })} className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5 font-label-md text-label-md focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10" placeholder="10" />
+              <label className="font-label-md text-label-md text-on-surface-variant">PTAC (tonnes, max 60)</label>
+              <input type="number" step="0.01" min="0.01" max="60" value={form.ptacTonnes} onChange={(e) => setForm({ ...form, ptacTonnes: e.target.value })} className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2.5 font-label-md text-label-md focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10" placeholder="10 (ex. 1 pour 1000 kg)" title="Saisir en tonnes : 1000 kg = 1 tonne" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4">
@@ -195,6 +196,7 @@ function FlottePage() {
   const stats = [
     { label: 'Total vehicules', value: vehicles.length, icon: 'local_shipping', hoverColor: 'hover:border-primary' },
     { label: 'Disponibles', value: vehicles.filter(v => v.statut === 'DISPONIBLE').length, icon: 'task_alt', hoverColor: 'hover:border-secondary' },
+    { label: 'Affectés', value: vehicles.filter(v => v.statut === 'AFFECTE').length, icon: 'assignment_turned_in', hoverColor: 'hover:border-primary' },
     { label: 'En mission', value: vehicles.filter(v => v.statut === 'EN_TOURNEE').length, icon: 'departure_board', hoverColor: 'hover:border-tertiary' },
     { label: 'Maintenance', value: vehicles.filter(v => v.statut === 'MAINTENANCE').length, icon: 'warning', hoverColor: 'hover:border-error' },
   ]
@@ -240,6 +242,7 @@ function FlottePage() {
             {[
               { k: '', l: 'Tous' },
               { k: 'DISPONIBLE', l: 'Disponible' },
+              { k: 'AFFECTE', l: 'Affecté' },
               { k: 'EN_TOURNEE', l: 'En mission' },
               { k: 'MAINTENANCE', l: 'Maintenance' },
               { k: 'HORS_SERVICE', l: 'Hors service' },
@@ -309,8 +312,10 @@ function FlottePage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleDelete(v.vehiculeId)}
-                          disabled={v.statut === 'HORS_SERVICE'}
-                          title="Desactiver"
+                          disabled={v.statut === 'HORS_SERVICE' || v.statut === 'AFFECTE' || v.statut === 'EN_TOURNEE'}
+                          title={v.statut === 'AFFECTE' || v.statut === 'EN_TOURNEE'
+                            ? 'Véhicule réservé par un sac actif — désaffectez d\'abord le sac'
+                            : 'Desactiver'}
                           className="rounded-lg p-2 text-on-surface-variant transition-all hover:bg-error/5 hover:text-error disabled:opacity-30 disabled:cursor-not-allowed">
                           <span className="material-symbols-outlined text-[20px]">delete</span>
                         </button>

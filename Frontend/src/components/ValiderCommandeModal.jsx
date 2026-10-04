@@ -1,19 +1,23 @@
 import { useState } from 'react'
 
 const MODES = [
-  { value: 'AGENCE', label: 'Chauffeur de l\'agence', desc: 'Affectation via matrice compatibilité interne' },
-  { value: 'FREELANCE', label: 'Chauffeur freelance', desc: 'Scoring dynamique, missions multi-agences' },
+  { value: 'AGENCE', label: 'Chauffeur de l\'agence', desc: 'Groupage FFD puis affectation via matrice compatibilité interne' },
+  { value: 'FREELANCE', label: 'Chauffeur freelance', desc: '1 commande = 1 sac, publié en appel d\'offres aux freelances (sans groupage)' },
 ]
 
 export default function ValiderCommandeModal({ open, nbColis, onClose, onConfirm, acting }) {
   const [mode, setMode] = useState('AGENCE')
   if (!open) return null
+  const freelance = mode === 'FREELANCE'
   return (
     <div className="fixed inset-0 z-50 bg-[#1A1A1E]/50 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white border border-[#1A1A1E] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl">
         <h3 className="font-display text-lg font-bold text-[#1A1A1E] uppercase">Valider la commande</h3>
         <p className="font-body text-xs text-[#8A8A92]">
-          Cette action est <strong>irréversible</strong>. La commande passera en attente de groupage.
+          Cette action est <strong>irréversible</strong>.{' '}
+          {freelance
+            ? 'La commande deviendra immédiatement un sac proposé aux freelances (sans groupage).'
+            : 'La commande passera en attente de groupage.'}
         </p>
         {nbColis != null && (
           <p className="font-mono text-xs text-[#1A1A1E]">

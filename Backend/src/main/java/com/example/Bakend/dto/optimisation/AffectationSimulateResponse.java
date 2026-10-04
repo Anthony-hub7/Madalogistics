@@ -16,6 +16,7 @@ public record AffectationSimulateResponse(
         String immatriculation,
         boolean autorise,
         String motifRefus,
+        List<String> raisons,
         double score
     ) {}
 }

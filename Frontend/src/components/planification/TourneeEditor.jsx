@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 
-export default function TourneeEditor({ sacsAffectes = [], vrpResults = {}, tourneeIds = {}, onVrpPreview, onVrpValider, onReculer, loading, previewLoadingSac }) {
+export default function TourneeEditor({ sacsAffectes = [], vrpResults = {}, tourneeIds = {}, onVrpPreview, onVrpValider, onReculer, loading, previewLoadingSac, onEditColis, onDeleteSac }) {
   const [selectedSac, setSelectedSac] = useState(null)
   const [editingOrder, setEditingOrder] = useState(null)
   const [dragIdx, setDragIdx] = useState(null)
@@ -61,11 +61,13 @@ export default function TourneeEditor({ sacsAffectes = [], vrpResults = {}, tour
           const result = vrpResults[sac.sacId]
           const isLoadingThis = previewLoadingSac === sac.sacId
           return (
-            <button
+            <div
               key={sac.sacId}
               onClick={() => !isLoadingThis && handleSelectSac(sac.sacId)}
-              disabled={previewLoadingSac && !isLoadingThis}
-              className={`p-4 rounded-xl border-2 text-left transition-all ${
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !isLoadingThis) handleSelectSac(sac.sacId) }}
+              className={`p-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
                 selectedSac === sac.sacId
                   ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
                   : 'border-gray-200 hover:border-gray-300'
@@ -77,7 +79,7 @@ export default function TourneeEditor({ sacsAffectes = [], vrpResults = {}, tour
                 ) : (
                   <span className="material-symbols-outlined text-blue-600">route</span>
                 )}
-                <div>
+                <div className="flex-1">
                   <p className="font-medium text-gray-900">
                     Sac {i + 1}
                     {isLoadingThis && <span className="ml-2 text-blue-600 text-sm">Calcul…</span>}
@@ -95,7 +97,41 @@ export default function TourneeEditor({ sacsAffectes = [], vrpResults = {}, tour
                   </p>
                 </div>
               </div>
-            </button>
+
+              {/* V1-d : camion + chauffeur affectes */}
+              {(sac.immatriculation || sac.chauffeurNom) && (
+                <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5">
+                  <span className="material-symbols-outlined text-[15px] text-blue-600">local_shipping</span>
+                  <span className="font-semibold">{sac.immatriculation || '—'}</span>
+                  <span className="text-gray-300">·</span>
+                  <span>{sac.chauffeurNom || '—'}</span>
+                </div>
+              )}
+
+              {/* V1-b/V1-c : editer les colis ou supprimer le sac */}
+              {(onEditColis || onDeleteSac) && (
+                <div className="flex justify-end gap-1 mt-2 pt-2 border-t border-gray-100" onClick={(e) => e.stopPropagation()}>
+                  {onEditColis && (
+                    <button
+                      onClick={() => onEditColis(sac)}
+                      title="Éditer les colis du sac"
+                      className="p-1.5 rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">edit_note</span>
+                    </button>
+                  )}
+                  {onDeleteSac && (
+                    <button
+                      onClick={() => onDeleteSac(sac)}
+                      title="Supprimer le sac (colis et ressources libérés)"
+                      className="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           )
         })}
       </div>

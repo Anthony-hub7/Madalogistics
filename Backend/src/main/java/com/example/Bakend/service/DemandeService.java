@@ -48,6 +48,7 @@ public class DemandeService {
     private final FactureRepository factureRepository;
     private final AuditLogRepository auditLogRepository;
     private final TrajetService trajetService;
+    private final FreelanceService freelanceService;
 
     public DemandeService(DemandeTransportRepository demandeRepository,
                           ColisRepository colisRepository,
@@ -62,7 +63,8 @@ public class DemandeService {
                           EtapeLivraisonRepository etapeLivraisonRepository,
                           FactureRepository factureRepository,
                           AuditLogRepository auditLogRepository,
-                          TrajetService trajetService) {
+                          TrajetService trajetService,
+                          FreelanceService freelanceService) {
         this.demandeRepository = demandeRepository;
         this.colisRepository = colisRepository;
         this.hubRepository = hubRepository;
@@ -77,6 +79,7 @@ public class DemandeService {
         this.factureRepository = factureRepository;
         this.auditLogRepository = auditLogRepository;
         this.trajetService = trajetService;
+        this.freelanceService = freelanceService;
     }
 
     // ========================================================================
@@ -290,6 +293,13 @@ public class DemandeService {
                 + ",\"validePar\":\"" + user.getUtilisateur().getUtilisateurId() + "\"}");
         auditLogRepository.save(audit);
 
+        // Mode FREELANCE : 1 commande = 1 sac, publie en appel d'offres aux
+        // freelances (sans groupage FFD/Knapsack). Même transaction que la
+        // validation → atomicite garantie.
+        if (modeLivraison == ModeLivraison.FREELANCE) {
+            freelanceService.creerSacDirect(tenantId, saved, user.getUtilisateur());
+        }
+
         return saved;
     }
 
@@ -395,15 +405,79 @@ public class DemandeService {
             return java.util.Map.of("existe", false, "demandeId", demandeId);
         }
         Facture f = factureOpt.get();
-        return java.util.Map.of(
-                "existe", true,
-                "factureId", f.getFactureId(),
-                "montantTotal", f.getMontantTotal(),
-                "statut", f.getStatut().name(),
-                "dateEmission", f.getDateEmission(),
-                "demandeId", demandeId,
-                "distanceKm", demande.getDistanceKm() != null ? demande.getDistanceKm() : BigDecimal.ZERO,
-                "tarif", demande.getTarif() != null ? demande.getTarif() : BigDecimal.ZERO
-        );
+
+        // Recuperer les preuves de livraison (photo + signature par etape, liees au colis)
+        var colisList = colisRepository.findByDemandeDemandeId(demandeId);
+        var preuves = new java.util.ArrayList<java.util.Map<String, Object>>();
+        for (var colis : colisList) {
+            var etapes = etapeLivraisonRepository.findByColisColisId(colis.getColisId());
+            for (var etape : etapes) {
+                if (etape.getPhotoPreuve() != null && etape.getPhotoPreuve().length > 0) {
+                    var preuve = new java.util.HashMap<String, Object>();
+                    preuve.put("etapeId", etape.getEtapeId());
+                    preuve.put("typeEtape", etape.getTypeEtape().name());
+                    preuve.put("ordre", etape.getOrdre());
+                    preuve.put("signatureNom", etape.getSignatureNom() != null ? etape.getSignatureNom() : "");
+                    preuve.put("dateSignature", etape.getDateSignature() != null ? etape.getDateSignature().toString() : "");
+                    preuve.put("dateLivraison", etape.getDateHeureReelle() != null ? etape.getDateHeureReelle().toString() : "");
+                    preuve.put("hasPhoto", true);
+                    // Infos colis
+                    preuve.put("colisId", colis.getColisId());
+                    preuve.put("descriptionColis", colis.getCategorie() != null ? colis.getCategorie().getLibelle() : "Colis");
+                    preuve.put("poidsKg", colis.getPoidsKg() != null ? colis.getPoidsKg() : BigDecimal.ZERO);
+                    preuves.add(preuve);
+                }
+            }
+        }
+        preuves.sort(java.util.Comparator.comparingInt(p -> (int) p.get("ordre")));
+
+        var result = new java.util.HashMap<String, Object>();
+        result.put("existe", true);
+        result.put("factureId", f.getFactureId());
+        result.put("montantTotal", f.getMontantTotal());
+        result.put("statut", f.getStatut().name());
+        result.put("dateEmission", f.getDateEmission());
+        result.put("demandeId", demandeId);
+        result.put("distanceKm", demande.getDistanceKm() != null ? demande.getDistanceKm() : BigDecimal.ZERO);
+        result.put("tarif", demande.getTarif() != null ? demande.getTarif() : BigDecimal.ZERO);
+        result.put("preuves", preuves);
+        result.put("hasPreuves", !preuves.isEmpty());
+        return result;
+    }
+
+    // ========================================================================
+    // PHOTO PREUVE — accessible client, gestionnaire, direction, chauffeur
+    // ========================================================================
+
+    @Transactional(readOnly = true)
+    public byte[] getPhotoPreuveDemande(UUID tenantId, UUID demandeId, UUID etapeId) {
+        DemandeTransport demande = obtenirDemande(tenantId, demandeId);
+
+        // Verifier que l'etape appartient bien a un colis de cette demande
+        var colisList = colisRepository.findByDemandeDemandeId(demandeId);
+        boolean etapeBelongsToDemande = false;
+        for (var colis : colisList) {
+            var etapes = etapeLivraisonRepository.findByColisColisId(colis.getColisId());
+            for (var etape : etapes) {
+                if (etape.getEtapeId().equals(etapeId)) {
+                    etapeBelongsToDemande = true;
+                    break;
+                }
+            }
+            if (etapeBelongsToDemande) break;
+        }
+
+        if (!etapeBelongsToDemande) {
+            throw new com.example.Bakend.exception.BusinessException("Etape non liee a cette demande", 404);
+        }
+
+        var etape = etapeLivraisonRepository.findById(etapeId)
+                .orElseThrow(() -> new com.example.Bakend.exception.ResourceNotFoundException("Etape introuvable"));
+
+        byte[] data = etape.getPhotoPreuve();
+        if (data == null || data.length == 0) {
+            throw new com.example.Bakend.exception.ResourceNotFoundException("Aucune photo de preuve pour cette etape");
+        }
+        return data;
     }
 }

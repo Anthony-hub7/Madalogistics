@@ -153,8 +153,9 @@ class GroupageOrchestrationServiceTest {
     @Test
     void lancerGroupageFormeTroisSacs() {
         // --- Mock : demandeRepository retourne les 3 demandes triées ---
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1, demande2, demande3));
 
         // --- Mock : colisRepository retourne les colis par demande ---
@@ -281,8 +282,9 @@ class GroupageOrchestrationServiceTest {
 
     @Test
     void lancerGroupageAvecFallbackCapacite() {
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1));
 
         when(colisRepository.findByDemandeDemandeId(demande1.getDemandeId()))
@@ -331,8 +333,9 @@ class GroupageOrchestrationServiceTest {
 
     @Test
     void lancerGroupageRetourneVideSiAucuneDemande() {
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of());
         when(pmeClienteRepository.findByTenantId(tenantId))
                 .thenReturn(Optional.of(tenant));
@@ -350,8 +353,9 @@ class GroupageOrchestrationServiceTest {
 
     @Test
     void lancerGroupageRetourneVideSiAucunColis() {
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1));
         when(colisRepository.findByDemandeDemandeId(demande1.getDemandeId()))
                 .thenReturn(List.of());
@@ -375,8 +379,9 @@ class GroupageOrchestrationServiceTest {
         tenant.setSeuilRemplissageMin(new BigDecimal("80.00"));
         demande1.setDateDepartCalculee(LocalDate.now().plusDays(1));
 
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1));
 
         when(colisRepository.findByDemandeDemandeId(demande1.getDemandeId()))
@@ -412,8 +417,9 @@ class GroupageOrchestrationServiceTest {
 
     @Test
     void lancerGroupagePersisteOptimisationRunAvecJustification() {
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1));
 
         when(colisRepository.findByDemandeDemandeId(demande1.getDemandeId()))
@@ -471,8 +477,9 @@ class GroupageOrchestrationServiceTest {
 
     @Test
     void lancerGroupageSacsOntBonnesColonnes() {
-        when(demandeRepository.rechercherParHubEtStatutOrderByDateDepart(
-                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE))
+        when(demandeRepository.rechercherDemandesGroupage(
+                tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE,
+                        ModeLivraison.AGENCE))
                 .thenReturn(List.of(demande1));
         when(colisRepository.findByDemandeDemandeId(demande1.getDemandeId()))
                 .thenReturn(List.of(c1));

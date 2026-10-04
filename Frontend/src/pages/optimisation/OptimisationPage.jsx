@@ -8,6 +8,7 @@ import { sacsService } from '../../services/sacsService'
 import SacEditor from '../../components/planification/SacEditor'
 import AffectationEditor from '../../components/planification/AffectationEditor'
 import TourneeEditor from '../../components/planification/TourneeEditor'
+import SacColisEditorModal from '../../components/planification/SacColisEditorModal'
 
 export default function OptimisationPage() {
   const navigate = useNavigate()
@@ -30,6 +31,7 @@ export default function OptimisationPage() {
   const [vrpResults, setVrpResults] = useState({})
   const [vrpTournees, setVrpTournees] = useState({})
   const [vrpPreviewLoading, setVrpPreviewLoading] = useState(null)
+  const [editSac, setEditSac] = useState(null)
 
   const refreshPipeline = async () => {
     try {
@@ -167,6 +169,42 @@ export default function OptimisationPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // V1-b : suppression d'un sac (CONSTITUE/AFFECTE) → colis + ressources liberes
+  const handleSacSupprimer = async (sac) => {
+    const ok = window.confirm(
+      `Supprimer ce sac (${sac.nbColis} colis) ?\n\n` +
+      'Les colis repasseront en attente de groupage' +
+      (sac.chauffeurNom ? ' et le chauffeur/véhicule affecté seront libérés' : '') + '.'
+    )
+    if (!ok) return
+    setLoading(true)
+    setError(null)
+    try {
+      await sacsService.remove(sac.sacId)
+      setAffectationPreview(null)
+      setVrpResults(prev => { const n = { ...prev }; delete n[sac.sacId]; return n })
+      setVrpTournees(prev => { const n = { ...prev }; delete n[sac.sacId]; return n })
+      await refreshPipeline()
+      await loadHubs()
+    } catch (e) {
+      setError(e.body?.error || e.message || 'Erreur suppression du sac')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // V1-c : edition des colis d'un sac validee par le panneau modal
+  const handleSacEditSaved = async () => {
+    const sacId = editSac?.sacId
+    setEditSac(null)
+    setAffectationPreview(null)
+    if (sacId) {
+      setVrpResults(prev => { const n = { ...prev }; delete n[sacId]; return n })
+    }
+    await refreshPipeline()
+    await loadHubs()
   }
 
   const groups = useMemo(() => {
@@ -417,6 +455,22 @@ export default function OptimisationPage() {
                       {sac.poidsKg > 0 && sac.volumeM3 > 0 && <span className="mx-1">·</span>}
                       {sac.volumeM3 > 0 && <>{sac.volumeM3.toFixed(2)} m³</>}
                     </div>
+                    <div className="flex justify-end gap-1 mt-2 pt-2 border-t border-gray-100">
+                      <button
+                        onClick={() => setEditSac(sac)}
+                        title="Éditer les colis du sac"
+                        className="p-1.5 rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">edit_note</span>
+                      </button>
+                      <button
+                        onClick={() => handleSacSupprimer(sac)}
+                        title="Supprimer le sac (colis libérés)"
+                        className="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -465,6 +519,8 @@ export default function OptimisationPage() {
                 onVrpPreview={handleVrpPreview}
                 onVrpValider={handleVrpValider}
                 onReculer={() => {}}
+                onEditColis={setEditSac}
+                onDeleteSac={handleSacSupprimer}
                 loading={loading}
                 previewLoadingSac={vrpPreviewLoading}
               />
@@ -550,6 +606,16 @@ export default function OptimisationPage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Panneau d'edition des colis (V1-c) */}
+      {editSac && (
+        <SacColisEditorModal
+          sac={editSac}
+          hubId={editSac.hubId || selectedHub}
+          onClose={() => setEditSac(null)}
+          onSaved={handleSacEditSaved}
+        />
       )}
     </div>
   )

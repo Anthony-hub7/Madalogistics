@@ -2,6 +2,7 @@ package com.example.Bakend.optimisation.groupage;
 
 import com.example.Bakend.entity.*;
 import com.example.Bakend.entity.enums.DemandeStatut;
+import com.example.Bakend.entity.enums.ModeLivraison;
 import com.example.Bakend.entity.enums.TypeAlgorithme;
 import com.example.Bakend.entity.enums.VehiculeStatut;
 import com.example.Bakend.repository.*;
@@ -109,7 +110,7 @@ public class GroupageKnapsackService {
 
         // 1. Charger les demandes en attente
         List<DemandeTransport> demandes = demandeRepository
-                .rechercherParHubEtStatutOrderByDateDepart(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE);
+                .rechercherDemandesGroupage(tenantId, hubId, DemandeStatut.EN_ATTENTE_GROUPAGE, ModeLivraison.AGENCE);
 
         if (demandes.isEmpty()) {
             return buildEmptyResult("Aucune demande en attente de groupage.");
@@ -172,6 +173,7 @@ public class GroupageKnapsackService {
                 indicesRestants.add(i);
             }
 
+            int iterations = 0;
             while (!indicesRestants.isEmpty()) {
                 // Extraire les poids/volumes des indices restants
                 List<Long> poids = new ArrayList<>();
@@ -245,7 +247,15 @@ public class GroupageKnapsackService {
                 List<Integer> sortedIndices = ksResult.indicesInclus().stream()
                         .sorted(Comparator.reverseOrder()).toList();
                 for (Integer idx : sortedIndices) {
-                    indicesRestants.remove(idx);
+                    // idx est une POSITION dans la liste courante : remove(int), pas remove(Object)
+                    indicesRestants.remove(idx.intValue());
+                }
+
+                // Garde-fou : une iteration doit toujours faire decroître la liste
+                if (iterations++ > colisCluster.size()) {
+                    log.warn("Cluster {}: progression bloquee, {} colis non groupes",
+                            cluster, indicesRestants.size());
+                    break;
                 }
             }
         }

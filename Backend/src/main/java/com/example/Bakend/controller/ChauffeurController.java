@@ -6,6 +6,7 @@ import com.example.Bakend.security.SecurityUtils;
 import com.example.Bakend.service.EquipeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -31,6 +32,7 @@ public class ChauffeurController {
      * Statut du dossier du chauffeur connecté.
      * Retourne statutDossier, motifRefus, typeChauffeur, agenceNom.
      */
+    @Transactional(readOnly = true)
     @GetMapping("/mon-dossier/statut")
     public ResponseEntity<Map<String, Object>> monStatutDossier() {
         UUID utilisateurId = requireUtilisateurId();

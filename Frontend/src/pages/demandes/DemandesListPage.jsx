@@ -60,6 +60,7 @@ export default function DemandesListPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [succes, setSucces] = useState('')
   const [selectedIds, setSelectedIds] = useState([])
 
   // Refuse modal
@@ -74,6 +75,7 @@ export default function DemandesListPage() {
   const loadOrders = async () => {
     setLoading(true)
     setError('')
+    setSucces('')
     try {
       const data = await demandesService.getAll()
       setOrders(Array.isArray(data) ? data : [])
@@ -114,6 +116,9 @@ export default function DemandesListPage() {
       await demandesService.valider(demandeId, modeLivraison)
       setValiderTarget(null)
       await loadOrders()
+      setSucces(modeLivraison === 'FREELANCE'
+        ? 'Commande validée — un sac a été créé et publié aux freelances (appel d\'offres).'
+        : 'Commande validée — elle est en attente de groupage.')
     } catch (e) {
       setError(e.message)
     } finally {
@@ -205,6 +210,9 @@ export default function DemandesListPage() {
         ))}
       </div>
 
+      {succes && (
+        <div className="bg-green-50 border border-green-200 text-green-700 rounded p-3 font-body text-xs">{succes}</div>
+      )}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded p-3 font-body text-xs">{error}</div>
       )}

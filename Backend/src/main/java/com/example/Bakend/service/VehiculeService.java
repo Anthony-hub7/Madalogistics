@@ -45,7 +45,10 @@ public class VehiculeService {
     @Transactional(readOnly = true)
     public List<Vehicule> lister(UUID tenantId, String statut, UUID hubId) {
         verifierTenantExiste(tenantId);
-        VehiculeStatut filtreStatut = parseStatut(statut);
+        // Pas de filtre explicite → TOUS les vehicules (sinon les AFFECTE/EN_TOURNEE
+        // seraient invisibles dans la liste par defaut)
+        VehiculeStatut filtreStatut = (statut == null || statut.isBlank())
+                ? null : parseStatut(statut);
 
         if (hubId != null && filtreStatut != null) {
             return vehiculeRepository.rechercherDisponiblesParHub(tenantId, hubId, filtreStatut);
@@ -114,7 +117,11 @@ public class VehiculeService {
         vehicule.setPtacTonnes(req.getPtacTonnes());
 
         if (req.getStatut() != null) {
-            vehicule.setStatut(parseStatut(req.getStatut()));
+            VehiculeStatut nouveau = parseStatut(req.getStatut());
+            if (nouveau != vehicule.getStatut()) {
+                verifierNonReserve(vehicule);
+            }
+            vehicule.setStatut(nouveau);
         }
 
         try {
@@ -129,17 +136,8 @@ public class VehiculeService {
     public void supprimer(UUID tenantId, UUID vehiculeId) {
         Vehicule vehicule = obtenir(tenantId, vehiculeId);
 
-        List<Sac> sacsEnTransit = sacRepository.findByPmeClienteTenantId(tenantId).stream()
-                .filter(s -> s.getVehicule() != null
-                        && s.getVehicule().getVehiculeId().equals(vehiculeId)
-                        && s.getStatut() == SacStatut.EN_TRANSIT)
-                .toList();
-
-        if (!sacsEnTransit.isEmpty()) {
-            throw new BusinessException(
-                    "Impossible de supprimer ce vehicule : il a " + sacsEnTransit.size()
-                            + " sac(s) en transit actif(s)", 409);
-        }
+        // Reserve = des affecte a un sac actif (AFFECTE ou EN_TRANSIT) → 409
+        verifierNonReserve(vehicule);
 
         vehicule.setStatut(VehiculeStatut.HORS_SERVICE);
         vehicule.setHub(null);
@@ -149,8 +147,29 @@ public class VehiculeService {
     public Vehicule changerStatut(UUID tenantId, UUID vehiculeId, String nouveauStatut) {
         Vehicule vehicule = obtenir(tenantId, vehiculeId);
         VehiculeStatut statut = parseStatut(nouveauStatut);
+
+        if (statut != vehicule.getStatut()) {
+            verifierNonReserve(vehicule);
+        }
         vehicule.setStatut(statut);
         return vehiculeRepository.save(vehicule);
+    }
+
+    /**
+     * Un vehicule rattache a un sac AFFECTE ou EN_TRANSIT est reserve :
+     * son statut ne peut plus etre modifie manuellement (il est gere par
+     * l'affectation et les missions, qui le libèrent eux-mêmes).
+     */
+    private void verifierNonReserve(Vehicule vehicule) {
+        long sacsActifs = sacRepository.findByVehiculeVehiculeId(vehicule.getVehiculeId()).stream()
+                .filter(s -> s.getStatut() == SacStatut.AFFECTE || s.getStatut() == SacStatut.EN_TRANSIT)
+                .count();
+
+        if (sacsActifs > 0) {
+            throw new BusinessException(
+                    "Ce vehicule est reserve par " + sacsActifs
+                            + " sac(s) actif(s) : le supprimer ou le desaffecter d'abord", 409);
+        }
     }
 
     private VehiculeStatut parseStatut(String statut) {

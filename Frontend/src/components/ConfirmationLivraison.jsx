@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
+import { missionsService } from '../services/missionsService'
 
 const STEPS = [
   { key: 'photo', label: 'Photo', icon: 'photo_camera' },
@@ -6,15 +7,22 @@ const STEPS = [
   { key: 'validation', label: 'Validation', icon: 'check_circle' },
 ]
 
-function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
+function ConfirmationLivraison({ delivery, sacId, etapes, onConfirm, onClose }) {
   const canvasRef = useRef(null)
   const fileInputRef = useRef(null)
   const [drawing, setDrawing] = useState(false)
   const [hasSignature, setHasSignature] = useState(false)
-  const [photoData, setPhotoData] = useState(null)
   const [notes, setNotes] = useState('')
   const [confirming, setConfirming] = useState(false)
   const [currentStep, setCurrentStep] = useState('photo')
+  const [currentEtapeIndex, setCurrentEtapeIndex] = useState(0)
+  const [photosMap, setPhotosMap] = useState(new Map()) // Map<etapeId, { file, preview }>
+  const [error, setError] = useState(null)
+
+  // Filtrer les etapes LIVRAISON (celles qui necessitent une photo)
+  const etapesLivraison = (etapes || []).filter(e => e.typeEtape === 'LIVRAISON')
+  const currentEtape = etapesLivraison[currentEtapeIndex]
+  const allPhotosTaken = etapesLivraison.every(e => photosMap.has(e.etapeId))
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -91,34 +99,99 @@ function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
-    if (!file) return
+    if (!file || !currentEtape) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Photo trop volumineuse (max 5 Mo)')
+      e.target.value = ''
+      return
+    }
+
     const reader = new FileReader()
     reader.onload = (ev) => {
-      setPhotoData(ev.target.result)
+      setPhotosMap(prev => {
+        const next = new Map(prev)
+        next.set(currentEtape.etapeId, { file, preview: ev.target.result })
+        return next
+      })
+      setError(null)
     }
     reader.readAsDataURL(file)
     e.target.value = ''
   }
 
+  const handleRemovePhoto = () => {
+    if (!currentEtape) return
+    setPhotosMap(prev => {
+      const next = new Map(prev)
+      next.delete(currentEtape.etapeId)
+      return next
+    })
+  }
+
   const handleStepNext = () => {
-    if (currentStep === 'photo') setCurrentStep('signature')
-    else if (currentStep === 'signature') setCurrentStep('validation')
+    if (currentStep === 'photo') {
+      // Si on a des etapes et qu'on n'a pas encore fait toutes les photos
+      if (etapesLivraison.length > 0 && currentEtapeIndex < etapesLivraison.length - 1) {
+        setCurrentEtapeIndex(prev => prev + 1)
+      } else {
+        setCurrentStep('signature')
+      }
+    } else if (currentStep === 'signature') {
+      setCurrentStep('validation')
+    }
   }
 
   const handleStepBack = () => {
-    if (currentStep === 'signature') setCurrentStep('photo')
-    else if (currentStep === 'validation') setCurrentStep('signature')
-    else onClose()
+    if (currentStep === 'signature') {
+      setCurrentStep('photo')
+      setCurrentEtapeIndex(etapesLivraison.length - 1)
+    } else if (currentStep === 'validation') {
+      setCurrentStep('signature')
+    } else if (currentStep === 'photo' && currentEtapeIndex > 0) {
+      setCurrentEtapeIndex(prev => prev - 1)
+    } else {
+      onClose()
+    }
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    if (!sacId) {
+      onConfirm?.()
+      return
+    }
+
+    if (etapesLivraison.length === 0) {
+      setError('Aucune étape de livraison trouvée. Impossible de clôturer.')
+      return
+    }
+
     setConfirming(true)
-    setTimeout(() => {
-      if (onConfirm) onConfirm()
-    }, 1500)
+    setError(null)
+
+    try {
+      // Construire Map<etapeId, File> pour l'API
+      const photosMapFiles = new Map()
+      photosMap.forEach((value, key) => {
+        photosMapFiles.set(key, value.file)
+      })
+
+      await missionsService.cloturer(sacId, {
+        photosMap: photosMapFiles,
+        signatureNom: null,
+        notes: notes || null,
+      })
+
+      onConfirm?.()
+    } catch (err) {
+      setError(err.message || 'Erreur lors de la cloture')
+    } finally {
+      setConfirming(false)
+    }
   }
 
   const stepIndex = STEPS.findIndex(s => s.key === currentStep)
+  const currentPhoto = currentEtape ? photosMap.get(currentEtape.etapeId) : null
 
   return (
     <div className="fixed inset-0 z-[60] bg-background flex flex-col">
@@ -126,7 +199,7 @@ function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
         <button onClick={handleStepBack} className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors">
           <span className="material-symbols-outlined">arrow_back</span>
           <span className="font-label-md text-label-md">
-            {currentStep === 'photo' ? 'Annuler' : 'Retour'}
+            {currentStep === 'photo' && currentEtapeIndex === 0 ? 'Annuler' : 'Retour'}
           </span>
         </button>
         <h1 className="font-headline-md text-headline-md text-primary font-bold">Confirmation</h1>
@@ -170,7 +243,7 @@ function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
 
           <section className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4">
             <span className="font-label-sm text-label-sm text-outline uppercase tracking-wider">Récapitulatif de livraison</span>
-            <h2 className="font-headline-md text-headline-md text-on-surface mt-1">#{delivery.id}</h2>
+            <h2 className="font-headline-md text-headline-md text-on-surface mt-1">#{delivery.id?.slice(0, 8)}</h2>
             <p className="font-body-md text-body-md font-bold text-on-surface mt-1">{delivery.client}</p>
             <div className="flex items-center gap-2 mt-2">
               <span className="material-symbols-outlined text-on-surface-variant text-lg">location_on</span>
@@ -181,9 +254,25 @@ function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
           {currentStep === 'photo' && (
             <section className="space-y-4">
               <div>
-                <label className="font-label-md text-label-md text-on-surface-variant ml-1 mb-3 block">
-                  Preuve visuelle <span className="text-error">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="font-label-md text-label-md text-on-surface-variant ml-1">
+                    Preuve visuelle <span className="text-error">*</span>
+                  </label>
+                  {etapesLivraison.length > 1 && (
+                    <span className="font-label-sm text-label-sm text-outline">
+                      Étape {currentEtapeIndex + 1}/{etapesLivraison.length}
+                    </span>
+                  )}
+                </div>
+
+                {currentEtape && (
+                  <div className="mb-3 p-3 bg-surface-container rounded-lg border border-outline-variant">
+                    <p className="font-label-sm text-label-sm text-outline uppercase">Destination</p>
+                    <p className="font-body-sm text-body-sm font-bold text-on-surface">
+                      {currentEtape.clientNom || 'Destinataire'} — {currentEtape.adresseLivraison || currentEtape.adresseCollecte || 'Adresse non renseignée'}
+                    </p>
+                  </div>
+                )}
 
                 <input
                   ref={fileInputRef}
@@ -194,11 +283,11 @@ function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
                   onChange={handleFileChange}
                 />
 
-                {photoData ? (
+                {currentPhoto ? (
                   <div className="space-y-3">
                     <div className="w-full aspect-video rounded-xl overflow-hidden border border-outline-variant shadow-sm bg-surface-container-low">
                       <img
-                        src={photoData}
+                        src={currentPhoto.preview}
                         alt="Preuve de livraison"
                         className="w-full h-full object-cover"
                       />
@@ -212,7 +301,7 @@ function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
                         <span className="font-label-md text-label-md">Reprendre</span>
                       </button>
                       <button
-                        onClick={() => setPhotoData(null)}
+                        onClick={handleRemovePhoto}
                         className="flex items-center justify-center gap-2 py-3 px-5 border-2 border-error-container/50 rounded-xl text-error hover:bg-error-container/10 transition-all active:scale-[0.98]"
                       >
                         <span className="material-symbols-outlined">delete</span>
@@ -232,6 +321,18 @@ function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
                       <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">Photo du colis livré ou du lieu de dépôt</p>
                     </div>
                   </button>
+                )}
+
+                {/* Indicateur de progression pour les etapes */}
+                {etapesLivraison.length > 1 && (
+                  <div className="flex gap-2 mt-4">
+                    {etapesLivraison.map((e, idx) => (
+                      <div key={e.etapeId} className={`flex-1 h-1.5 rounded-full ${
+                        photosMap.has(e.etapeId) ? 'bg-secondary' :
+                        idx === currentEtapeIndex ? 'bg-primary' : 'bg-outline-variant/30'
+                      }`} />
+                    ))}
+                  </div>
                 )}
               </div>
             </section>
@@ -296,23 +397,30 @@ function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
               <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 space-y-4">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Vérification finale</h3>
 
-                <div className="flex items-start gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    photoData ? 'bg-secondary/10' : 'bg-error-container/20'
-                  }`}>
-                    <span className={`material-symbols-outlined text-lg ${
-                      photoData ? 'text-secondary' : 'text-error'
-                    }`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                      {photoData ? 'check' : 'close'}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="font-body-md text-body-md font-bold text-on-surface">Photo preuve</p>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">
-                      {photoData ? 'Photo ajoutée' : 'Aucune photo — revenez à l\'étape précédente'}
-                    </p>
-                  </div>
-                </div>
+                {etapesLivraison.map((etape) => {
+                  const hasPhoto = photosMap.has(etape.etapeId)
+                  return (
+                    <div key={etape.etapeId} className="flex items-start gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        hasPhoto ? 'bg-secondary/10' : 'bg-error-container/20'
+                      }`}>
+                        <span className={`material-symbols-outlined text-lg ${
+                          hasPhoto ? 'text-secondary' : 'text-error'
+                        }`} style={{ fontVariationSettings: "'FILL' 1" }}>
+                          {hasPhoto ? 'check' : 'close'}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-body-md text-body-md font-bold text-on-surface">
+                          Photo — {etape.clientNom || 'Étape'} {etape.ordre}
+                        </p>
+                        <p className="font-body-sm text-body-sm text-on-surface-variant">
+                          {hasPhoto ? 'Photo ajoutée' : 'Aucune photo — retournez à l\'étape précédente'}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
 
                 <div className="flex items-start gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -345,10 +453,18 @@ function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
                 )}
               </div>
 
+              {error && (
+                <div className="bg-error/5 border border-error/20 rounded-xl p-4 flex items-start gap-3">
+                  <span className="material-symbols-outlined text-error flex-shrink-0">error</span>
+                  <p className="font-body-sm text-body-sm text-error">{error}</p>
+                </div>
+              )}
+
               <div className="bg-secondary/5 border border-secondary/20 rounded-xl p-4 flex items-start gap-3">
                 <span className="material-symbols-outlined text-secondary flex-shrink-0">info</span>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">
                   En confirmant, vous certifiez que la livraison a été effectuée conformément aux instructions.
+                  Les photos de preuve seront envoyées au client avec la facture.
                 </p>
               </div>
             </section>
@@ -361,19 +477,19 @@ function ConfirmationLivraison({ delivery, onConfirm, onClose }) {
         {currentStep !== 'validation' ? (
           <button
             onClick={handleStepNext}
-            disabled={currentStep === 'photo' && !photoData}
+            disabled={currentStep === 'photo' && !currentPhoto}
             className="w-full h-16 bg-primary text-white rounded-xl font-headline-md flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <span className="material-symbols-outlined">
-              {currentStep === 'photo' ? 'arrow_forward' : 'arrow_forward'}
-            </span>
-            {currentStep === 'photo' ? 'Ajouter la signature' : 'Vérifier et confirmer'}
+            <span className="material-symbols-outlined">arrow_forward</span>
+            {currentStep === 'photo'
+              ? (currentEtapeIndex < etapesLivraison.length - 1 ? 'Photo suivante' : 'Ajouter la signature')
+              : 'Vérifier et confirmer'}
           </button>
         ) : (
           <button
             onClick={handleConfirm}
-            disabled={confirming}
-            className="w-full h-16 bg-secondary text-on-secondary rounded-xl font-headline-md flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all duration-150 disabled:cursor-wait"
+            disabled={confirming || !allPhotosTaken}
+            className="w-full h-16 bg-secondary text-on-secondary rounded-xl font-headline-md flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {confirming ? (
               <>

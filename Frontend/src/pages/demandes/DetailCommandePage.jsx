@@ -148,6 +148,8 @@ export default function DetailCommandePage() {
   const [error, setError] = useState(null)
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [showFactureModal, setShowFactureModal] = useState(false)
+  const [factureData, setFactureData] = useState(null)
+  const [factureLoading, setFactureLoading] = useState(false)
   const [cancelling, setCancelling] = useState(false)
   useEffect(() => {
     if (!demandeId) {
@@ -177,17 +179,6 @@ export default function DetailCommandePage() {
           enriched.hubHoraires = enriched.hubHoraires || 'Du Lundi au Samedi : 07h30 – 18h00'
         }
 
-        // Preuve de livraison simulée si livrée
-        if (enriched.statut === 'LIVREE') {
-          enriched.preuveLivraison = enriched.preuveLivraison || {
-            photoUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop&q=80',
-            destinataireNom: enriched.nomDestinataire || 'M. Rakotoarisoa',
-            signatureNom: 'R. Jean',
-            dateLivraison: enriched.updatedAt || enriched.createdAt || new Date().toISOString(),
-            remarques: 'Colis remis intact en mains propres au rez-de-chaussée.',
-          }
-        }
-
         setOrder(enriched)
       })
       .catch(e => setError(e.message))
@@ -206,6 +197,16 @@ export default function DetailCommandePage() {
       setCancelling(false)
     }
   }
+
+  // Charger la facture quand le modal s'ouvre
+  useEffect(() => {
+    if (!showFactureModal || !demandeId) return
+    setFactureLoading(true)
+    demandesService.getFacture(demandeId)
+      .then(data => setFactureData(data))
+      .catch(() => setFactureData(null))
+      .finally(() => setFactureLoading(false))
+  }, [showFactureModal, demandeId])
 
   // Impression de la facture
   const handlePrintFacture = () => {
@@ -487,6 +488,58 @@ export default function DetailCommandePage() {
                 </button>
               </div>
             </div>
+
+            {/* Preuves de livraison par colis */}
+            {factureData?.preuves && factureData.preuves.length > 0 && (
+              <div className="border-t-2 border-[#ECECEC] pt-4 space-y-3">
+                <h4 className="font-display text-xs font-bold uppercase tracking-wider text-[#1A1A1E]">
+                  Preuves de livraison — par colis ({factureData.preuves.length})
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {factureData.preuves.map((preuve) => (
+                    <div key={preuve.etapeId} className="rounded-lg border border-[#ECECEC] bg-[#F7F7F8] p-3">
+                      <div className="aspect-video rounded overflow-hidden bg-white mb-2">
+                        <img
+                          src={demandesService.photoPreuveDemandeUrl(demandeId, preuve.etapeId)}
+                          alt={`Preuve ${preuve.descriptionColis} étape ${preuve.ordre}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.target.style.display = 'none'
+                            e.target.nextSibling.style.display = 'flex'
+                          }}
+                        />
+                        <div className="w-full h-full items-center justify-center hidden">
+                          <span className="material-symbols-outlined text-2xl text-[#8A8A92]">photo_camera</span>
+                        </div>
+                      </div>
+                      <p className="font-mono text-[10px] text-[#1A1A1E] font-bold">
+                        {preuve.descriptionColis}
+                      </p>
+                      <p className="font-mono text-[10px] text-[#8A8A92]">
+                        {preuve.poidsKg} kg — Étape {preuve.ordre}
+                      </p>
+                      {preuve.signatureNom && (
+                        <p className="font-mono text-[10px] text-[#1A1A1E]">
+                          Signé : {preuve.signatureNom}
+                        </p>
+                      )}
+                      {preuve.dateLivraison && (
+                        <p className="font-mono text-[9px] text-[#8A8A92]">
+                          {new Date(preuve.dateLivraison).toLocaleString('fr-FR')}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {factureLoading && (
+              <div className="border-t-2 border-[#ECECEC] pt-4 text-center">
+                <span className="material-symbols-outlined animate-spin text-[#8A8A92]">sync</span>
+                <p className="font-mono text-xs text-[#8A8A92] mt-1">Chargement des preuves...</p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -676,62 +729,73 @@ export default function DetailCommandePage() {
             <span className="stamp-ink stamp-ink-red text-xs">LIVRAISON EFFECTUÉE</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-            {/* Photo de livraison */}
-            <div className="space-y-2">
-              <span className="font-mono text-[10.5px] text-[#8A8A92] uppercase font-bold block">
-                1. Cliché photographique du colis sur place
-              </span>
-              <div className="rounded overflow-hidden border border-[#ECECEC] bg-white aspect-video relative flex items-center justify-center">
-                <img
-                  src={order.preuveLivraison?.photoUrl || 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop&q=80'}
-                  alt="Preuve colis livré"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-2 left-2 bg-[#1A1A1E]/80 text-white font-mono text-[9px] px-2 py-0.5 rounded">
-                  GPS certifié : {order.latitudeLivraison}, {order.longitudeLivraison}
+          {/* Photos reelles par colis depuis la facture */}
+          {factureData?.preuves && factureData.preuves.length > 0 ? (
+            <div className="space-y-3">
+              {factureData.preuves.map((preuve) => (
+                <div key={preuve.etapeId} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start bg-white rounded-lg border border-emerald-200 p-4">
+                  <div className="space-y-2">
+                    <span className="font-mono text-[10.5px] text-[#8A8A92] uppercase font-bold block">
+                      Cliché photographique — {preuve.descriptionColis}
+                    </span>
+                    <div className="rounded overflow-hidden border border-[#ECECEC] bg-white aspect-video relative flex items-center justify-center">
+                      <img
+                        src={demandesService.photoPreuveDemandeUrl(demandeId, preuve.etapeId)}
+                        alt={`Preuve ${preuve.descriptionColis}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none'
+                          e.target.nextSibling.style.display = 'flex'
+                        }}
+                      />
+                      <div className="w-full h-full items-center justify-center hidden">
+                        <span className="material-symbols-outlined text-3xl text-[#8A8A92]">photo_camera</span>
+                      </div>
+                      {order.latitudeLivraison && (
+                        <div className="absolute bottom-2 left-2 bg-[#1A1A1E]/80 text-white font-mono text-[9px] px-2 py-0.5 rounded">
+                          GPS : {order.latitudeLivraison}, {order.longitudeLivraison}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="font-mono text-[10.5px] text-[#8A8A92] uppercase font-bold block">
+                      Détails colis — Étape {preuve.ordre}
+                    </span>
+                    <div className="p-4 bg-white border border-[#ECECEC] rounded space-y-2 font-mono text-xs">
+                      <div className="flex justify-between border-b border-[#ECECEC] pb-2">
+                        <span className="text-[#8A8A92]">Type :</span>
+                        <span className="text-[#1A1A1E] font-bold">{preuve.descriptionColis}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-[#ECECEC] pb-2">
+                        <span className="text-[#8A8A92]">Poids :</span>
+                        <span className="text-[#1A1A1E] font-bold">{preuve.poidsKg} kg</span>
+                      </div>
+                      {preuve.signatureNom && (
+                        <div className="flex justify-between border-b border-[#ECECEC] pb-2">
+                          <span className="text-[#8A8A92]">Signé par :</span>
+                          <span className="text-[#1A1A1E] font-bold">{preuve.signatureNom}</span>
+                        </div>
+                      )}
+                      {preuve.dateLivraison && (
+                        <div className="flex justify-between">
+                          <span className="text-[#8A8A92]">Date :</span>
+                          <span className="text-[#1A1A1E] font-bold">
+                            {new Date(preuve.dateLivraison).toLocaleString('fr-FR')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-
-            {/* Signature du destinataire */}
-            <div className="space-y-2">
-              <span className="font-mono text-[10.5px] text-[#8A8A92] uppercase font-bold block">
-                2. Émargement & Signature du destinataire
-              </span>
-              <div className="p-4 bg-white border border-[#ECECEC] rounded space-y-3 font-mono text-xs">
-                <div className="flex justify-between border-b border-[#ECECEC] pb-2">
-                  <span className="text-[#8A8A92]">Réceptionné par :</span>
-                  <span className="text-[#1A1A1E] font-bold">
-                    {order.preuveLivraison?.destinataireNom || order.nomDestinataire || 'M. Rakotoarisoa'}
-                  </span>
-                </div>
-
-                {/* Bloc visuel de la signature électronique */}
-                <div className="h-28 bg-[#F7F7F8] rounded border border-dashed border-[#1A1A1E]/30 flex flex-col items-center justify-center relative p-2">
-                  <svg className="w-48 h-16 stroke-[#1A1A1E] fill-none" viewBox="0 0 200 60">
-                    <path
-                      d="M 20,40 Q 50,10 80,35 T 140,25 T 180,45"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M 60,35 Q 90,50 110,20"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span className="text-[9px] text-[#8A8A92] uppercase tracking-wider absolute bottom-1.5 right-2">
-                    Signature Électronique Certifiée
-                  </span>
-                </div>
-
-                <div className="text-[11px] text-[#8A8A92]">
-                  Remarques : {order.preuveLivraison?.remarques || 'Remis en parfait état conforme au bordereau.'}
-                </div>
-              </div>
+          ) : (
+            <div className="text-center py-4 bg-white rounded-lg border border-emerald-200">
+              <span className="material-symbols-outlined text-3xl text-[#8A8A92]">photo_camera</span>
+              <p className="font-mono text-xs text-[#8A8A92] mt-2">Photos de preuve en attente de chargement...</p>
             </div>
-          </div>
+          )}
         </div>
       )}
 

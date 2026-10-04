@@ -5,9 +5,11 @@ import com.example.Bakend.entity.CategorieProduit;
 import com.example.Bakend.entity.PMECliente;
 import com.example.Bakend.repository.CategorieProduitRepository;
 import com.example.Bakend.repository.PMEClienteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -34,6 +36,7 @@ public class CategorisationService {
     private final CategorieProduitRepository categorieProduitRepository;
     private final PMEClienteRepository pmeClienteRepository;
 
+    @Autowired
     public CategorisationService(ColisFeatureExtractor extractor,
                                  CategorieProduitRepository categorieProduitRepository,
                                  PMEClienteRepository pmeClienteRepository) {
@@ -55,6 +58,7 @@ public class CategorisationService {
         this.pmeClienteRepository = null;
     }
 
+    @Transactional(readOnly = true)
     public CategorisationResult runClustering(UUID tenantId) {
         long start = System.currentTimeMillis();
 

@@ -7,11 +7,25 @@ import ThemeScope from '../components/ThemeScope'
 const navItems = [
   { key: 'dashboard', label: 'Dashboard', icon: 'dashboard', path: '/logistics/dashboard' },
   { key: 'commandes', label: 'Commandes', icon: 'calendar_today', path: '/logistics/commandes' },
-  { key: 'chauffeurs_rattaches', label: 'Chauffeurs', icon: 'badge', path: '/logistics/chauffeurs_rattaches' },
+  {
+    key: 'logistique',
+    label: 'Logistique',
+    icon: 'local_shipping',
+    children: [
+      { key: 'chauffeurs_rattaches', label: 'Chauffeurs', icon: 'badge', path: '/logistics/chauffeurs_rattaches' },
+      { key: 'sacs', label: 'Sacs', icon: 'inventory_2', path: '/logistics/sacs' },
+      { key: 'flotte', label: 'Véhicules', icon: 'directions_car', path: '/logistics/flotte' },
+      { key: 'tournees', label: 'Tournées', icon: 'route', path: '/logistics/tournees' },
+    ],
+  },
   { key: 'optimisation', label: 'Optimisation', icon: 'auto_graph', path: '/logistics/optimisation' },
-  { key: 'flotte', label: 'Flotte', icon: 'local_shipping', path: '/logistics/flotte' },
+  { key: 'simulation', label: 'Simulation', icon: 'science', path: '/logistics/simulation' },
   { key: 'carte_optimisation', label: 'Carte', icon: 'map', path: '/logistics/carte_optimisation' },
+  { key: 'historique', label: 'Historique', icon: 'history', path: '/logistics/historique' },
 ]
+
+// Aplatit les groupes pour résoudre une clé (parent ou enfant) vers son path
+const flatItems = navItems.flatMap(item => (item.children ? item.children : [item]))
 
 export default function GestionnaireLayout() {
   const navigate = useNavigate()
@@ -32,7 +46,7 @@ export default function GestionnaireLayout() {
         navItems={navItems}
         activePage={activeKey}
         onNavigate={(key) => {
-          const item = navItems.find(i => i.key === key)
+          const item = flatItems.find(i => i.key === key)
           if (item) navigate(item.path)
         }}
         branding={{ subtitle: 'Fleet Management' }}

@@ -363,6 +363,26 @@ public class DemandeController {
         return ResponseEntity.ok(demandeService.obtenirFacture(tenantId, demandeId));
     }
 
+    /**
+     * Photo de preuve d'une etape liee a une demande.
+     * Accessible client, gestionnaire, direction, chauffeur.
+     */
+    @GetMapping("/{demandeId}/preuves/{etapeId}/photo")
+    @PreAuthorize("hasAnyRole('CLIENT_FINAL','GESTIONNAIRE','DIRECTION','CHAUFFEUR')")
+    @Transactional(readOnly = true)
+    public ResponseEntity<byte[]> getPhotoPreuveDemande(
+            @PathVariable UUID demandeId,
+            @PathVariable UUID etapeId) {
+        UUID tenantId = requireTenantId();
+        byte[] data = demandeService.getPhotoPreuveDemande(tenantId, demandeId, etapeId);
+        org.springframework.http.MediaType mediaType = detectMediaType(data);
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"preuve_" + etapeId + "\"")
+                .body(data);
+    }
+
     // ========================================================================
     // PROGRAMMATION (Module E)
     // ========================================================================
@@ -407,5 +427,19 @@ public class DemandeController {
                     400);
         }
         return user.getUtilisateur().getClientFinal().getClientFinalId();
+    }
+
+    private org.springframework.http.MediaType detectMediaType(byte[] data) {
+        if (data == null || data.length < 4) return org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
+        if (data[0] == 0x25 && data[1] == 0x50 && data[2] == 0x44 && data[3] == 0x46) {
+            return org.springframework.http.MediaType.APPLICATION_PDF;
+        }
+        if ((data[0] & 0xFF) == 0xFF && (data[1] & 0xFF) == 0xD8 && (data[2] & 0xFF) == 0xFF) {
+            return org.springframework.http.MediaType.IMAGE_JPEG;
+        }
+        if ((data[0] & 0xFF) == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47) {
+            return org.springframework.http.MediaType.IMAGE_PNG;
+        }
+        return org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
     }
 }

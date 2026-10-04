@@ -54,6 +54,10 @@ public class EtapeLivraison {
     @Column(name = "photo_url", columnDefinition = "TEXT")
     private String photoUrl;
 
+    // V28 : photo preuve stockee en BDD (BYTEA, meme modele que permis_scan)
+    @Column(name = "photo_preuve")
+    private byte[] photoPreuve;
+
     @Column(name = "signature_nom", length = 255)
     private String signatureNom;
 

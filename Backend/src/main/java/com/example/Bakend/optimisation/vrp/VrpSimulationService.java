@@ -143,6 +143,12 @@ public class VrpSimulationService {
             throw new IllegalStateException("Le Sac " + request.sacId() + " n'a pas de chauffeur/vehicule affecte.");
         }
 
+        // V1-d : une seule tournee par sac — pas de double planification
+        if (!tourneeRepository.findBySacSacId(sac.getSacId()).isEmpty()) {
+            throw new IllegalStateException(
+                    "Une tournee existe deja pour ce sac : supprimez-la avant d'en planifier une nouvelle.");
+        }
+
         Hub hub = sac.getHub();
 
         // D'abord preview pour avoir les donnees

@@ -2,6 +2,7 @@ package com.example.Bakend.optimisation.categorisation;
 
 import com.example.Bakend.entity.ColisFeature;
 import com.example.Bakend.repository.ColisFeatureRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,7 @@ public class ColisFeatureExtractor {
 
     private final ColisFeatureRepository colisFeatureRepository;
 
+    @Autowired
     public ColisFeatureExtractor(ColisFeatureRepository colisFeatureRepository) {
         this.colisFeatureRepository = colisFeatureRepository;
     }
