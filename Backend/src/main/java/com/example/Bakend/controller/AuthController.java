@@ -279,6 +279,7 @@ public class AuthController {
                 dossier.typeChauffeur(), dossier.agenceId(),
                 dossier.aVehiculeAssigne(), dossier.immatriculation(), dossier.typeVehicule(),
                 dossier.marqueModele(), dossier.annee(), dossier.ptacTonnes(), dossier.capaciteVolumeM3(),
+                dossier.capacitePoidsKg(),
                 permisScan != null ? permisScan.getBytes() : null);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);

@@ -195,4 +195,36 @@ class PermisServiceTest {
         PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
         assertTrue(auth.autorise(), "C+E doit couvrir C+E, refus: " + auth.motifRefus());
     }
+
+    // ── PTAC absent : repli sur la charge utile (freelance) ──
+
+    @Test
+    void ptac_absent_mais_charge_utile_suffit() {
+        Chauffeur ch = makeChauffeur("B", LocalDate.now().plusYears(2), true, true);
+        Vehicule v = makeVehicule(TypeVehicule.PICKUP, null);
+        v.setCapacitePoidsKg(new BigDecimal("1500"));
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
+        assertTrue(auth.autorise(), "refus inattendu: " + auth.motifRefus());
+        assertTrue(auth.raisons().stream().noneMatch(r -> r.contains("PTAC du vehicule non renseigne")),
+                "motif inattendu: " + auth.raisons());
+    }
+
+    @Test
+    void ptac_absent_avec_charge_utile_lourde_exige_la_classe_C() {
+        Chauffeur ch = makeChauffeur("B", LocalDate.now().plusYears(2), true, true);
+        Vehicule v = makeVehicule(TypeVehicule.CAMION, null);
+        v.setCapacitePoidsKg(new BigDecimal("10000"));
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
+        assertFalse(auth.autorise());
+        assertTrue(auth.motifRefus().contains("C"), "classe C attendue: " + auth.motifRefus());
+    }
+
+    @Test
+    void ptac_absent_et_sans_charge_utile_reste_bloquant() {
+        Chauffeur ch = makeChauffeur("B", LocalDate.now().plusYears(2), true, true);
+        Vehicule v = makeVehicule(TypeVehicule.PICKUP, null);
+        PermisService.Autorisation auth = PermisService.verifier(ch, v, matrice(ch, v, true), null, null);
+        assertFalse(auth.autorise());
+        assertTrue(auth.motifRefus().contains("PTAC du vehicule non renseigne"));
+    }
 }

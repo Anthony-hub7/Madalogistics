@@ -171,7 +171,7 @@ public class FreelanceService {
                 + ",\"poidsKg\":" + round2(poids)
                 + ",\"volumeM3\":" + round2(volume)
                 + ",\"tauxRemplissage\":" + round2(taux)
-                + ",\"dateDepart\":" + dateDepart + "}");
+                + ",\"dateDepart\":\"" + dateDepart + "\"}");
         auditLogRepository.save(audit);
 
         log.info("Sac freelance cree (tenant {}) : sac {} pour la demande {} ({} colis, {} kg)",

@@ -68,6 +68,7 @@ public class ChauffeurRegistrationService {
             String typeChauffeur, UUID agenceId,
             Boolean aVehiculeAssigne, String immatriculation, String typeVehicule,
             String marqueModele, Integer annee, String ptacTonnes, String capaciteVolumeM3,
+            String capacitePoidsKg,
             byte[] permisScan) {
 
         // Unicite email
@@ -87,6 +88,14 @@ public class ChauffeurRegistrationService {
                     || typeVehicule == null || typeVehicule.isBlank()) {
                 throw new BusinessException(
                         "Un chauffeur freelance doit declarer son vehicule : immatriculation et type sont obligatoires");
+            }
+            // Sans charge utile, le freelance serait ineligible a toutes les missions
+            // (PermisService refuse tout sac dont le poids depasse capacite_poids_kg).
+            boolean poidsDeclare = (capacitePoidsKg != null && !capacitePoidsKg.isBlank())
+                    || (ptacTonnes != null && !ptacTonnes.isBlank());
+            if (!poidsDeclare) {
+                throw new BusinessException(
+                        "Un chauffeur freelance doit declarer la charge utile de son vehicule (kg)");
             }
         }
 
@@ -122,6 +131,19 @@ public class ChauffeurRegistrationService {
                         errors.add("capaciteVolumeM3: La capacite en volume doit etre superieure a 0.");
                     }
                 } catch (NumberFormatException ignored) {}
+            }
+
+            // Charge utile : poids maximal transportable (kg)
+            if (capacitePoidsKg != null && !capacitePoidsKg.isBlank()) {
+                try {
+                    double poids = Double.parseDouble(capacitePoidsKg.trim().replace(',', '.'));
+                    if (poids <= 0) {
+                        errors.add("capacitePoidsKg: La charge utile doit etre superieure a 0 kg.");
+                    }
+                } catch (NumberFormatException e) {
+                    errors.add("capacitePoidsKg: Charge utile invalide ("
+                            + capacitePoidsKg + ") — saisissez un poids en kg (ex. 1500).");
+                }
             }
 
             // Verifier coherence permis <-> type vehicule
@@ -231,8 +253,15 @@ public class ChauffeurRegistrationService {
             } catch (NumberFormatException e) {
                 throw new BusinessException("Capacite volume invalide : " + capaciteVolumeM3);
             }
-            // Capacite poids : convertir PTAC (tonnes) en kg si disponible
-            if (ptacTonnes != null && !ptacTonnes.isBlank()) {
+            // Capacite poids (kg) : charge utile saisie explicitement, sinon
+            // derivee du PTAC (compatibilite rattaches qui ne saisissent pas le kg)
+            if (capacitePoidsKg != null && !capacitePoidsKg.isBlank()) {
+                try {
+                    vehicule.setCapacitePoidsKg(new BigDecimal(capacitePoidsKg.trim().replace(',', '.')));
+                } catch (NumberFormatException e) {
+                    throw new BusinessException("Charge utile invalide : " + capacitePoidsKg);
+                }
+            } else if (ptacTonnes != null && !ptacTonnes.isBlank()) {
                 try {
                     BigDecimal ptacT = new BigDecimal(ptacTonnes.trim().replace(',', '.'));
                     vehicule.setCapacitePoidsKg(ptacT.multiply(new BigDecimal("1000")));

@@ -109,8 +109,16 @@ public class PermisService {
         BigDecimal ptac = vehicule.getPtacTonnes();
 
         if (ptac == null) {
-            raisons.add("PTAC du vehicule non renseigne.");
-        } else {
+            // Repli : les freelances declarent la charge utile (kg), pas le PTAC.
+            // Une charge utile > 3.5t implique necessairement un PTAC > 3.5t.
+            BigDecimal chargeUtile = vehicule.getCapacitePoidsKg();
+            if (chargeUtile != null && chargeUtile.compareTo(BigDecimal.ZERO) > 0) {
+                ptac = chargeUtile.divide(new BigDecimal("1000"));
+            } else {
+                raisons.add("PTAC du vehicule non renseigne.");
+            }
+        }
+        if (ptac != null) {
             if (ptac.compareTo(new BigDecimal("3.5")) > 0) {
                 if (!classesPermis.contains("C")) {
                     raisons.add("PTAC " + ptac + "t > 3.5t : permis classe C requis (chauffeur possede: "

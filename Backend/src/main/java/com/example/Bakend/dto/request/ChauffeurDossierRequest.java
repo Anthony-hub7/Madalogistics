@@ -67,6 +67,7 @@ public record ChauffeurDossierRequest(
         String marqueModele,
         Integer annee,
         String ptacTonnes,
-        String capaciteVolumeM3
+        String capaciteVolumeM3,
+        String capacitePoidsKg
 ) {
 }

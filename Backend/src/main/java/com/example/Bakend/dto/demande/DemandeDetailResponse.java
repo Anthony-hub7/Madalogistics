@@ -37,6 +37,9 @@ public record DemandeDetailResponse(
         UUID grilleId,
         ModeLivraison modeLivraison,
         List<ColisItem> colis,
+        UUID sacId,
+        String sacStatut,
+        String missionChauffeur,
         LocalDateTime createdAt
 ) {
     public record ColisItem(
@@ -46,7 +49,9 @@ public record DemandeDetailResponse(
             UUID categorieId,
             String categorieLibelle,
             String categorieClasseValeur,
-            String etat
+            String etat,
+            UUID sacId,
+            String sacStatut
     ) {
         public static ColisItem from(Colis c) {
             return new ColisItem(
@@ -56,7 +61,9 @@ public record DemandeDetailResponse(
                     c.getCategorie() != null ? c.getCategorie().getCategorieId() : null,
                     c.getCategorie() != null ? c.getCategorie().getLibelle() : null,
                     c.getCategorie() != null ? c.getCategorie().getClasseValeur().name() : null,
-                    c.getEtat() != null ? c.getEtat().name() : null
+                    c.getEtat() != null ? c.getEtat().name() : null,
+                    c.getSac() != null ? c.getSac().getSacId() : null,
+                    c.getSac() != null && c.getSac().getStatut() != null ? c.getSac().getStatut().name() : null
             );
         }
     }
@@ -65,6 +72,23 @@ public record DemandeDetailResponse(
         List<ColisItem> colisItems = d.getColis() != null
                 ? d.getColis().stream().map(ColisItem::from).toList()
                 : List.of();
+
+        // Mission : sac porte par le premier colis rattache (1 commande
+        // freelance = 1 sac). Sert la liste et la page detail sans 2e appel.
+        UUID sacId = null;
+        String sacStatut = null;
+        String missionChauffeur = null;
+        if (d.getColis() != null) {
+            for (Colis c : d.getColis()) {
+                if (c.getSac() == null) continue;
+                sacId = c.getSac().getSacId();
+                sacStatut = c.getSac().getStatut() != null ? c.getSac().getStatut().name() : null;
+                missionChauffeur = c.getSac().getChauffeur() != null
+                        && c.getSac().getChauffeur().getUtilisateur() != null
+                        ? c.getSac().getChauffeur().getUtilisateur().getNom() : null;
+                break;
+            }
+        }
 
         return new DemandeDetailResponse(
                 d.getDemandeId(),
@@ -89,6 +113,9 @@ public record DemandeDetailResponse(
                 d.getGrilleUtilisee() != null ? d.getGrilleUtilisee().getGrilleId() : null,
                 d.getModeLivraison(),
                 colisItems,
+                sacId,
+                sacStatut,
+                missionChauffeur,
                 d.getCreatedAt()
         );
     }

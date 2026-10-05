@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { demandesService } from '../../services/demandesService'
+import { sacsService } from '../../services/sacsService'
+import SacDetailModal from '../../components/SacDetailModal'
 import ValiderCommandeModal from '../../components/ValiderCommandeModal'
+import { missionFreelanceLabel } from '../../utils/missionFreelance'
 import MapView from '../../map/MapView'
 import { Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
@@ -39,6 +42,22 @@ export default function CommandeDetailLogistiquePage() {
   const [showRefuse, setShowRefuse] = useState(false)
   const [showValider, setShowValider] = useState(false)
   const [motif, setMotif] = useState('')
+  const [mission, setMission] = useState(null)
+  const [showSac, setShowSac] = useState(false)
+
+  const sacId = order
+    ? ((order.colis || []).find(c => c.sacId)?.sacId || null)
+    : null
+  const isFreelance = order?.modeLivraison === 'FREELANCE' && !!sacId
+
+  useEffect(() => {
+    if (!sacId) { setMission(null); return }
+    let alive = true
+    sacsService.detail(sacId)
+      .then(d => { if (alive) setMission(d) })
+      .catch(() => { if (alive) setMission(null) })
+    return () => { alive = false }
+  }, [sacId])
 
   useEffect(() => {
     if (!id) { setLoading(false); return }
@@ -85,6 +104,9 @@ export default function CommandeDetailLogistiquePage() {
 
   const info = STATUT_MAP[order.statut] || STATUT_MAP.CREEE
   const isCree = order.statut === 'CREEE'
+  const missionLabel = isFreelance && mission
+    ? missionFreelanceLabel(mission.statut, mission.chauffeurNom)
+    : null
 
   const MAP_CENTER = order.latitudeLivraison ? [order.latitudeLivraison, order.longitudeLivraison] : [-18.8792, 47.5079]
   const MARKERS = []
@@ -114,6 +136,7 @@ export default function CommandeDetailLogistiquePage() {
       )}
       <ValiderCommandeModal open={showValider} nbColis={(order.colis || []).length}
         onClose={() => setShowValider(false)} onConfirm={handleValider} acting={acting} />
+      {showSac && sacId && <SacDetailModal sacId={sacId} onClose={() => setShowSac(false)} />}
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-[#ECECEC] pb-4">
         <div>
@@ -223,6 +246,53 @@ export default function CommandeDetailLogistiquePage() {
         </div>
 
         <div className="lg:col-span-4 space-y-4">
+          {isFreelance && mission && missionLabel && (
+            <div className="bordereau-row p-5 space-y-3">
+              <div className="border-b border-[#ECECEC] pb-2.5 flex items-center justify-between gap-2">
+                <span className="font-mono text-[10px] text-[#8A8A92] uppercase font-bold">Mission freelance</span>
+                <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-full border ${missionLabel.cls}`}>
+                  {missionLabel.label}
+                </span>
+              </div>
+
+              {mission.statut === 'CONSTITUE' ? (
+                <p className="font-body text-xs text-[#8A8A92]">
+                  En appel d'offres — en attente d'un freelance. Le premier à accepter reçoit la mission.
+                </p>
+              ) : (
+                <div className="space-y-2 font-mono text-xs">
+                  <div className="flex justify-between gap-2">
+                    <span className="text-[#8A8A92]">Chauffeur :</span>
+                    <span className="font-bold text-right">{mission.chauffeurNom || '—'}</span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-[#8A8A92]">Véhicule :</span>
+                    <span className="font-bold text-right">{mission.immatriculation || '—'}</span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-[#8A8A92]">Tournée :</span>
+                    <span className="font-bold text-right">
+                      {mission.hasTournee
+                        ? `${mission.tourneeStatut || '—'} · ${(mission.etapes || []).length} étape(s)`
+                        : 'Non planifiée'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-[#8A8A92]">Contenu :</span>
+                    <span className="font-bold text-right">
+                      {mission.nbColis} colis · {mission.poidsKg} kg · {mission.volumeM3} m³
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <button onClick={() => setShowSac(true)}
+                className="w-full border border-[#ECECEC] rounded px-3 py-2 font-mono text-[11px] font-bold uppercase text-[#1A1A1E] hover:bg-[#F7F7F8] cursor-pointer">
+                Voir le sac
+              </button>
+            </div>
+          )}
+
           <div className="bordereau-row p-5 space-y-3 font-body text-xs">
             <div className="border-b border-[#ECECEC] pb-2.5">
               <span className="font-mono text-[10px] text-[#8A8A92] uppercase block">Détails</span>

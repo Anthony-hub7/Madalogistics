@@ -4,6 +4,7 @@ import com.example.Bakend.entity.*;
 import com.example.Bakend.entity.enums.*;
 import com.example.Bakend.exception.BusinessException;
 import com.example.Bakend.repository.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -128,8 +129,15 @@ class FreelanceServiceTest {
         assertEquals(DemandeStatut.GROUPEE, demande.getStatut());
         assertSame(cree, colis1.getSac());
         assertSame(cree, colis2.getSac());
-        verify(auditLogRepository).save(argThat(a ->
-                a.getAction() == AuditAction.CREATION && a.getDetails().contains("freelance")));
+
+        // La colonne audit_log.details est JSONB : la moindre date non quotee
+        // fait exploser l'INSERT avec un "invalid input syntax for type json"
+        // (traduit en DataIntegrityViolationException "violation d'integrite").
+        AuditLog audit = capturerAudit();
+        assertEquals(AuditAction.CREATION, audit.getAction());
+        assertTrue(audit.getDetails().contains("freelance"));
+        assertDoesNotThrow(() -> new ObjectMapper().readTree(audit.getDetails()),
+                "audit.details n'est pas un JSON valide : " + audit.getDetails());
     }
 
     @Test
@@ -272,6 +280,12 @@ class FreelanceServiceTest {
     private Sac capturerSac() {
         var capturer = ArgumentCaptor.forClass(Sac.class);
         verify(sacRepository).save(capturer.capture());
+        return capturer.getValue();
+    }
+
+    private AuditLog capturerAudit() {
+        var capturer = ArgumentCaptor.forClass(AuditLog.class);
+        verify(auditLogRepository).save(capturer.capture());
         return capturer.getValue();
     }
 }

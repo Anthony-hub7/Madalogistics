@@ -282,7 +282,7 @@ function Step3({ data, onChange, onNext, onSubmit, onBack, submitting }) {
   }, [isFreelance, data.aVehiculeAssigne, onChange])
 
   const valid = isFreelance
-    ? (hasVehicule && data.immatriculation && data.typeVehicule)
+    ? (hasVehicule && data.immatriculation && data.typeVehicule && data.poidsMax && parseFloat(data.poidsMax) > 0)
     : (noVehicule || (hasVehicule && data.immatriculation && data.typeVehicule))
 
   return (
@@ -341,6 +341,7 @@ function Step3({ data, onChange, onNext, onSubmit, onBack, submitting }) {
                 onChange('annee', '')
                 onChange('ptac', '')
                 onChange('capacite', '')
+                onChange('poidsMax', '')
               }}
               className={`flex items-center gap-3 rounded-lg border-2 p-4 transition-all text-left ${
                 noVehicule
@@ -411,10 +412,16 @@ function Step3({ data, onChange, onNext, onSubmit, onBack, submitting }) {
               value={data.ptac} onChange={e => onChange('ptac', e.target.value)} />
           </div>
 
-          <FormInput label="Capacité de chargement (m³)" id="capacite" icon="inventory_2"
-            type="number" min="0" max="100" step="0.5" placeholder="Ex : 12.5"
-            hint="Volume utile approximatif de votre véhicule"
-            value={data.capacite} onChange={e => onChange('capacite', e.target.value)} />
+          <div className="grid grid-cols-2 gap-4">
+            <FormInput label={`Charge utile maximale (kg)${isFreelance ? ' *' : ''}`} id="poidsMax" icon="monitor_weight"
+              type="number" min="0" step="50" placeholder="Ex : 1500"
+              hint="Poids maximal de marchandises transportable"
+              value={data.poidsMax} onChange={e => onChange('poidsMax', e.target.value)} />
+            <FormInput label="Capacité de chargement (m³)" id="capacite" icon="inventory_2"
+              type="number" min="0" max="100" step="0.5" placeholder="Ex : 12.5"
+              hint="Volume utile approximatif de votre véhicule"
+              value={data.capacite} onChange={e => onChange('capacite', e.target.value)} />
+          </div>
 
           {/* ── Alertes de cohérence temps réel ── */}
           {(() => {
@@ -422,6 +429,7 @@ function Step3({ data, onChange, onNext, onSubmit, onBack, submitting }) {
             const typeV = data.typeVehicule
             const ptac = parseFloat(data.ptac)
             const capacite = parseFloat(data.capacite)
+            const poidsMax = parseFloat(data.poidsMax)
             const cats = (data.permisCategories || '').split(/[,;/\s]+/).flatMap(t => t.trim().toUpperCase().split('+')).flatMap(p => {
               const c = (p || '').trim().toUpperCase()
               if (!c) return []
@@ -445,6 +453,10 @@ function Step3({ data, onChange, onNext, onSubmit, onBack, submitting }) {
 
             if (!isNaN(capacite) && capacite <= 0) {
               warnings.push({ icon: 'error', color: 'red', text: 'La capacité de chargement doit être supérieure à 0 m³.' })
+            }
+
+            if (isFreelance && (!data.poidsMax || isNaN(poidsMax) || poidsMax <= 0)) {
+              warnings.push({ icon: 'error', color: 'red', text: 'La charge utile maximale (kg) est obligatoire et doit être supérieure à 0.' })
             }
 
             if (!isNaN(ptac) && ptac <= 0) {
@@ -992,7 +1004,7 @@ function ChauffeurInscriptionFlow() {
     prenom: '', nom: '', cin: '', dob: '', sexe: '', telephone: '', email: '', adresse: '', motDePasse: '',
     permisNum: '', permisCategorie: '', permisExpiration: '', categories: [], experience: '', permisScan: null, permisScanName: '',
     aVehiculeAssigne: null,
-    immatriculation: '', typeVehicule: '', marque: '', annee: '', ptac: '', capacite: '',
+    immatriculation: '', typeVehicule: '', marque: '', annee: '', ptac: '', capacite: '', poidsMax: '',
     typeChauffeur: '', agenceId: '',
   })
 
@@ -1037,6 +1049,7 @@ function ChauffeurInscriptionFlow() {
         annee: data.annee ? parseInt(data.annee) : null,
         ptacTonnes: data.ptac || null,
         capaciteVolumeM3: data.capacite || null,
+        capacitePoidsKg: data.poidsMax || null,
       }
       await chauffeursService.deposerDossier(dossier, data.permisScan)
       setScreen('attente')

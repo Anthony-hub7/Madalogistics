@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { demandesService } from '../../services/demandesService'
 import ValiderCommandeModal from '../../components/ValiderCommandeModal'
+import { missionFreelanceLabel } from '../../utils/missionFreelance'
 
 const STATUT_MAP = {
   CREEE: { label: 'Créée', dot: 'bg-yellow-400', badge: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
@@ -262,6 +263,9 @@ export default function DemandesListPage() {
                     const st = STATUT_MAP[o.statut] || STATUT_MAP.CREEE
                     const isCree = o.statut === 'CREEE'
                     const isSelectable = o.statut === 'EN_ATTENTE_GROUPAGE'
+                    const missionLabel = o.modeLivraison === 'FREELANCE' && o.sacId
+                      ? missionFreelanceLabel(o.sacStatut, o.missionChauffeur)
+                      : null
                     return (
                       <tr key={o.demandeId} className="hover:bg-[#F7F7F8]/60 transition-colors">
                         <td className="px-4 py-3 md:px-6">
@@ -310,6 +314,11 @@ export default function DemandesListPage() {
                             <span className={`ml-1 inline-flex items-center rounded-full border px-1.5 py-0.5 font-mono text-[9px] font-bold ${
                               o.modeLivraison === 'FREELANCE' ? 'border-purple-400 bg-purple-50 text-purple-700' : 'border-blue-400 bg-blue-50 text-blue-700'
                             }`}>{o.modeLivraison}</span>
+                          )}
+                          {missionLabel && (
+                            <span className={`ml-1 inline-flex items-center rounded-full border px-1.5 py-0.5 font-mono text-[9px] font-bold ${missionLabel.cls}`}>
+                              {missionLabel.label}
+                            </span>
                           )}
                         </td>
                         <td className="px-4 py-3">
