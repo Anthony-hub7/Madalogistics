@@ -40,6 +40,7 @@ class SacEditionServiceTest {
     @Mock private VehiculeRepository vehiculeRepository;
     @Mock private TourneeRepository tourneeRepository;
     @Mock private AuditLogRepository auditLogRepository;
+    @Mock private NotificationService notificationService;
 
     @InjectMocks private SacEditionService service;
 
@@ -367,5 +368,38 @@ class SacEditionServiceTest {
     @Test
     void colis_du_sac_exige_un_sac_du_tenant() {
         assertThrows(ResourceNotFoundException.class, () -> service.colisDuSac(tenantId, UUID.randomUUID()));
+    }
+
+    // ══════════ Incident vehicule : annulation douce ══════════
+
+    @Test
+    void annuler_incident_libere_colis_et_demande_en_transit() {
+        sac.setStatut(SacStatut.EN_TRANSIT);
+        colis1.setEtat(ColisEtat.EN_TRANSIT);
+        demande.setStatut(DemandeStatut.EN_TRANSIT);
+
+        var res = service.annulerIncident(tenantId, sac.getSacId(), "panne moteur");
+
+        assertEquals(SacStatut.ANNULE, sac.getStatut());
+        assertNull(colis1.getSac());
+        assertEquals(ColisEtat.EN_ATTENTE, colis1.getEtat());
+        assertEquals(DemandeStatut.EN_ATTENTE_GROUPAGE, demande.getStatut());
+        assertEquals(1, res.colisLiberes());
+        assertEquals(1, res.demandesRetournees());
+        assertEquals("ANNULE", res.statutSac());
+        verify(notificationService, times(2)).diffuser(
+                eq(tenant), anyString(), eq(NotificationService.TYPE_SAC_ANNULE),
+                anyString(), anyString(), eq(sac));
+        verify(sacRepository, never()).delete(any());
+    }
+
+    @Test
+    void annuler_incident_refuse_sac_constitue() {
+        sac.setStatut(SacStatut.CONSTITUE);
+
+        BusinessException ex = assertThrows(BusinessException.class, () ->
+                service.annulerIncident(tenantId, sac.getSacId(), "panne"));
+
+        assertEquals(409, ex.getStatus());
     }
 }

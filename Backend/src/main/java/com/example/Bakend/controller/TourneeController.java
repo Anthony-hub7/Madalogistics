@@ -64,6 +64,7 @@ public class TourneeController {
         List<Map<String, Object>> result = tournees.stream().map(t -> {
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("tournee_id", t.getTourneeId().toString());
+            map.put("sac_id", t.getSac() != null ? t.getSac().getSacId().toString() : null);
             map.put("statut", t.getStatut().name());
             map.put("distance_totale_km", t.getDistanceTotaleKm());
             map.put("created_at", t.getCreatedAt() != null ? t.getCreatedAt().toString() : null);

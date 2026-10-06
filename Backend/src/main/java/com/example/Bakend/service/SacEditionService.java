@@ -51,6 +51,7 @@ public class SacEditionService {
     private final VehiculeRepository vehiculeRepository;
     private final TourneeRepository tourneeRepository;
     private final AuditLogRepository auditLogRepository;
+    private final NotificationService notificationService;
 
     public SacEditionService(SacRepository sacRepository,
                              ColisRepository colisRepository,
@@ -58,7 +59,8 @@ public class SacEditionService {
                              ChauffeurRepository chauffeurRepository,
                              VehiculeRepository vehiculeRepository,
                              TourneeRepository tourneeRepository,
-                             AuditLogRepository auditLogRepository) {
+                             AuditLogRepository auditLogRepository,
+                             NotificationService notificationService) {
         this.sacRepository = sacRepository;
         this.colisRepository = colisRepository;
         this.demandeRepository = demandeRepository;
@@ -66,6 +68,7 @@ public class SacEditionService {
         this.vehiculeRepository = vehiculeRepository;
         this.tourneeRepository = tourneeRepository;
         this.auditLogRepository = auditLogRepository;
+        this.notificationService = notificationService;
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -124,6 +127,105 @@ public class SacEditionService {
 
         log.info("Sac {} supprime (tenant {}) : {} colis detaches, {} demandes liberees, ressources liberees={}",
                 sacId, tenantId, colisDuSac.size(), demandesLiberees, aLibere);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // Incident vehicule : annulation douce d'un sac en mission
+    // ══════════════════════════════════════════════════════════════
+
+    /**
+     * Annule un sac AFFECTE ou EN_TRANSIT suite a un incident (panne, route coupee).
+     * Annulation douce : le sac passe ANNULE (historise), les colis sont liberes
+     * (etat EN_ATTENTE, re-groupables), les demandes repartent EN_ATTENTE_GROUPAGE,
+     * les tournees sont terminees et les ressources liberees. Aucune facture generee.
+     */
+    @Transactional
+    public com.example.Bakend.dto.incident.AnnulerSacIncidentResponse annulerIncident(
+            UUID tenantId, UUID sacId, String motif) {
+        Sac sac = requireSac(tenantId, sacId);
+
+        if (sac.getStatut() != SacStatut.AFFECTE && sac.getStatut() != SacStatut.EN_TRANSIT) {
+            throw new BusinessException(
+                    "Seuls les sacs AFFECTE ou EN_TRANSIT peuvent etre annules sur incident (statut actuel : "
+                            + sac.getStatut() + ")", 409);
+        }
+
+        // 1. Detacher les colis : libres et re-groupables
+        List<Colis> colisDuSac = colisRepository.findBySacSacId(sacId);
+        Set<UUID> demandeIds = new HashSet<>();
+        for (Colis c : colisDuSac) {
+            c.setSac(null);
+            c.setEtat(ColisEtat.EN_ATTENTE);
+            if (c.getDemande() != null) {
+                demandeIds.add(c.getDemande().getDemandeId());
+            }
+        }
+        colisRepository.saveAll(colisDuSac);
+
+        // 2. Demandes : retour en attente de groupage (y compris celles parties EN_TRANSIT)
+        int demandesRetournees = 0;
+        for (UUID id : demandeIds) {
+            DemandeTransport d = demandeRepository.findById(id).orElse(null);
+            if (d == null) continue;
+            boolean aUnColisGroupe = colisRepository.findByDemandeDemandeId(id).stream()
+                    .anyMatch(c -> c.getSac() != null);
+            if (!aUnColisGroupe
+                    && (d.getStatut() == DemandeStatut.GROUPEE
+                        || d.getStatut() == DemandeStatut.EN_TRANSIT)) {
+                d.setStatut(DemandeStatut.EN_ATTENTE_GROUPAGE);
+                demandeRepository.save(d);
+                demandesRetournees++;
+            }
+        }
+
+        // 3. Tournees : terminees (motif incident trace dans l'audit)
+        int nbTournees = 0;
+        for (Tournee t : tourneeRepository.findBySacSacId(sacId)) {
+            if (t.getStatut() == TourneeStatut.PLANIFIEE || t.getStatut() == TourneeStatut.EN_COURS) {
+                t.setStatut(TourneeStatut.TERMINEE);
+                nbTournees++;
+            }
+        }
+        // (sauvegarde via cascade du contexte de persistance)
+
+        // 4. Liberation des ressources + annulation douce
+        boolean aLibere = libererChauffeur(sac) | libererVehicule(sac);
+        sac.setChauffeur(null);
+        sac.setVehicule(null);
+        sac.setStatut(SacStatut.ANNULE);
+        sacRepository.save(sac);
+
+        // 5. Audit
+        AuditLog audit = new AuditLog();
+        audit.setPmeCliente(sac.getPmeCliente());
+        audit.setUtilisateur(currentUser());
+        audit.setEntite("Sac");
+        audit.setEntiteId(sacId);
+        audit.setAction(AuditAction.MODIFICATION);
+        audit.setDetails("{\"action\":\"ANNULATION_INCIDENT\",\"motif\":\""
+                + (motif != null ? motif.replace("\"", "'") : "")
+                + "\",\"colisLiberes\":" + colisDuSac.size()
+                + ",\"demandesRetournees\":" + demandesRetournees
+                + ",\"tourneesTerminees\":" + nbTournees + "}");
+        auditLogRepository.save(audit);
+
+        // 6. Notifications gestionnaire + clients
+        String titre = "Sac annule sur incident — " + colisDuSac.size() + " colis liberes";
+        String texte = (motif == null || motif.isBlank() ? "Incident sur la route." : motif.trim())
+                + " Les colis repartent en attente de groupage.";
+        notificationService.diffuser(sac.getPmeCliente(),
+                NotificationService.ROLE_GESTIONNAIRE,
+                NotificationService.TYPE_SAC_ANNULE, titre, texte, sac);
+        notificationService.diffuser(sac.getPmeCliente(),
+                NotificationService.ROLE_CLIENT,
+                NotificationService.TYPE_SAC_ANNULE, titre,
+                texte + " Vous serez recontacte pour la suite de votre expedition.", sac);
+
+        log.info("Sac {} annule sur incident (tenant {}) : {} colis liberes, {} demandes retournees",
+                sacId, tenantId, colisDuSac.size(), demandesRetournees);
+
+        return new com.example.Bakend.dto.incident.AnnulerSacIncidentResponse(
+                sacId, SacStatut.ANNULE.name(), colisDuSac.size(), demandesRetournees, aLibere);
     }
 
     // ══════════════════════════════════════════════════════════════

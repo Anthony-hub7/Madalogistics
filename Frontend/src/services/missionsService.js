@@ -94,6 +94,13 @@ export const missionsService = {
   },
 
   /**
+   * Signaler un incident véhicule (panne, route coupée...) — alerte le gestionnaire.
+   */
+  async signalerIncident(sacId, { type, message } = {}) {
+    return apiClient.post(`/chauffeur/missions/${sacId}/signaler-incident`, { type, message })
+  },
+
+  /**
    * URL de la photo de preuve d'une etape.
    */
   photoPreuveUrl(etapeId) {

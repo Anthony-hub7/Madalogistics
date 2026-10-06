@@ -4,5 +4,6 @@ public enum SacStatut {
     CONSTITUE,
     AFFECTE,
     EN_TRANSIT,
-    LIVRE
+    LIVRE,
+    ANNULE
 }

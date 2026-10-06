@@ -2,6 +2,8 @@ package com.example.Bakend.controller;
 
 import com.example.Bakend.config.TenantContext;
 import com.example.Bakend.dto.freelance.AnnulerFreelanceRequest;
+import com.example.Bakend.dto.incident.AnnulerSacIncidentRequest;
+import com.example.Bakend.dto.incident.AnnulerSacIncidentResponse;
 import com.example.Bakend.dto.optimisation.ColisLibreResponse;
 import com.example.Bakend.dto.optimisation.SacColisEditRequest;
 import com.example.Bakend.dto.optimisation.SacColisEditResponse;
@@ -172,6 +174,22 @@ public class SacController {
                 "tourneesSupprimees", result.tourneesSupprimees(),
                 "demandesRetournees", result.demandesRetournees(),
                 "ressourcesLiberees", result.ressourcesLiberees()));
+    }
+
+    /**
+     * Annulation douce d'un sac en mission suite a un incident vehicule.
+     * Le sac passe ANNULE (historise), les colis sont liberes et redeviennent
+     * groupables, les demandes repartent en attente de groupage.
+     */
+    @PostMapping("/{sacId}/annuler-incident")
+    @PreAuthorize("hasAnyRole('GESTIONNAIRE','DIRECTION')")
+    public ResponseEntity<AnnulerSacIncidentResponse> annulerIncident(
+            @PathVariable UUID sacId,
+            @RequestBody(required = false) AnnulerSacIncidentRequest request) {
+        UUID tenantId = requireTenant();
+        log.info("Annulation incident sac {} tenant {}", sacId, tenantId);
+        return ResponseEntity.ok(sacEditionService.annulerIncident(
+                tenantId, sacId, request != null ? request.motif() : null));
     }
 
     private UUID requireTenant() {

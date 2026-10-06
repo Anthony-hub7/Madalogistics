@@ -36,6 +36,12 @@ export const sacsService = {
     return apiClient.post('/sacs', { hubId, colisIds })
   },
 
+  // Annulation douce d'un sac en mission suite à un incident véhicule.
+  // Le sac passe ANNULE, les colis sont libérés (re-groupables).
+  annulerIncident(sacId, { motif } = {}) {
+    return apiClient.post(`/sacs/${sacId}/annuler-incident`, { motif })
+  },
+
   // Annulation d'une mission freelance par le gestionnaire.
   // mode: 'FREELANCE' → republication aux freelances
   // mode: 'AGENCE'    → retour au groupage (colis detaches, sac supprime)

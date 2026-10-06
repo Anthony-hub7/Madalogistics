@@ -38,6 +38,7 @@ public class MissionService {
     private final AuditLogRepository auditLogRepository;
     private final FactureRepository factureRepository;
     private final RoutingService routingService;
+    private final NotificationService notificationService;
 
     public MissionService(SacRepository sacRepository,
                           TourneeRepository tourneeRepository,
@@ -48,7 +49,8 @@ public class MissionService {
                           VehiculeRepository vehiculeRepository,
                           AuditLogRepository auditLogRepository,
                           FactureRepository factureRepository,
-                          RoutingService routingService) {
+                          RoutingService routingService,
+                          NotificationService notificationService) {
         this.sacRepository = sacRepository;
         this.tourneeRepository = tourneeRepository;
         this.etapeLivraisonRepository = etapeLivraisonRepository;
@@ -59,6 +61,7 @@ public class MissionService {
         this.auditLogRepository = auditLogRepository;
         this.factureRepository = factureRepository;
         this.routingService = routingService;
+        this.notificationService = notificationService;
     }
 
     // ========================================================================
@@ -169,6 +172,58 @@ public class MissionService {
         auditLogRepository.save(audit);
 
         return toMissionDTO(sac);
+    }
+
+    // ========================================================================
+    // SIGNALEMENT D'INCIDENT VEHICULE (panne, route coupee...) — version minimale
+    // Ne change aucun statut : alerte le gestionnaire via notification + audit.
+    // ========================================================================
+
+    @Transactional
+    public void signalerIncident(UUID tenantId, UUID utilisateurId, UUID sacId,
+                                 String type, String message) {
+        Chauffeur chauffeur = requireChauffeur(tenantId, utilisateurId);
+        Sac sac = requireSac(tenantId, sacId);
+
+        // Seul le chauffeur assigne peut signaler
+        if (sac.getChauffeur() == null || !sac.getChauffeur().getChauffeurId().equals(chauffeur.getChauffeurId())) {
+            throw new BusinessException("Ce sac n'est pas affecte a ce chauffeur", 403);
+        }
+        if (sac.getStatut() != SacStatut.AFFECTE && sac.getStatut() != SacStatut.EN_TRANSIT) {
+            throw new BusinessException(
+                    "Incident impossible : sac non en mission (statut : " + sac.getStatut() + ")", 409);
+        }
+
+        String typeNorm = (type == null || type.isBlank()) ? "AUTRE" : type.trim().toUpperCase();
+        if (!typeNorm.equals("PANNE") && !typeNorm.equals("ROUTE_COUPEE") && !typeNorm.equals("AUTRE")) {
+            throw new BusinessException("Type d'incident invalide (PANNE, ROUTE_COUPEE, AUTRE)", 400);
+        }
+
+        // Idempotence : une seule alerte par sac toutes les 5 minutes
+        long recentes = notificationService.compterRecentes(
+                tenantId, sacId, NotificationService.TYPE_INCIDENT_DECLARE,
+                LocalDateTime.now().minusMinutes(5));
+        if (recentes > 0) {
+            throw new BusinessException("Un incident a deja ete signale pour ce sac", 409);
+        }
+
+        String titre = "Incident " + typeNorm.replace('_', ' ') + " — sac "
+                + sacId.toString().substring(0, 8);
+        String texte = (message == null || message.isBlank())
+                ? "Incident signale par " + chauffeur.getUtilisateur().getNom()
+                : message.trim();
+        notificationService.diffuser(sac.getPmeCliente(),
+                NotificationService.ROLE_GESTIONNAIRE,
+                NotificationService.TYPE_INCIDENT_DECLARE, titre, texte, sac);
+
+        AuditLog audit = new AuditLog();
+        audit.setPmeCliente(sac.getPmeCliente());
+        audit.setUtilisateur(chauffeur.getUtilisateur());
+        audit.setEntite("Sac");
+        audit.setEntiteId(sacId);
+        audit.setAction(AuditAction.MODIFICATION);
+        audit.setDetails("{\"action\":\"INCIDENT_DECLARE\",\"type\":\"" + typeNorm + "\"}");
+        auditLogRepository.save(audit);
     }
 
     // ========================================================================

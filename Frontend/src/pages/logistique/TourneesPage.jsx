@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { tourneesService } from '../../services/tourneesService'
+import { sacsService } from '../../services/sacsService'
 
 const STATUT_STYLES = {
   PLANIFIEE: 'bg-tertiary/10 text-tertiary border border-tertiary/30',
@@ -23,8 +24,19 @@ export default function TourneesPage() {
   const [statut, setStatut] = useState('')
   const [hub, setHub] = useState('')
   const [recherche, setRecherche] = useState('')
+  const [actionLoading, setActionLoading] = useState(false)
+  const [succes, setSucces] = useState(null)
 
   const focusId = searchParams.get('tourneeId')
+
+  const refresh = async () => {
+    try {
+      const res = await tourneesService.getAll()
+      setTournees(Array.isArray(res) ? res : [])
+    } catch (err) {
+      setError(err.body?.error || err.message || 'Erreur de chargement')
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -64,6 +76,29 @@ export default function TourneesPage() {
     setSearchParams(next, { replace: true })
   }
 
+  // ── Annulation du sac sur incident (tournée en cours : panne, route coupée) ──
+  const handleAnnulerIncident = async () => {
+    if (!selectionnee?.sac_id) return
+    const motif = window.prompt(
+      'Annuler ce sac suite à un incident ?\n\n' +
+      'Le sac passera ANNULÉ, ses colis seront libérés et repartiront ' +
+      'en attente de groupage. Les clients seront notifiés.\n\nMotif :'
+    )
+    if (motif === null) return
+    setActionLoading(true)
+    setError(null)
+    setSucces(null)
+    try {
+      const res = await sacsService.annulerIncident(selectionnee.sac_id, { motif })
+      setSucces(`${res.colisLiberes} colis libérés, ${res.demandesRetournees} commandes remises en groupage.`)
+      await refresh()
+    } catch (e) {
+      setError(e.body?.message || e.body?.error || e.message || "Erreur lors de l'annulation")
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
   const livraisons = (selectionnee?.etapes || []).filter(e => e.type_etape === 'LIVRAISON')
   const collectes = (selectionnee?.etapes || []).filter(e => e.type_etape === 'COLLECTE')
 
@@ -78,6 +113,16 @@ export default function TourneesPage() {
           Toutes les tournées planifiées, en cours et terminées — sélectionnez-en une pour voir ses étapes et sa carte.
         </p>
       </div>
+
+      {succes && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3">
+          <span className="material-symbols-outlined text-green-600 mt-0.5">check_circle</span>
+          <div className="flex-1"><p className="text-sm text-green-800">{succes}</p></div>
+          <button onClick={() => setSucces(null)} className="text-green-400 hover:text-green-600">
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
@@ -202,6 +247,21 @@ export default function TourneesPage() {
                   {selectionnee.statut}
                 </span>
               </div>
+
+              {selectionnee.statut === 'EN_COURS' && selectionnee.sac_id && (
+                <div className="m-4 mb-0 rounded-xl border border-amber-300 bg-amber-50/60 px-4 py-3 flex items-center gap-3">
+                  <span className="material-symbols-outlined text-amber-600">warning</span>
+                  <p className="font-body text-xs text-amber-800 flex-1">
+                    Incident sur la route (panne, route coupée) ? Annulez le sac : les colis seront libérés.
+                  </p>
+                  <button
+                    onClick={handleAnnulerIncident}
+                    disabled={actionLoading}
+                    className="px-3 py-2 rounded-lg bg-amber-500 text-white font-display text-xs font-bold uppercase tracking-wider hover:bg-amber-600 disabled:opacity-40 cursor-pointer">
+                    {actionLoading ? 'Annulation…' : 'Annuler le sac'}
+                  </button>
+                </div>
+              )}
 
               <div className="rounded-xl overflow-hidden border border-outline-variant m-4" style={{ height: '320px' }}>
                 <iframe

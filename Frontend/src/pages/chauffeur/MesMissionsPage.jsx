@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { missionsService } from '../../services/missionsService'
 import ConfirmationLivraison from '../../components/ConfirmationLivraison'
+import SignalerIncidentModal from '../../components/SignalerIncidentModal'
 
 const statusLabels = {
   AFFECTE: { text: 'À PRENDRE EN CHARGE', color: 'text-[#E8433D]', bg: 'bg-[#E8433D]/10' },
@@ -22,6 +23,8 @@ export default function MesMissionsPage() {
   const [filter, setFilter] = useState('en_cours')
   const [takingChargeId, setTakingChargeId] = useState(null)
   const [confirmingMission, setConfirmingMission] = useState(null)
+  const [incidentSacId, setIncidentSacId] = useState(null)
+  const [incidentSucces, setIncidentSucces] = useState(null)
 
   const fetchMissions = useCallback(async () => {
     try {
@@ -109,6 +112,16 @@ export default function MesMissionsPage() {
           ))}
         </div>
       </section>
+
+      {incidentSucces && (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
+          <span className="material-symbols-outlined text-amber-600">warning</span>
+          <p className="font-body-sm text-body-sm text-amber-800 flex-1">{incidentSucces}</p>
+          <button onClick={() => setIncidentSucces(null)} aria-label="Fermer" className="text-amber-500">
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+      )}
 
       {/* Resume de tournee pour les missions EN_TRANSIT */}
       {missions.some(m => m.statut === 'EN_TRANSIT') && (
@@ -248,6 +261,16 @@ export default function MesMissionsPage() {
                         Ma tournée
                       </button>
                     )}
+                    {(mission.statut === 'AFFECTE' || mission.statut === 'EN_TRANSIT') && (
+                      <button
+                        onClick={() => setIncidentSacId(mission.sacId)}
+                        aria-label="Signaler un incident"
+                        title="Signaler un incident (panne, route coupée...)"
+                        className="px-3 py-3 rounded-xl border-2 border-amber-300 text-[#B7791F] bg-white flex items-center justify-center gap-1.5 font-label-md font-bold active:scale-[0.98]">
+                        <span className="material-symbols-outlined">warning</span>
+                        Incident
+                      </button>
+                    )}
                     {mission.statut === 'LIVRE' && (
                       <div className="flex items-center gap-2 text-[#1A1A1E] py-3">
                         <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
@@ -272,6 +295,14 @@ export default function MesMissionsPage() {
             Voir missions proposées
           </button>
         </div>
+      )}
+
+      {incidentSacId && (
+        <SignalerIncidentModal
+          sacId={incidentSacId}
+          onClose={() => setIncidentSacId(null)}
+          onSuccess={setIncidentSucces}
+        />
       )}
 
       {confirmingMission && currentMission && (

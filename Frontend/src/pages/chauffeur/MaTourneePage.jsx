@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { missionsService } from '../../services/missionsService'
 import ConfirmationLivraison from '../../components/ConfirmationLivraison'
+import SignalerIncidentModal from '../../components/SignalerIncidentModal'
 
 /**
  * Ecran "Ma tournee" — mission EN_TRANSIT active.
@@ -21,6 +22,9 @@ export default function MaTourneePage() {
   const [validatingPhoto, setValidatingPhoto] = useState(null) // { file, preview }
   const [validatingError, setValidatingError] = useState(null)
   const [validatingLoading, setValidatingLoading] = useState(false)
+  // Signalement d'incident véhicule
+  const [incidentOuvert, setIncidentOuvert] = useState(false)
+  const [incidentSucces, setIncidentSucces] = useState(null)
 
   const fetchMission = useCallback(async () => {
     try {
@@ -314,15 +318,27 @@ export default function MaTourneePage() {
         </section>
       </div>
 
-      {/* Footer fixe — cloturer + carte */}
+      {/* Footer fixe — cloturer + carte + incident */}
       {mission.statut === 'EN_TRANSIT' && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md px-margin-mobile pt-4 pb-8 border-t border-[#ECECEC]">
+          {incidentSucces && (
+            <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 flex items-center gap-2">
+              <span className="material-symbols-outlined text-amber-600">warning</span>
+              <p className="font-body-sm text-body-sm text-amber-800">{incidentSucces}</p>
+            </div>
+          )}
           <div className="flex gap-3">
             <button
               onClick={() => navigate(`/driver/carte_missions?sacId=${mission.sacId}`)}
               className="flex-1 h-12 bg-white text-[#1A1A1E] rounded-xl font-body-md flex items-center justify-center gap-2 border border-[#ECECEC] active:scale-95 transition-all duration-150">
               <span className="material-symbols-outlined text-[#E8433D]">map</span>
               Carte
+            </button>
+            <button
+              onClick={() => setIncidentOuvert(true)}
+              className="flex-1 h-12 bg-white text-[#B7791F] rounded-xl font-body-md flex items-center justify-center gap-2 border border-amber-300 active:scale-95 transition-all duration-150">
+              <span className="material-symbols-outlined">warning</span>
+              Incident
             </button>
             <button
               onClick={() => setConfirming(true)}
@@ -332,6 +348,15 @@ export default function MaTourneePage() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Modale signalement d'incident */}
+      {incidentOuvert && (
+        <SignalerIncidentModal
+          sacId={mission.sacId}
+          onClose={() => setIncidentOuvert(false)}
+          onSuccess={(msg) => setIncidentSucces(msg)}
+        />
       )}
 
       {/* Confirmation globale (cloturer toutes les etapes) */}

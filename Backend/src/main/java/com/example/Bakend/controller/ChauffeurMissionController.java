@@ -1,5 +1,6 @@
 package com.example.Bakend.controller;
 
+import com.example.Bakend.dto.incident.SignalerIncidentRequest;
 import com.example.Bakend.dto.response.MissionDTO;
 import com.example.Bakend.entity.enums.TypeEtape;
 import com.example.Bakend.exception.BusinessException;
@@ -137,6 +138,24 @@ public class ChauffeurMissionController {
 
         MissionDTO mission = missionService.cloturer(tenantId, utilisateurId, sacId, photosParEtape, signatureNom, notes);
         return ResponseEntity.ok(mission);
+    }
+
+    /**
+     * Signaler un incident vehicule (panne, route coupee...) sur la mission.
+     * N'interrompt pas la mission : alerte le gestionnaire (notification + audit).
+     */
+    @PostMapping("/{sacId}/signaler-incident")
+    public ResponseEntity<Map<String, Object>> signalerIncident(
+            @PathVariable UUID sacId,
+            @RequestBody(required = false) SignalerIncidentRequest request) {
+        UUID tenantId = requireTenantId();
+        UUID utilisateurId = requireUtilisateurId();
+        missionService.signalerIncident(tenantId, utilisateurId, sacId,
+                request != null ? request.type() : null,
+                request != null ? request.message() : null);
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Incident signale au responsable logistique"));
     }
 
     /**

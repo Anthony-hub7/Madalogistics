@@ -4,6 +4,7 @@ import MapView from '../../map/MapView'
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { missionsService } from '../../services/missionsService'
+import SignalerIncidentModal from '../../components/SignalerIncidentModal'
 
 const DEFAULT_CENTER = [-18.914, 47.541]
 
@@ -122,6 +123,8 @@ function CarteMissionsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [visibleTraces, setVisibleTraces] = useState(readVisibleTraces)
+  const [incidentOuvert, setIncidentOuvert] = useState(false)
+  const [incidentSucces, setIncidentSucces] = useState(null)
 
   const sacId = searchParams.get('sacId')
 
@@ -373,6 +376,35 @@ function CarteMissionsPage() {
           <p className="font-headline-md text-headline-md font-bold">{trace?.nbColis || 0}</p>
         </div>
       </div>
+
+      {/* Alerte incident — panne, route coupée... */}
+      {mission?.statut === 'EN_TRANSIT' && (
+        <div className="space-y-3">
+          {incidentSucces && (
+            <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
+              <span className="material-symbols-outlined text-amber-600">warning</span>
+              <p className="font-body-sm text-body-sm text-amber-800 flex-1">{incidentSucces}</p>
+              <button onClick={() => setIncidentSucces(null)} aria-label="Fermer" className="text-amber-500">
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => setIncidentOuvert(true)}
+            className="w-full h-12 bg-white text-[#B7791F] rounded-xl font-label-md font-bold flex items-center justify-center gap-2 border-2 border-amber-300 active:scale-[0.99] transition-all duration-150">
+            <span className="material-symbols-outlined">warning</span>
+            Signaler un incident
+          </button>
+        </div>
+      )}
+
+      {incidentOuvert && (
+        <SignalerIncidentModal
+          sacId={mission.sacId}
+          onClose={() => setIncidentOuvert(false)}
+          onSuccess={setIncidentSucces}
+        />
+      )}
     </div>
   )
 }

@@ -1,20 +1,59 @@
 import { useState, useRef, useEffect } from 'react'
+import { notificationsService } from '../services/notificationsService'
 
 export default function Header({ searchPlaceholder, user, onLogout }) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
+  const [notifs, setNotifs] = useState([])
+  const [nonLues, setNonLues] = useState(0)
   const dropdownRef = useRef(null)
+  const notifRef = useRef(null)
 
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false)
       }
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotifOpen(false)
+      }
     }
-    if (dropdownOpen) {
+    if (dropdownOpen || notifOpen) {
       document.addEventListener('mousedown', handleClickOutside)
     }
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [dropdownOpen])
+  }, [dropdownOpen, notifOpen])
+
+  // Polling des notifications (~30 s) — incidents véhicule, sacs annulés
+  useEffect(() => {
+    let cancelled = false
+    async function charger() {
+      try {
+        const [liste, cpt] = await Promise.all([
+          notificationsService.lister(false).catch(() => []),
+          notificationsService.compteur().catch(() => ({ nonLues: 0 })),
+        ])
+        if (cancelled) return
+        setNotifs(Array.isArray(liste) ? liste.slice(0, 20) : [])
+        setNonLues(cpt?.nonLues ?? 0)
+      } catch {
+        // API notifications indisponible : cloche silencieuse
+      }
+    }
+    charger()
+    const timer = setInterval(charger, 30000)
+    return () => { cancelled = true; clearInterval(timer) }
+  }, [])
+
+  const marquerToutLues = async () => {
+    try {
+      await notificationsService.toutMarquerLues()
+      setNotifs((prev) => prev.map((n) => ({ ...n, lu: true })))
+      setNonLues(0)
+    } catch {
+      // silencieux
+    }
+  }
 
   return (
     <header className="fixed right-0 top-0 z-30 flex h-16 w-full items-center justify-between border-b border-outline-variant bg-surface/90 px-4 backdrop-blur-md lg:w-[calc(100%-280px)] lg:px-8">
@@ -37,10 +76,52 @@ export default function Header({ searchPlaceholder, user, onLogout }) {
 
       <div className="ml-4 flex items-center gap-4">
         <div className="hidden items-center gap-2 sm:flex">
-          <button className="relative rounded border border-outline-variant/40 p-2 text-on-surface-variant transition-colors hover:bg-surface-light hover:text-primary">
-            <span className="material-symbols-outlined text-xl">notifications</span>
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
-          </button>
+          <div ref={notifRef} className="relative">
+            <button
+              onClick={() => setNotifOpen(!notifOpen)}
+              aria-label="Notifications"
+              className="relative rounded border border-outline-variant/40 p-2 text-on-surface-variant transition-colors hover:bg-surface-light hover:text-primary">
+              <span className="material-symbols-outlined text-xl">notifications</span>
+              {nonLues > 0 && (
+                <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+                  {nonLues > 9 ? '9+' : nonLues}
+                </span>
+              )}
+            </button>
+            {notifOpen && (
+              <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded border-2 border-outline-variant bg-surface shadow-xl">
+                <div className="flex items-center justify-between border-b border-outline-variant bg-surface-light px-4 py-2.5">
+                  <p className="font-display text-sm font-bold text-on-surface">Notifications</p>
+                  {nonLues > 0 && (
+                    <button onClick={marquerToutLues} className="font-body text-xs text-primary hover:underline">
+                      Tout marquer lues
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {notifs.length === 0 ? (
+                    <p className="px-4 py-6 text-center font-body text-sm text-on-surface-variant">
+                      Aucune notification.
+                    </p>
+                  ) : (
+                    notifs.map((n) => (
+                      <div
+                        key={n.notificationId}
+                        className={`border-b border-outline-variant/40 px-4 py-3 ${n.lu ? 'opacity-70' : 'bg-primary/5'}`}>
+                        <p className="font-body text-sm font-bold text-on-surface">{n.titre}</p>
+                        {n.message && (
+                          <p className="font-body text-xs text-on-surface-variant mt-0.5 line-clamp-2">{n.message}</p>
+                        )}
+                        <p className="font-body text-[11px] text-outline mt-1">
+                          {n.createdAt ? new Date(n.createdAt).toLocaleString() : ''}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           <button className="rounded border border-outline-variant/40 p-2 text-on-surface-variant transition-colors hover:bg-surface-light hover:text-primary">
             <span className="material-symbols-outlined text-xl">help</span>
           </button>
