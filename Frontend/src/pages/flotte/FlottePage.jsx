@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { flotteService } from '../../services/flotteService'
 import { demandesService } from '../../services/demandesService'
+import IncidentVehiculeModal from '../../components/IncidentVehiculeModal'
 
 const STATUT_CONFIG = {
   DISPONIBLE:    { label: 'Disponible',   dot: 'bg-secondary', bg: 'bg-secondary-container/20 text-secondary border-secondary-container/50' },
@@ -132,6 +133,7 @@ function FlottePage() {
   const [filterStatut, setFilterStatut] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [incident, setIncident] = useState(null)
 
   const loadVehicles = async (statut) => {
     try {
@@ -182,6 +184,26 @@ function FlottePage() {
       ))
     } catch (err) {
       alert(err?.response?.data?.message || 'Erreur lors de la desactivation')
+    }
+  }
+
+  // Recharge si une mise hors service est declenchee depuis la cloche
+  // (la page peut deja etre ouverte sur /logistics/flotte)
+  useEffect(() => {
+    const reload = () => { loadVehicles(filterStatut) }
+    window.addEventListener('vehicule:statut-change', reload)
+    return () => window.removeEventListener('vehicule:statut-change', reload)
+  }, [filterStatut])
+
+  // Cycle maintenance : HORS_SERVICE -> MAINTENANCE -> DISPONIBLE
+  const handleStatut = async (vehiculeId, statut) => {
+    try {
+      await flotteService.patchStatut(vehiculeId, statut)
+      setVehicles(prev => prev.map(v =>
+        v.vehiculeId === vehiculeId ? { ...v, statut } : v
+      ))
+    } catch (err) {
+      alert(err?.message || 'Erreur lors de la mise a jour du statut')
     }
   }
 
@@ -310,6 +332,30 @@ function FlottePage() {
                     </td>
                     <td className="px-5 py-5 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {(v.statut === 'AFFECTE' || v.statut === 'EN_TOURNEE') && (
+                          <button
+                            onClick={() => setIncident({ vehiculeId: v.vehiculeId, immatriculation: v.immatriculation })}
+                            title="Mettre hors service sur incident"
+                            className="rounded-lg p-2 text-error transition-all hover:bg-error/5 hover:text-error">
+                            <span className="material-symbols-outlined text-[20px]">warning</span>
+                          </button>
+                        )}
+                        {v.statut === 'HORS_SERVICE' && (
+                          <button
+                            onClick={() => handleStatut(v.vehiculeId, 'MAINTENANCE')}
+                            title="Passer en maintenance"
+                            className="rounded-lg p-2 text-on-surface-variant transition-all hover:bg-surface-container-high hover:text-primary">
+                            <span className="material-symbols-outlined text-[20px]">build</span>
+                          </button>
+                        )}
+                        {v.statut === 'MAINTENANCE' && (
+                          <button
+                            onClick={() => handleStatut(v.vehiculeId, 'DISPONIBLE')}
+                            title="Reactiver le vehicule"
+                            className="rounded-lg p-2 text-secondary transition-all hover:bg-secondary-container/20 hover:text-secondary">
+                            <span className="material-symbols-outlined text-[20px]">restart_alt</span>
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDelete(v.vehiculeId)}
                           disabled={v.statut === 'HORS_SERVICE' || v.statut === 'AFFECTE' || v.statut === 'EN_TOURNEE'}
@@ -339,6 +385,14 @@ function FlottePage() {
         onClose={() => setModalOpen(false)}
         onAdd={handleAddVehicle}
         hubs={hubs}
+      />
+
+      <IncidentVehiculeModal
+        open={Boolean(incident)}
+        vehiculeId={incident?.vehiculeId}
+        immatriculation={incident?.immatriculation}
+        onClose={() => setIncident(null)}
+        onDone={() => loadVehicles(filterStatut)}
       />
     </div>
   )

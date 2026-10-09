@@ -4,6 +4,8 @@ import { useAuth } from '../hooks/useAuth'
 import { chauffeursService } from '../services/chauffeursService'
 import Logo from '../components/Logo'
 import ThemeScope from '../components/ThemeScope'
+import ProfilModal from '../components/ProfilModal'
+import ParametresModal from '../components/ParametresModal'
 
 const allNavItems = [
   { key: 'missions_proposees', label: 'Proposées', icon: 'inbox_customize', path: '/driver/missions_proposees' },
@@ -17,6 +19,8 @@ export default function ChauffeurLayout() {
   const { user, logout } = useAuth()
   const [typeChauffeur, setTypeChauffeur] = useState(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [profilOuvert, setProfilOuvert] = useState(false)
+  const [params, setParams] = useState(null)
   const dropdownRef = useRef(null)
 
   const activeKey = location.pathname.split('/').pop() || 'missions'
@@ -93,11 +97,18 @@ export default function ChauffeurLayout() {
                 </div>
                 <div className="py-1">
                   <button
-                    onClick={() => { setDropdownOpen(false) }}
+                    onClick={() => { setDropdownOpen(false); setProfilOuvert(true) }}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-left font-body text-sm text-on-surface transition-colors hover:bg-surface-light"
                   >
                     <span className="material-symbols-outlined text-on-surface-variant">person</span>
                     Mon profil
+                  </button>
+                  <button
+                    onClick={() => { setDropdownOpen(false); setParams({ tab: 'securite' }) }}
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-left font-body text-sm text-on-surface transition-colors hover:bg-surface-light"
+                  >
+                    <span className="material-symbols-outlined text-on-surface-variant">settings</span>
+                    Paramètres
                   </button>
                 </div>
                 <div className="border-t border-outline-variant py-1">
@@ -140,6 +151,17 @@ export default function ChauffeurLayout() {
           )
         })}
       </nav>
+
+      <ProfilModal
+        open={profilOuvert}
+        onClose={() => setProfilOuvert(false)}
+        onOpenParametres={(tab) => { setProfilOuvert(false); setParams({ tab }) }}
+      />
+      <ParametresModal
+        open={Boolean(params)}
+        initialTab={params?.tab}
+        onClose={() => setParams(null)}
+      />
     </ThemeScope>
   )
 }

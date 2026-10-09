@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -104,6 +105,12 @@ public class GlobalExceptionHandler {
             log.warn("Échec d'authentification : {}", ex.getMessage());
         }
         return build(HttpStatus.UNAUTHORIZED, "Email ou mot de passe incorrect");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("Accès refusé : {}", ex.getMessage());
+        return build(HttpStatus.FORBIDDEN, "Accès refusé : rôle insuffisant pour cette opération");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

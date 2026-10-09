@@ -63,6 +63,7 @@ public class AuthController {
     private final com.example.Bakend.repository.ChauffeurRepository chauffeurRepository;
     private final AgenceRecommandationService agenceRecommandationService;
     private final TransfertAgenceService transfertAgenceService;
+    private final com.example.Bakend.service.MonProfilService monProfilService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtService jwtService,
@@ -75,7 +76,8 @@ public class AuthController {
                           PMEClienteRepository pmeClienteRepository,
                           com.example.Bakend.repository.ChauffeurRepository chauffeurRepository,
                           AgenceRecommandationService agenceRecommandationService,
-                          TransfertAgenceService transfertAgenceService) {
+                          TransfertAgenceService transfertAgenceService,
+                          com.example.Bakend.service.MonProfilService monProfilService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
@@ -88,6 +90,37 @@ public class AuthController {
         this.chauffeurRepository = chauffeurRepository;
         this.agenceRecommandationService = agenceRecommandationService;
         this.transfertAgenceService = transfertAgenceService;
+        this.monProfilService = monProfilService;
+    }
+
+    /**
+     * Profil de l'utilisateur connecte (tous roles, lecture seule).
+     */
+    @GetMapping("/me")
+    @Transactional(readOnly = true)
+    public com.example.Bakend.dto.response.MonProfilResponse me() {
+        CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser == null) {
+            throw new BusinessException("Non authentifie", 401);
+        }
+        return monProfilService.monProfil(currentUser.getUtilisateurId());
+    }
+
+    /**
+     * Changement du mot de passe de l'utilisateur connecte
+     * (ancien mot de passe verifie via BCrypt + trace audit).
+     */
+    @PostMapping("/mot-de-passe")
+    public ResponseEntity<Map<String, Object>> changerMotDePasse(
+            @Valid @RequestBody com.example.Bakend.dto.request.ChangerMotDePasseRequest request) {
+        CustomUserDetails currentUser = SecurityUtils.getCurrentUser();
+        if (currentUser == null) {
+            throw new BusinessException("Non authentifie", 401);
+        }
+        monProfilService.changerMotDePasse(currentUser.getUtilisateurId(), request);
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Mot de passe modifie avec succes"));
     }
 
     /**

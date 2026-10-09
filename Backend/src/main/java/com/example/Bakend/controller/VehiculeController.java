@@ -2,6 +2,7 @@ package com.example.Bakend.controller;
 
 import com.example.Bakend.dto.request.VehiculeRequest;
 import com.example.Bakend.dto.response.VehiculeDTO;
+import com.example.Bakend.dto.response.VehiculeHorsServiceResponse;
 import com.example.Bakend.entity.Vehicule;
 import com.example.Bakend.exception.BusinessException;
 import com.example.Bakend.security.SecurityUtils;
@@ -73,6 +74,19 @@ public class VehiculeController {
         }
         vehiculeService.changerStatut(tenantId, vehiculeId, nouveauStatut);
         return ResponseEntity.ok(Map.of("message", "Statut mis a jour avec succes"));
+    }
+
+    /**
+     * Mise hors service sur incident (panne) : annule en douceur les sacs
+     * actifs rattaches au vehicule puis bascule celui-ci en HORS_SERVICE.
+     */
+    @PostMapping("/{vehiculeId}/hors-service")
+    public ResponseEntity<VehiculeHorsServiceResponse> mettreHorsService(
+            @PathVariable UUID vehiculeId,
+            @RequestBody(required = false) Map<String, String> body) {
+        UUID tenantId = requireTenantId();
+        String motif = body != null ? body.get("motif") : null;
+        return ResponseEntity.ok(vehiculeService.mettreHorsService(tenantId, vehiculeId, motif));
     }
 
     @DeleteMapping("/{vehiculeId}")

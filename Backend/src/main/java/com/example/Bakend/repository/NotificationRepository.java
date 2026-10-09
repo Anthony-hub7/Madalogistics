@@ -33,4 +33,9 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.pmeCliente.tenantId = :tenantId"
             + " AND n.destinataireRole = :role AND n.lu = false")
     long compterNonLues(@Param("tenantId") UUID tenantId, @Param("role") String role);
+
+    /** Alertes d'un type (ex. INCIDENT_DECLARE) du tenant, recentes d'abord — dashboard Direction. */
+    @Query("SELECT n FROM Notification n WHERE n.pmeCliente.tenantId = :tenantId"
+            + " AND n.type = :type ORDER BY n.createdAt DESC")
+    List<Notification> rechercherParType(@Param("tenantId") UUID tenantId, @Param("type") String type);
 }

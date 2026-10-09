@@ -1,18 +1,28 @@
 package com.example.Bakend.service;
 
+import com.example.Bakend.dto.incident.AnnulerSacIncidentResponse;
 import com.example.Bakend.dto.request.VehiculeRequest;
+import com.example.Bakend.dto.response.VehiculeHorsServiceResponse;
+import com.example.Bakend.entity.AuditLog;
 import com.example.Bakend.entity.Hub;
 import com.example.Bakend.entity.PMECliente;
 import com.example.Bakend.entity.Sac;
+import com.example.Bakend.entity.Tournee;
 import com.example.Bakend.entity.Vehicule;
+import com.example.Bakend.entity.enums.AuditAction;
 import com.example.Bakend.entity.enums.SacStatut;
+import com.example.Bakend.entity.enums.TourneeStatut;
 import com.example.Bakend.entity.enums.VehiculeStatut;
 import com.example.Bakend.exception.BusinessException;
 import com.example.Bakend.exception.ResourceNotFoundException;
+import com.example.Bakend.repository.AuditLogRepository;
 import com.example.Bakend.repository.HubRepository;
 import com.example.Bakend.repository.PMEClienteRepository;
 import com.example.Bakend.repository.SacRepository;
+import com.example.Bakend.repository.TourneeRepository;
 import com.example.Bakend.repository.VehiculeRepository;
+import com.example.Bakend.security.CustomUserDetails;
+import com.example.Bakend.security.SecurityUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,17 +39,26 @@ public class VehiculeService {
     private final PMEClienteRepository pmeClienteRepository;
     private final SacRepository sacRepository;
     private final CompatibiliteService compatibiliteService;
+    private final SacEditionService sacEditionService;
+    private final TourneeRepository tourneeRepository;
+    private final AuditLogRepository auditLogRepository;
 
     public VehiculeService(VehiculeRepository vehiculeRepository,
                            HubRepository hubRepository,
                            PMEClienteRepository pmeClienteRepository,
                            SacRepository sacRepository,
-                           CompatibiliteService compatibiliteService) {
+                           CompatibiliteService compatibiliteService,
+                           SacEditionService sacEditionService,
+                           TourneeRepository tourneeRepository,
+                           AuditLogRepository auditLogRepository) {
         this.vehiculeRepository = vehiculeRepository;
         this.hubRepository = hubRepository;
         this.pmeClienteRepository = pmeClienteRepository;
         this.sacRepository = sacRepository;
         this.compatibiliteService = compatibiliteService;
+        this.sacEditionService = sacEditionService;
+        this.tourneeRepository = tourneeRepository;
+        this.auditLogRepository = auditLogRepository;
     }
 
     @Transactional(readOnly = true)
@@ -156,6 +175,66 @@ public class VehiculeService {
     }
 
     /**
+     * Mise hors service sur incident (panne) : annule en douceur chaque sac
+     * AFFECTE / EN_TRANSIT rattache au vehicule (colis liberes, demandes en
+     * attente de groupage, tournees terminees), bascule le vehicule en
+     * HORS_SERVICE et trace l'operation dans l'audit.
+     *
+     * Le cycle de vie restant (MAINTENANCE puis reactivation) se gere ensuite
+     * sur la page vehicules via changerStatut.
+     */
+    public VehiculeHorsServiceResponse mettreHorsService(UUID tenantId, UUID vehiculeId, String motif) {
+        Vehicule vehicule = obtenir(tenantId, vehiculeId);
+
+        if (vehicule.getStatut() == VehiculeStatut.HORS_SERVICE) {
+            throw new BusinessException("Ce vehicule est deja hors service", 409);
+        }
+
+        String motifFinal = (motif == null || motif.isBlank()) ? "Panne signalée" : motif.trim();
+
+        List<Sac> sacsActifs = sacRepository.findByVehiculeVehiculeId(vehiculeId).stream()
+                .filter(s -> s.getStatut() == SacStatut.AFFECTE || s.getStatut() == SacStatut.EN_TRANSIT)
+                .toList();
+
+        int sacsAnnules = 0;
+        int colisLiberes = 0;
+        int demandesRetournees = 0;
+        int tourneesTerminees = 0;
+
+        for (Sac sac : sacsActifs) {
+            tourneesTerminees += tourneeRepository.findBySacSacId(sac.getSacId()).stream()
+                    .filter(t -> t.getStatut() == TourneeStatut.PLANIFIEE || t.getStatut() == TourneeStatut.EN_COURS)
+                    .count();
+
+            AnnulerSacIncidentResponse res = sacEditionService.annulerIncident(
+                    tenantId, sac.getSacId(), motifFinal);
+            sacsAnnules++;
+            colisLiberes += res.colisLiberes();
+            demandesRetournees += res.demandesRetournees();
+        }
+
+        vehicule.setStatut(VehiculeStatut.HORS_SERVICE);
+        Vehicule saved = vehiculeRepository.save(vehicule);
+
+        AuditLog audit = new AuditLog();
+        audit.setPmeCliente(saved.getPmeCliente());
+        audit.setUtilisateur(currentUser());
+        audit.setEntite("Vehicule");
+        audit.setEntiteId(vehiculeId);
+        audit.setAction(AuditAction.MODIFICATION);
+        audit.setDetails("{\"action\":\"VEHICULE_HORS_SERVICE\",\"motif\":\""
+                + motifFinal.replace("\"", "'") + "\",\"sacsAnnules\":" + sacsAnnules
+                + ",\"colisLiberes\":" + colisLiberes
+                + ",\"demandesRetournees\":" + demandesRetournees
+                + ",\"tourneesTerminees\":" + tourneesTerminees + "}");
+        auditLogRepository.save(audit);
+
+        return new VehiculeHorsServiceResponse(
+                vehiculeId, saved.getImmatriculation(), saved.getStatut().name(),
+                sacsAnnules, colisLiberes, demandesRetournees, tourneesTerminees);
+    }
+
+    /**
      * Un vehicule rattache a un sac AFFECTE ou EN_TRANSIT est reserve :
      * son statut ne peut plus etre modifie manuellement (il est gere par
      * l'affectation et les missions, qui le libèrent eux-mêmes).
@@ -186,5 +265,10 @@ public class VehiculeService {
     private void verifierTenantExiste(UUID tenantId) {
         pmeClienteRepository.findByTenantId(tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tenant introuvable : " + tenantId));
+    }
+
+    private com.example.Bakend.entity.Utilisateur currentUser() {
+        CustomUserDetails user = SecurityUtils.getCurrentUser();
+        return user != null ? user.getUtilisateur() : null;
     }
 }

@@ -8,7 +8,20 @@ sequenceDiagram
     participant G as Gestionnaire
     participant H as Chauffeur
 
-    Note over A,M: Suite Partie 1 - sacs constitues (groupage D1-P4)
+    Note over A,M: Suite Partie 1 - commande VALIDEE (D1-P3bis)
+
+    Note over A,M: 4 - Groupage (D1-P4 detail Phase 4)
+    A->>M: Clustering K-Means (features colis)
+    M->>D: INSERT optimisation_run (CLUSTERING)
+    alt Option A - FFD par cluster
+        A->>M: FFD par cluster (tri poids decroissant, first-fit)
+        M->>D: INSERT optimisation_run (BIN_PACKING)
+    else Option B - Knapsack iteratif
+        A->>M: Knapsack OR-Tools iteratif par cluster
+        M->>D: INSERT optimisation_run (KNAPSACK)
+    end
+    M->>D: INSERT sac + UPDATE colis.sac_id
+    A->>D: Filtre seuil_remplissage OU depart_force + audit_log
 
     Note over A,M: 5 - Affectation (D1-P5/P5bis)
     A->>M: Scoring freelance si mode FREELANCE
@@ -21,19 +34,3 @@ sequenceDiagram
     A->>M: VRP (Nearest Neighbor + 2-opt)
     M->>D: INSERT tournee + etape_livraison
     M->>D: INSERT optimisation_run (VRP)
-
-    Note over C,G: 7/8 - Suivi et execution (D1-P7/P8)
-    A->>G: Notification commande assignee
-    G->>A: PUT /commandes/valider (depart)
-    A->>D: UPDATE sac/colis EN_TRANSIT
-    C->>F: Suit statuts expedition
-    F->>A: GET /commandes/:id (statuts, ETA)
-    H->>A: PUT /livrer (photo + signature, offline-first)
-    A->>D: UPDATE colis LIVREE + date_heure_reelle
-
-    Note over C,A: 9 - Cloture et facture (D1-P9)
-    A->>D: UPDATE sac LIVRE, tournee TERMINEE, demande LIVREE
-    A->>D: INSERT facture (EMISE) + audit_log
-    A->>C: Notification livraison + facture
-    C->>F: Consulte facture
-    F->>A: GET /factures

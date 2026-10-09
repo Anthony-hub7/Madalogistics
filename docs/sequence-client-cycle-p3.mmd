@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant F as Frontend
+    participant A as Backend
+    participant D as PostgreSQL
+    participant M as MoteurOpti
+    participant G as Gestionnaire
+    participant H as Chauffeur
+
+    Note over A,M: Suite Partie 2 - tournees planifiees (VRP D1-P6)
+
+    Note over C,G: 7/8 - Suivi et execution (D1-P7/P8)
+    A->>G: Notification commande assignee
+    G->>A: PUT /commandes/valider (depart)
+    A->>D: UPDATE sac/colis EN_TRANSIT
+    C->>F: Suit statuts expedition
+    F->>A: GET /commandes/:id (statuts, ETA)
+    H->>A: PUT /livrer (photo + signature, offline-first)
+    A->>D: UPDATE colis LIVREE + date_heure_reelle
+
+    Note over C,A: 9 - Cloture et facture (D1-P9)
+    A->>D: UPDATE sac LIVRE, tournee TERMINEE, demande LIVREE
+    A->>D: INSERT facture (EMISE) + audit_log
+    A->>C: Notification livraison + facture
+    C->>F: Consulte facture
+    F->>A: GET /factures

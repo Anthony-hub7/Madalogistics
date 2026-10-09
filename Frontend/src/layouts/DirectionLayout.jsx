@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import ThemeScope from '../components/ThemeScope'
 
 const navItems = [
+  { key: 'dashboard', label: 'Vue d’ensemble', icon: 'space_dashboard', path: '/direction/dashboard' },
   { key: 'equipe', label: 'Équipe', icon: 'groups', path: '/direction/equipe' },
   { key: 'hubs', label: 'Hubs', icon: 'location_on', path: '/direction/hubs' },
   { key: 'carte_hubs', label: 'Carte Hubs', icon: 'map', path: '/direction/carte_hubs' },
@@ -19,7 +20,7 @@ export default function DirectionLayout() {
   const location = useLocation()
   const { logout, user } = useAuth()
 
-  const activeKey = location.pathname.split('/').pop() || 'equipe'
+  const activeKey = location.pathname.split('/').pop() || 'dashboard'
 
   const userInfo = user ? {
     name: user.name || 'Utilisateur',

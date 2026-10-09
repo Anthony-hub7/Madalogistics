@@ -9,15 +9,16 @@ Ce document détaille chaque phase des deux diagrammes de séquence du projet Ma
 Vue condensée du cycle complet centrée sur le client : tout ce que le client voit
 (inscription, devis, commande, suivi, facture), avec les coulisses
 (groupage, affectation, VRP) en participants secondaires.
-Découpée en **2 parties** pour rester lisible en pleine page (livre/mémoire) :
-**Partie 1** de l'inscription au groupage (sacs constitués),
-**Partie 2** de l'affectation à la facture.
+Découpée en **3 parties** pour rester lisible en pleine page (livre/mémoire) :
+**Partie 1** inscription, demande et validation,
+**Partie 2** optimisation (groupage, affectation, VRP),
+**Partie 3** exécution terrain et facture.
 Version exhaustive : `diagramme-sequence.md` (Diagramme 1).
 Détail des algorithmes : Phase 4 ci-dessous.
 
-### Partie 1/2 — De l'inscription au groupage (D1-P1 à P4)
+### Partie 1/3 — Inscription, demande et validation (D1-P1 à P3bis)
 
-![Cycle client partie 1 - inscription au groupage](docs/sequence-client-cycle-partie1.png)
+![Cycle client partie 1 - inscription, demande, validation](docs/sequence-client-cycle-p1.png)
 
 ```mermaid
 sequenceDiagram
@@ -61,6 +62,24 @@ sequenceDiagram
     G->>A: PUT /commandes/valider
     A->>A: Controle colis + choix mode AGENCE / FREELANCE
     A->>D: UPDATE statut=VALIDEE + mode_livraison + audit_log
+```
+
+### Partie 2/3 — Optimisation : groupage, affectation, VRP (D1-P4 à P6)
+
+![Cycle client partie 2 - optimisation](docs/sequence-client-cycle-p2.png)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant F as Frontend
+    participant A as Backend
+    participant D as PostgreSQL
+    participant M as MoteurOpti
+    participant G as Gestionnaire
+    participant H as Chauffeur
+
+    Note over A,M: Suite Partie 1 - commande VALIDEE (D1-P3bis)
 
     Note over A,M: 4 - Groupage (D1-P4 detail Phase 4)
     A->>M: Clustering K-Means (features colis)
@@ -74,24 +93,6 @@ sequenceDiagram
     end
     M->>D: INSERT sac + UPDATE colis.sac_id
     A->>D: Filtre seuil_remplissage OU depart_force + audit_log
-```
-
-### Partie 2/2 — De l'affectation à la facture (D1-P5 à P9)
-
-![Cycle client partie 2 - affectation a la facture](docs/sequence-client-cycle-partie2.png)
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor C as Client
-    participant F as Frontend
-    participant A as Backend
-    participant D as PostgreSQL
-    participant M as MoteurOpti
-    participant G as Gestionnaire
-    participant H as Chauffeur
-
-    Note over A,M: Suite Partie 1 - sacs constitues (groupage D1-P4)
 
     Note over A,M: 5 - Affectation (D1-P5/P5bis)
     A->>M: Scoring freelance si mode FREELANCE
@@ -104,6 +105,24 @@ sequenceDiagram
     A->>M: VRP (Nearest Neighbor + 2-opt)
     M->>D: INSERT tournee + etape_livraison
     M->>D: INSERT optimisation_run (VRP)
+```
+
+### Partie 3/3 — Exécution et facture (D1-P7 à P9)
+
+![Cycle client partie 3 - execution et facture](docs/sequence-client-cycle-p3.png)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as Client
+    participant F as Frontend
+    participant A as Backend
+    participant D as PostgreSQL
+    participant M as MoteurOpti
+    participant G as Gestionnaire
+    participant H as Chauffeur
+
+    Note over A,M: Suite Partie 2 - tournees planifiees (VRP D1-P6)
 
     Note over C,G: 7/8 - Suivi et execution (D1-P7/P8)
     A->>G: Notification commande assignee
@@ -127,9 +146,9 @@ FFD/Knapsack, affectation, VRP) et `PostgreSQL` sont les coulisses.
 `Gestionnaire` intervient en validation (P3bis) et départ (P7),
 `Chauffeur` en exécution terrain (P8, PWA offline-first).
 La numérotation recommence à 1 dans chaque partie (limite Mermaid) :
-citer les figures comme « Partie 1/2 » et « Partie 2/2 ».
-Sources exportables : `docs/sequence-client-cycle-partie1.mmd`,
-`docs/sequence-client-cycle-partie2.mmd
+citer les figures comme « Partie 1/3 », « Partie 2/3 » et « Partie 3/3 ».
+Sources exportables : `docs/sequence-client-cycle-p1.mmd`,
+`docs/sequence-client-cycle-p2.mmd`, `docs/sequence-client-cycle-p3.mmd`.
 
 ---
 

@@ -15,6 +15,7 @@ const FreelancesDemandesPage = lazy(() => import('../pages/admin-systeme/Freelan
 const FreelancesListePage = lazy(() => import('../pages/admin-systeme/FreelancesListePage'))
 const FreelanceDetailPage = lazy(() => import('../pages/admin-systeme/FreelanceDetailPage'))
 const DashboardGestionnairePage = lazy(() => import('../pages/dashboard/DashboardGestionnairePage'))
+const DashboardDirectionPage = lazy(() => import('../pages/dashboard/DashboardDirectionPage'))
 const DecisionsPage = lazy(() => import('../pages/dashboard/DecisionsPage'))
 const GainsDirectionPage = lazy(() => import('../pages/dashboard/GainsDirectionPage'))
 const EquipePage = lazy(() => import('../pages/dashboard/EquipePage'))
@@ -142,8 +143,9 @@ export const ROLE_CONFIG = {
   },
   direction: {
     Layout: DirectionLayout,
-    defaultPage: 'equipe',
+    defaultPage: 'dashboard',
     pages: {
+      dashboard: { component: DashboardDirectionPage },
       equipe: { component: EquipePage },
       hubs: { component: HubsPage },
       carte_hubs: { component: CarteHubsPage },
@@ -154,6 +156,7 @@ export const ROLE_CONFIG = {
       demo: { component: DemoPreviewPage },
     },
     getNavItems: () => [
+      { key: 'dashboard', label: 'Vue d’ensemble', icon: 'space_dashboard' },
       { key: 'equipe', label: 'Équipe', icon: 'groups' },
       { key: 'hubs', label: 'Hubs', icon: 'location_on' },
       { key: 'carte_hubs', label: 'Carte Hubs', icon: 'map' },

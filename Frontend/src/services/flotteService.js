@@ -25,6 +25,12 @@ export const flotteService = {
     return apiClient.patch(`/vehicules/${vehiculeId}/statut`, { statut })
   },
 
+  // Mise hors service sur incident (panne) : annule en douceur les sacs
+  // actifs rattachés au véhicule puis bascule celui-ci en HORS_SERVICE.
+  mettreHorsService(vehiculeId, { motif } = {}) {
+    return apiClient.post(`/vehicules/${vehiculeId}/hors-service`, { motif })
+  },
+
   remove(vehiculeId) {
     return apiClient.delete(`/vehicules/${vehiculeId}`)
   },
