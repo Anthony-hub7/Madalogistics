@@ -5,6 +5,7 @@ import { AppStateProvider } from '../context/AppStateContext'
 import { ProtectedRoute } from '../guards/ProtectedRoute'
 import { ROLE_CONFIG } from './routes'
 import LoginPage from '../pages/auth/LoginPage'
+import LandingPage from '../pages/LandingPage'
 
 const InscriptionClientPage = lazy(() => import('../pages/auth/InscriptionClientPage'))
 const AgenceInscriptionFlow = lazy(() => import('../pages/inscription/AgenceInscriptionFlow'))
@@ -59,7 +60,8 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<LoginPageWrapper />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPageWrapper />} />
           <Route path="/inscription/client" element={
             <Suspense fallback={<PageLoader />}>
               <InscriptionClientPage />
