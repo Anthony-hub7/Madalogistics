@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { demandesService } from '../../services/demandesService'
 import ValiderCommandeModal from '../../components/ValiderCommandeModal'
+import RefuserCommandeModal from '../../components/RefuserCommandeModal'
 import { missionFreelanceLabel } from '../../utils/missionFreelance'
 
 const STATUT_MAP = {
@@ -25,35 +26,6 @@ const FILTERS = [
   { key: 'REFUSEE', statut: 'REFUSEE' },
 ]
 
-function RefuseModal({ open, onClose, onConfirm }) {
-  const [motif, setMotif] = useState('')
-  if (!open) return null
-  return (
-    <div className="fixed inset-0 z-50 bg-[#1A1A1E]/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white border border-[#1A1A1E] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl">
-        <h3 className="font-display text-lg font-bold text-[#1A1A1E] uppercase">Refuser la commande</h3>
-        <textarea
-          rows={3}
-          value={motif}
-          onChange={(e) => setMotif(e.target.value)}
-          placeholder="Motif du refus..."
-          className="w-full bg-white border border-[#ECECEC] rounded px-3 py-2 font-body text-xs focus:outline-none focus:border-[#1A1A1E]"
-        />
-        <div className="flex justify-end gap-3 pt-2">
-          <button onClick={onClose}
-            className="px-4 py-2 border border-[#ECECEC] rounded font-body text-xs text-[#8A8A92] hover:text-[#1A1A1E]">
-            Annuler
-          </button>
-          <button onClick={() => onConfirm(motif)}
-            className="px-4 py-2 bg-[#E8433D] text-white rounded font-body font-semibold text-xs hover:bg-[#B82823]">
-            Confirmer le refus
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export default function DemandesListPage() {
   const navigate = useNavigate()
   const [activeFilter, setActiveFilter] = useState('Tous')
@@ -64,11 +36,10 @@ export default function DemandesListPage() {
   const [succes, setSucces] = useState('')
   const [selectedIds, setSelectedIds] = useState([])
 
-  // Refuse modal
+  // Refuse modal (cible = commande complete, pour le recap)
   const [refuseTarget, setRefuseTarget] = useState(null)
-  // Valider modal (Phase 3bis)
+  // Valider modal (cible = commande complete, pour le recap)
   const [validerTarget, setValiderTarget] = useState(null)
-  const [validerNbColis, setValiderNbColis] = useState(0)
   const [acting, setActing] = useState(false)
 
   useEffect(() => { loadOrders() }, [])
@@ -127,16 +98,13 @@ export default function DemandesListPage() {
     }
   }
 
-  const openValiderModal = (o) => {
-    setValiderTarget(o.demandeId)
-    setValiderNbColis(getNbColis(o))
-  }
+  const openValiderModal = (o) => setValiderTarget(o)
 
   const handleRefuser = async (motif) => {
     if (!refuseTarget) return
     setActing(true)
     try {
-      await demandesService.refuser(refuseTarget, motif)
+      await demandesService.refuser(refuseTarget.demandeId, motif)
       setRefuseTarget(null)
       await loadOrders()
     } catch (e) {
@@ -146,20 +114,18 @@ export default function DemandesListPage() {
     }
   }
 
-  const formatDate = (d) => {
-    if (!d) return '—'
-    try { return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) }
-    catch { return d }
-  }
-
   const getNbColis = (o) => Array.isArray(o.colis) ? o.colis.length : (o.nbColis ?? 0)
   const countByStatut = (s) => orders.filter(o => o.statut === s).length
+  const goToDetail = (o) => navigate(`/logistics/commande_detail?id=${o.demandeId}`)
 
   return (
     <div className="space-y-6">
-      <RefuseModal open={!!refuseTarget} onClose={() => setRefuseTarget(null)} onConfirm={handleRefuser} />
-      <ValiderCommandeModal open={!!validerTarget} nbColis={validerNbColis}
-        onClose={() => setValiderTarget(null)} onConfirm={(mode) => handleValider(validerTarget, mode)} acting={acting} />
+      <RefuserCommandeModal key={refuseTarget?.demandeId || 'refuse'} open={!!refuseTarget} order={refuseTarget}
+        onClose={() => setRefuseTarget(null)} onConfirm={handleRefuser} acting={acting}
+        onViewDetail={refuseTarget ? () => goToDetail(refuseTarget) : undefined} />
+      <ValiderCommandeModal key={validerTarget?.demandeId || 'valider'} open={!!validerTarget} order={validerTarget}
+        onClose={() => setValiderTarget(null)} onConfirm={(mode) => handleValider(validerTarget.demandeId, mode)}
+        acting={acting} onViewDetail={validerTarget ? () => goToDetail(validerTarget) : undefined} />
 
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end border-b border-[#ECECEC] pb-5">
         <div>
@@ -274,7 +240,7 @@ export default function DemandesListPage() {
                             className="w-4 h-4 rounded disabled:opacity-30" />
                         </td>
                         <td className="px-4 py-3 font-mono text-xs font-bold text-[#E8433D] cursor-pointer hover:underline"
-                          onClick={() => navigate(`/logistics/commande_detail?id=${o.demandeId}`)}>
+                          onClick={() => goToDetail(o)}>
                           #{String(o.demandeId).slice(0, 8).toUpperCase()}
                         </td>
                         <td className="px-4 py-3 font-body text-xs">{o.clientNom || '—'}</td>
@@ -329,7 +295,7 @@ export default function DemandesListPage() {
                                 title="Valider">
                                 Valider
                               </button>
-                              <button onClick={() => setRefuseTarget(o.demandeId)} disabled={acting}
+                              <button onClick={() => setRefuseTarget(o)} disabled={acting}
                                 className="border border-[#E8433D] text-[#E8433D] rounded px-2 py-1 font-mono text-[10px] hover:bg-[#E8433D] hover:text-white disabled:opacity-40 cursor-pointer"
                                 title="Refuser">
                                 Refuser
@@ -337,7 +303,7 @@ export default function DemandesListPage() {
                             </div>
                           )}
                           {!isCree && (
-                            <button onClick={() => navigate(`/logistics/commande_detail?id=${o.demandeId}`)}
+                            <button onClick={() => goToDetail(o)}
                               className="font-mono text-[10px] text-[#8A8A92] hover:text-[#1A1A1E] bg-transparent border-0 cursor-pointer underline">
                               Voir
                             </button>

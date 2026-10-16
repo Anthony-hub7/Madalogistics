@@ -4,6 +4,7 @@ import { demandesService } from '../../services/demandesService'
 import { sacsService } from '../../services/sacsService'
 import SacDetailModal from '../../components/SacDetailModal'
 import ValiderCommandeModal from '../../components/ValiderCommandeModal'
+import RefuserCommandeModal from '../../components/RefuserCommandeModal'
 import { missionFreelanceLabel } from '../../utils/missionFreelance'
 import MapView from '../../map/MapView'
 import { Marker, Popup } from 'react-leaflet'
@@ -41,7 +42,6 @@ export default function CommandeDetailLogistiquePage() {
   const [acting, setActing] = useState(false)
   const [showRefuse, setShowRefuse] = useState(false)
   const [showValider, setShowValider] = useState(false)
-  const [motif, setMotif] = useState('')
   const [mission, setMission] = useState(null)
   const [showSac, setShowSac] = useState(false)
 
@@ -83,7 +83,7 @@ export default function CommandeDetailLogistiquePage() {
     finally { setActing(false) }
   }
 
-  const handleRefuser = async () => {
+  const handleRefuser = async (motif) => {
     setActing(true)
     try {
       await demandesService.refuser(id, motif)
@@ -119,22 +119,9 @@ export default function CommandeDetailLogistiquePage() {
 
   return (
     <div className="space-y-6">
-      {showRefuse && (
-        <div className="fixed inset-0 z-50 bg-[#1A1A1E]/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-[#1A1A1E] rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl">
-            <h3 className="font-display text-lg font-bold text-[#1A1A1E] uppercase">Refuser la commande</h3>
-            <textarea rows={3} value={motif} onChange={(e) => setMotif(e.target.value)} placeholder="Motif du refus..."
-              className="w-full bg-white border border-[#ECECEC] rounded px-3 py-2 font-body text-xs focus:outline-none focus:border-[#1A1A1E]" />
-            <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setShowRefuse(false)} className="px-4 py-2 border border-[#ECECEC] rounded font-body text-xs text-[#8A8A92]">Annuler</button>
-              <button onClick={handleRefuser} disabled={acting} className="px-4 py-2 bg-[#E8433D] text-white rounded font-body font-semibold text-xs disabled:opacity-40">
-                {acting ? '…' : 'Confirmer'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      <ValiderCommandeModal open={showValider} nbColis={(order.colis || []).length}
+      <RefuserCommandeModal open={showRefuse} order={order}
+        onClose={() => setShowRefuse(false)} onConfirm={handleRefuser} acting={acting} />
+      <ValiderCommandeModal open={showValider} order={order} nbColis={(order.colis || []).length}
         onClose={() => setShowValider(false)} onConfirm={handleValider} acting={acting} />
       {showSac && sacId && <SacDetailModal sacId={sacId} onClose={() => setShowSac(false)} />}
 

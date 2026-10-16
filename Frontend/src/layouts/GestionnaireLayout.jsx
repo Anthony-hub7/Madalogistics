@@ -49,7 +49,7 @@ export default function GestionnaireLayout() {
           const item = flatItems.find(i => i.key === key)
           if (item) navigate(item.path)
         }}
-        branding={{ subtitle: 'Fleet Management' }}
+        branding={{ subtitle: 'Responsable logistique' }}
       />
       <Header searchPlaceholder="Rechercher une livraison, un véhicule..." user={userInfo} onLogout={async () => { await logout(); navigate('/') }} />
       <main className="mt-16 min-h-screen w-full overflow-y-auto pb-20 lg:ml-[280px] lg:pb-0">
